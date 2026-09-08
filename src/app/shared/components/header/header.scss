@@ -1,0 +1,146 @@
+:host {
+  position: relative;
+  z-index: 50;
+  display: block;
+}
+
+.cabecalho {
+  position: sticky;
+  top: 0;
+  height: 84px;
+  background-color: rgb(255 255 255 / 96%);
+  border-bottom: 1px solid #eef2f7;
+  backdrop-filter: blur(12px);
+}
+
+.cabecalho__conteudo {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1536px;
+  height: 100%;
+  padding-inline: 40px;
+  margin-inline: auto;
+}
+
+.cabecalho__marca {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+}
+
+.cabecalho__logo {
+  display: block;
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+}
+
+.cabecalho__navegacao {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  margin-left: 120px;
+}
+
+.cabecalho__link,
+.cabecalho__entrar {
+  color: #0b1d3a;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+.cabecalho__link:hover,
+.cabecalho__entrar:hover {
+  color: #1d4ed8;
+}
+
+.cabecalho__acoes {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.cabecalho__entrar {
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.cabecalho__criar-conta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 118px;
+  min-height: 42px;
+  padding-inline: 20px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  background: linear-gradient(135deg, #1d4ed8 0%, #0568ed 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgb(29 78 216 / 16%);
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.cabecalho__criar-conta:hover {
+  box-shadow: 0 6px 16px rgb(29 78 216 / 22%);
+  transform: translateY(-1px);
+}
+
+.cabecalho a:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 3px;
+}
+
+@media (max-width: 1199px) {
+  .cabecalho__conteudo {
+    padding-inline: 28px;
+  }
+
+  .cabecalho__navegacao {
+    gap: 32px;
+    margin-left: 48px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .cabecalho {
+    height: 64px;
+  }
+
+  .cabecalho__conteudo {
+    padding-inline: 20px;
+  }
+
+  .cabecalho__logo {
+    width: 148px;
+  }
+
+  .cabecalho__navegacao,
+  .cabecalho__acoes {
+    display: none;
+  }
+}
+
+@media (max-width: 479px) {
+  .cabecalho__conteudo {
+    padding-inline: 16px;
+  }
+
+  .cabecalho__logo {
+    width: 138px;
+  }
+}

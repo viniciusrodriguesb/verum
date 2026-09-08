@@ -1,0 +1,299 @@
+<div class="hidden lg:block">
+  <verum-header />
+</div>
+
+<header
+  class="sticky top-0 z-40 flex min-h-[68px] items-center gap-3 border-b border-slate-200/70 bg-white/95 px-5 py-3 backdrop-blur-xl lg:hidden"
+>
+  <button
+    type="button"
+    class="text-verum-navy inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-[10px] transition-colors hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+    aria-label="Voltar para a busca"
+    (click)="voltarParaBusca()"
+  >
+    <svg lucideArrowLeft [size]="22" [strokeWidth]="2" aria-hidden="true"></svg>
+  </button>
+
+  <button
+    type="button"
+    class="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-[9px] border border-slate-300 bg-white px-3.5 text-slate-500 transition-colors hover:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+    aria-label="Alterar produto pesquisado"
+    (click)="voltarParaBusca()"
+  >
+    <svg lucideSearch class="shrink-0" [size]="19" [strokeWidth]="1.9" aria-hidden="true"></svg>
+
+    <span
+      class="text-verum-navy min-w-0 overflow-hidden text-left text-sm text-ellipsis whitespace-nowrap"
+    >
+      {{ formularioBusca.controls.termo.value }}
+    </span>
+  </button>
+</header>
+
+<main
+  class="min-h-0 lg:min-h-[calc(100dvh-84px)]"
+  aria-busy="true"
+  aria-labelledby="titulo-processamento"
+>
+  <section class="hidden bg-white px-8 pt-[30px] pb-6 lg:block" aria-label="Busca atual">
+    <div class="mx-auto flex w-full max-w-[1178px] items-center gap-[30px]">
+      <form
+        class="min-w-0 flex-1"
+        [formGroup]="formularioBusca"
+        novalidate
+        (ngSubmit)="buscarNovamente()"
+      >
+        <div
+          class="flex min-h-14 items-center overflow-hidden rounded-[10px] border bg-white text-slate-500 transition-[border-color,box-shadow] duration-150 focus-within:ring-[3px] motion-reduce:transition-none"
+          [ngClass]="
+            buscaInvalida
+              ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/10'
+              : 'focus-within:border-verum-blue focus-within:ring-verum-blue/10 border-[#4f7cff]'
+          "
+        >
+          <svg
+            lucideSearch
+            class="ml-[22px] shrink-0"
+            [size]="21"
+            [strokeWidth]="1.9"
+            aria-hidden="true"
+          ></svg>
+
+          <input
+            #inputBuscaDesktop
+            type="search"
+            formControlName="termo"
+            maxlength="120"
+            autocomplete="off"
+            enterkeyhint="search"
+            class="text-verum-navy h-[54px] min-w-0 flex-1 border-0 bg-transparent px-5 text-base outline-none"
+            aria-label="Produto pesquisado"
+            [attr.aria-describedby]="buscaInvalida ? 'erro-busca-processamento' : null"
+            [attr.aria-invalid]="buscaInvalida"
+          />
+
+          <button
+            type="submit"
+            class="min-w-[154px] self-stretch rounded-[9px] bg-[linear-gradient(135deg,#1d4ed8,#0568ed)] px-7 text-[15px] font-semibold text-white transition-[filter] duration-150 hover:brightness-95 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none focus-visible:ring-inset motion-reduce:transition-none"
+          >
+            Buscar
+          </button>
+        </div>
+
+        @if (buscaInvalida) {
+          <p id="erro-busca-processamento" class="sr-only" role="alert">
+            {{ obterMensagemErroBusca() }}
+          </p>
+        }
+      </form>
+
+      <button
+        type="button"
+        class="text-verum-blue inline-flex cursor-pointer items-center gap-2 rounded-lg bg-transparent px-2 py-2 text-sm font-semibold transition-colors hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+        (click)="alterarBusca()"
+      >
+        <svg lucidePencil [size]="17" [strokeWidth]="1.9" aria-hidden="true"></svg>
+
+        Alterar busca
+      </button>
+    </div>
+  </section>
+
+  <section
+    class="area-processamento relative overflow-visible bg-white px-5 py-7 min-[360px]:px-5 lg:min-h-[calc(100dvh-194px)] lg:overflow-hidden lg:px-6 lg:pt-10 lg:pb-[30px]"
+  >
+    <div
+      class="pointer-events-none absolute inset-[18px_36px_36px] z-0 hidden overflow-hidden rounded-xl border border-slate-200 bg-white/70 p-[26px_22px] opacity-40 blur-[0.3px] lg:block"
+      aria-hidden="true"
+    >
+      <div class="mb-6 flex items-start justify-between text-slate-400">
+        <div>
+          <span class="block"> Buscando as melhores ofertas para </span>
+
+          <strong class="mt-1 block text-[19px]">
+            {{ formularioBusca.controls.termo.value }}
+          </strong>
+        </div>
+
+        <div class="flex max-w-[220px] items-center gap-2.5 text-[13px]">
+          <svg lucideShieldCheck class="shrink-0" [size]="27" [strokeWidth]="1.7"></svg>
+
+          Só mostramos preços de lojas confiáveis
+        </div>
+      </div>
+
+      @for (item of identificadoresEsqueleto; track item) {
+        <article
+          class="mb-[18px] grid min-h-[170px] grid-cols-[90px_minmax(0,1fr)_260px] gap-[18px] rounded-xl border border-slate-200 bg-white/70 p-5"
+        >
+          <div class="rounded-[10px] bg-slate-200"></div>
+
+          <div class="flex flex-col gap-3 pt-1.5">
+            <div class="h-[13px] w-[82%] rounded-full bg-slate-200"></div>
+            <div class="h-[13px] w-[62%] rounded-full bg-slate-200"></div>
+            <div class="h-[13px] w-[38%] rounded-full bg-slate-200"></div>
+          </div>
+
+          <div class="flex flex-col gap-3 pt-1.5">
+            <div class="h-[13px] w-[82%] rounded-full bg-slate-200"></div>
+            <div class="h-[13px] w-[62%] rounded-full bg-slate-200"></div>
+            <div class="h-[13px] w-[38%] rounded-full bg-slate-200"></div>
+          </div>
+        </article>
+      }
+    </div>
+
+    <div class="relative z-2 mx-auto w-full max-w-[480px] lg:max-w-[960px]">
+      <article
+        class="block min-h-0 bg-transparent lg:grid lg:min-h-[436px] lg:grid-cols-[280px_minmax(0,1fr)] lg:items-center lg:rounded-[22px] lg:border lg:border-slate-200 lg:bg-white/[0.97] lg:px-12 lg:pt-[42px] lg:pb-[34px] lg:shadow-[0_22px_55px_rgba(15,23,42,0.13)]"
+      >
+        <div class="hidden lg:block">
+          <verum-ilustracao-radar tamanho="grande" [animada]="true" />
+        </div>
+
+        <div class="min-w-0 text-left lg:text-center">
+          <h1
+            id="titulo-processamento"
+            class="text-verum-navy max-w-[340px] text-[25px] leading-[1.08] font-[750] tracking-[-0.025em] min-[360px]:text-[27px] lg:max-w-none lg:text-[clamp(32px,3vw,39px)] lg:tracking-[-0.035em]"
+          >
+            Estamos buscando as
+
+            <span class="titulo-processamento__destaque inline lg:block"> melhores opções </span>
+          </h1>
+
+          <p
+            class="mx-auto mt-3.5 hidden max-w-[530px] text-base leading-6 text-[#536789] lg:block"
+          >
+            Consultamos várias fontes ao mesmo tempo e verificamos cada oferta antes de montar o
+            ranking.
+          </p>
+
+          <p class="mt-2.5 text-sm text-[#536789] lg:hidden">Isso leva alguns segundos.</p>
+
+          <p class="sr-only" aria-live="polite">Etapa atual: {{ etapaAtiva()?.titulo }}.</p>
+
+          <ol
+            class="mt-7 flex list-none flex-col p-0 lg:mt-9 lg:grid lg:grid-cols-4"
+            aria-label="Progresso da busca"
+          >
+            @for (etapa of etapasProcessamento(); track etapa.codigo; let indice = $index) {
+              <li
+                class="etapa-processamento relative grid min-h-[90px] grid-cols-[40px_minmax(0,1fr)] gap-3.5 pb-[22px] text-left lg:block lg:min-h-0 lg:min-w-0 lg:pb-0 lg:text-center"
+                [class.etapa-processamento--concluida]="etapa.estado === 'concluida'"
+                [class.etapa-processamento--ativa]="etapa.estado === 'ativa'"
+                [class.etapa-processamento--pendente]="etapa.estado === 'pendente'"
+                [attr.aria-current]="etapa.estado === 'ativa' ? 'step' : null"
+              >
+                <div
+                  class="etapa-processamento__marcador relative z-1 ml-1 flex size-8 items-center justify-center rounded-full border-2 border-slate-300 bg-white text-[13px] font-bold text-slate-400 lg:mx-auto lg:size-10 lg:text-sm"
+                >
+                  @if (etapa.estado === 'concluida') {
+                    <svg lucideCheck [size]="20" [strokeWidth]="2.4" aria-hidden="true"></svg>
+                  } @else {
+                    <span>{{ indice + 1 }}</span>
+                  }
+                </div>
+
+                <div class="min-w-0">
+                  <h2
+                    class="etapa-processamento__titulo text-verum-navy mt-1 text-[15px] leading-[1.35] font-semibold lg:mt-[15px] lg:text-[13px] lg:leading-[1.45] lg:font-medium lg:text-[#33476a]"
+                  >
+                    {{ etapa.titulo }}
+                  </h2>
+
+                  <p
+                    class="mt-1.5 max-w-[310px] text-[13px] leading-[1.55] text-[#536789] lg:hidden"
+                  >
+                    {{ etapa.descricao }}
+                  </p>
+
+                  @if (etapa.estado === 'ativa' && etapa.codigo === 'consulta-lojas') {
+                    <div class="mt-3.5 grid gap-2 lg:hidden" aria-hidden="true">
+                      @for (item of identificadoresEsqueleto; track item) {
+                        <div
+                          class="flex min-h-[52px] items-center gap-2.5 rounded-lg border border-slate-200 px-2.5 py-2"
+                        >
+                          <span class="size-[34px] shrink-0 rounded-md bg-slate-100"></span>
+
+                          <div class="flex flex-1 flex-col gap-[7px]">
+                            <i
+                              class="block h-[7px] w-[78%] animate-pulse rounded-full bg-slate-100 not-italic motion-reduce:animate-none"
+                            ></i>
+
+                            <i
+                              class="block h-[7px] w-[54%] animate-pulse rounded-full bg-slate-100 not-italic motion-reduce:animate-none"
+                            ></i>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </li>
+            }
+          </ol>
+
+          <div
+            class="mt-[50px] hidden items-center justify-center gap-2.5 text-[13px] text-[#536789] lg:flex"
+          >
+            <svg lucideShieldCheck [size]="20" [strokeWidth]="1.7" aria-hidden="true"></svg>
+
+            Isso pode levar alguns segundos.
+          </div>
+        </div>
+      </article>
+
+      <section
+        class="mt-7 hidden rounded-[18px] border border-slate-200 bg-white/[0.97] px-9 py-7 shadow-[0_15px_38px_rgba(15,23,42,0.08)] lg:block"
+        aria-labelledby="titulo-avaliacao"
+      >
+        <h2 id="titulo-avaliacao" class="text-verum-navy text-[17px] font-bold">
+          Enquanto isso, saiba como avaliamos
+        </h2>
+
+        <div class="mt-6 grid grid-cols-3 gap-[34px]">
+          @for (informacao of informacoesAvaliacao; track informacao.titulo) {
+            <article class="flex items-start gap-4">
+              <div
+                class="flex size-[72px] shrink-0 items-center justify-center rounded-full bg-[#eafaf4] text-emerald-600"
+                aria-hidden="true"
+              >
+                @switch (informacao.icone) {
+                  @case ('preco') {
+                    <svg lucideTag [size]="33" [strokeWidth]="1.7"></svg>
+                  }
+
+                  @case ('confianca') {
+                    <svg lucideShieldCheck [size]="33" [strokeWidth]="1.7"></svg>
+                  }
+
+                  @case ('atualizacao') {
+                    <svg lucideRefreshCw [size]="33" [strokeWidth]="1.7"></svg>
+                  }
+                }
+              </div>
+
+              <div class="min-w-0">
+                <h3 class="text-verum-navy text-sm font-bold">
+                  {{ informacao.titulo }}
+                </h3>
+
+                <p class="mt-[7px] text-xs leading-[1.55] text-[#536789]">
+                  {{ informacao.descricao }}
+                </p>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <footer class="mt-7 hidden items-center justify-center gap-2 text-xs text-[#536789] lg:flex">
+        <svg lucideShieldCheck [size]="20" [strokeWidth]="1.7" aria-hidden="true"></svg>
+
+        Transparência em tudo o que fazemos.
+      </footer>
+    </div>
+  </section>
+</main>
+
+<verum-navegacao-mobile />

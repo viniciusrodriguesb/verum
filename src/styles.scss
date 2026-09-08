@@ -1,0 +1,76 @@
+@use '@angular/material' as mat;
+@use 'tailwindcss';
+
+@source './app';
+
+@theme {
+  --color-verum-navy: #0b1d3a;
+  --color-verum-blue: #1d4edb;
+  --color-verum-green: #10b981;
+  --color-verum-green-light: #a7f3d0;
+  --color-verum-surface: #ffffff;
+  --color-verum-background: #f8fafc;
+
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Inter,
+      density: 0,
+    )
+  );
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+
+:root {
+  --verum-cor-confianca: #0b1d3a;
+  --verum-cor-inteligencia: #1d4ed8;
+  --verum-cor-economia: #10b981;
+  --verum-cor-oportunidade: #a7f3d0;
+  --verum-cor-superficie: #f1f5f9;
+  --verum-cor-texto: #1f2937;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}

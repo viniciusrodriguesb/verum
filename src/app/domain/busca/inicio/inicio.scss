@@ -1,0 +1,77 @@
+.hero-verum {
+  background:
+    radial-gradient(circle at 94% 55%, rgb(167 243 208 / 24%), transparent 27rem),
+    radial-gradient(circle at 6% 75%, rgb(29 78 216 / 7%), transparent 24rem), #ffffff;
+}
+
+.hero-verum::before,
+.hero-verum::after {
+  position: absolute;
+  z-index: -1;
+  width: 7rem;
+  height: 7rem;
+  content: '';
+  opacity: 0.24;
+  background-image: radial-gradient(circle, #1d4ed8 1.25px, transparent 1.25px);
+  background-size: 16px 16px;
+}
+
+.hero-verum::before {
+  top: 3rem;
+  left: 1.25rem;
+}
+
+.hero-verum::after {
+  right: 1.25rem;
+  bottom: 2rem;
+}
+
+.hero-verum__destaque {
+  background: linear-gradient(90deg, #10b981 10%, #0891b2 48%, #1d4ed8 82%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.etapa-funcionamento__icone {
+  background: radial-gradient(circle at 70% 70%, rgb(167 243 208 / 45%), transparent 55%), #f4faf9;
+}
+
+.radar-card {
+  background:
+    radial-gradient(circle at 100% 0%, rgb(167 243 208 / 35%), transparent 12rem), #ffffff;
+}
+
+.oferta-card__imagem {
+  background: radial-gradient(circle at 70% 30%, rgb(167 243 208 / 30%), transparent 65%), #f8fafc;
+}
+
+@media (min-width: 768px) {
+  .etapa-funcionamento:not(:last-child)::after {
+    position: absolute;
+    top: 2.9rem;
+    right: -1.25rem;
+    width: 1.5rem;
+    content: '';
+    border-top: 2px dotted #cbd5e1;
+  }
+}
+
+@media (max-width: 639px) {
+  .hero-verum {
+    background:
+      radial-gradient(circle at 100% 65%, rgb(167 243 208 / 18%), transparent 18rem),
+      radial-gradient(circle at 0% 80%, rgb(29 78 216 / 5%), transparent 16rem), #ffffff;
+  }
+
+  .hero-verum::before {
+    display: none;
+  }
+
+  .hero-verum::after {
+    right: -2rem;
+    bottom: 0.75rem;
+    width: 6rem;
+    height: 6rem;
+    opacity: 0.1;
+  }
+}

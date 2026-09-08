@@ -1,0 +1,90 @@
+.area-processamento {
+  background-color: #ffffff;
+}
+
+.titulo-processamento__destaque {
+  color: #0b1d3a;
+}
+
+.etapa-processamento:not(:last-child)::after {
+  position: absolute;
+  top: 39px;
+  bottom: -1px;
+  left: 19px;
+  z-index: 0;
+  content: '';
+  border-left: 2px dashed #cbd5e1;
+}
+
+.etapa-processamento--concluida:not(:last-child)::after {
+  border-color: #10b981;
+}
+
+.etapa-processamento--concluida .etapa-processamento__marcador {
+  color: #ffffff;
+  background-color: #0eaa75;
+  border-color: #0eaa75;
+}
+
+.etapa-processamento--ativa .etapa-processamento__marcador {
+  color: #ffffff;
+  background-color: #1465ea;
+  border-color: #1465ea;
+}
+
+@media (min-width: 1024px) {
+  .area-processamento {
+    background:
+      radial-gradient(circle at 50% 38%, rgb(255 255 255 / 96%), rgb(248 250 252 / 88%)), #f8fafc;
+  }
+
+  .titulo-processamento__destaque {
+    color: transparent;
+    background: linear-gradient(90deg, #10b981 10%, #0891b2 48%, #1d4ed8 82%);
+    background-clip: text;
+    -webkit-background-clip: text;
+  }
+
+  .etapa-processamento:not(:last-child)::after {
+    top: 19px;
+    bottom: auto;
+    left: calc(50% + 26px);
+    width: calc(100% - 52px);
+    border-top: 2px dashed #cbd5e1;
+    border-left: 0;
+  }
+
+  .etapa-processamento--concluida:not(:last-child)::after {
+    border-color: #10b981;
+  }
+
+  .etapa-processamento--ativa .etapa-processamento__marcador {
+    color: #1d4ed8;
+    background-color: #ffffff;
+    border-color: #2563eb;
+    box-shadow:
+      0 0 0 6px rgb(219 234 254),
+      0 0 0 9px rgb(37 99 235 / 12%);
+    animation: pulsar-etapa 1.8s ease-in-out infinite;
+  }
+
+  .etapa-processamento--ativa .etapa-processamento__titulo {
+    color: #075be8;
+    font-weight: 600;
+  }
+}
+
+@keyframes pulsar-etapa {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 5px rgb(219 234 254),
+      0 0 0 8px rgb(37 99 235 / 10%);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 8px rgb(219 234 254 / 72%),
+      0 0 0 12px rgb(37 99 235 / 5%);
+  }
+}

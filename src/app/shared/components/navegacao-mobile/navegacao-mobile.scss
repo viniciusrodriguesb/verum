@@ -1,0 +1,110 @@
+:host {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  :host {
+    display: block;
+  }
+
+  .navegacao-mobile {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    background-color: rgb(255 255 255 / 97%);
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -8px 24px rgb(15 23 42 / 6%);
+    backdrop-filter: blur(12px);
+  }
+
+  .navegacao-mobile__lista {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    width: 100%;
+    max-width: 36rem;
+    padding: 0;
+    margin: 0 auto;
+    list-style: none;
+  }
+
+  .navegacao-mobile__item {
+    min-width: 0;
+  }
+
+  .navegacao-mobile__link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    min-height: 66px;
+    padding: 7px 2px 6px;
+    color: #64748b;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .navegacao-mobile__icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+  }
+
+  .navegacao-mobile__icone svg {
+    display: block;
+    width: 23px;
+    height: 23px;
+  }
+
+  .navegacao-mobile__rotulo {
+    overflow: hidden;
+    max-width: 100%;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .navegacao-mobile__link--ativo {
+    color: #1d4ed8;
+  }
+
+  .navegacao-mobile__link:focus-visible {
+    color: #1d4ed8;
+    outline: 2px solid #1d4ed8;
+    outline-offset: -4px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 359px) {
+  .navegacao-mobile__rotulo {
+    font-size: 10px;
+  }
+
+  .navegacao-mobile__link {
+    padding-inline: 1px;
+  }
+}
+
+@media (hover: hover) and (max-width: 1023px) {
+  .navegacao-mobile__link:hover {
+    color: #1d4ed8;
+    background-color: #eff6ff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navegacao-mobile__link {
+    transition: none;
+  }
+}

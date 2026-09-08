@@ -1,0 +1,45 @@
+<nav class="navegacao-mobile" aria-label="Navegação principal">
+  <ul class="navegacao-mobile__lista">
+    @for (item of itensNavegacao; track item.rota) {
+      <li class="navegacao-mobile__item">
+        <a
+          [routerLink]="item.rota"
+          routerLinkActive="navegacao-mobile__link--ativo"
+          [routerLinkActiveOptions]="{
+            exact: item.correspondenciaExata,
+          }"
+          ariaCurrentWhenActive="page"
+          class="navegacao-mobile__link"
+        >
+          <span class="navegacao-mobile__icone" aria-hidden="true">
+            @switch (item.icone) {
+              @case ('inicio') {
+                <svg lucideHouse [size]="23" [strokeWidth]="2"></svg>
+              }
+
+              @case ('busca') {
+                <svg lucideSearch [size]="23" [strokeWidth]="2"></svg>
+              }
+
+              @case ('radar') {
+                <svg lucideRadar [size]="23" [strokeWidth]="2"></svg>
+              }
+
+              @case ('historico') {
+                <svg lucideHistory [size]="23" [strokeWidth]="2"></svg>
+              }
+
+              @case ('conta') {
+                <svg lucideCircleUserRound [size]="23" [strokeWidth]="2"></svg>
+              }
+            }
+          </span>
+
+          <span class="navegacao-mobile__rotulo">
+            {{ item.rotulo }}
+          </span>
+        </a>
+      </li>
+    }
+  </ul>
+</nav>

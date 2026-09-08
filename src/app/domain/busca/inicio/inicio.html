@@ -1,0 +1,319 @@
+<verum-header />
+
+<main>
+  <section class="hero-verum relative isolate overflow-hidden border-b border-slate-200">
+    <div
+      class="relative z-10 mx-auto max-w-7xl px-5 pt-6 pb-8 sm:px-6 sm:pt-10 sm:pb-10 lg:px-8 lg:pt-6"
+    >
+      <div class="mx-auto max-w-4xl text-center">
+        <h1
+          class="font-heading text-verum-navy text-[32px] leading-[1.08] font-bold tracking-tight sm:text-5xl lg:text-[56px]"
+        >
+          Encontre o preço justo
+
+          <span class="hero-verum__destaque block text-transparent"> antes de comprar. </span>
+        </h1>
+
+        <p
+          class="mx-auto mt-4 max-w-sm text-sm leading-6 text-slate-600 sm:max-w-2xl sm:text-base sm:leading-7"
+        >
+          Compare ofertas em lojas confiáveis, entenda o histórico e escolha com segurança.
+        </p>
+
+        <form
+          class="mx-auto mt-5 max-w-3xl"
+          [formGroup]="formularioBusca"
+          novalidate
+          (ngSubmit)="buscar()"
+        >
+          <div
+            class="flex flex-col gap-2 rounded-xl border bg-white p-1.5 shadow-sm transition-[border-color,box-shadow] duration-150 focus-within:ring-[3px] motion-reduce:transition-none sm:flex-row sm:items-center"
+            [ngClass]="
+              buscaInvalida
+                ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/10'
+                : 'focus-within:border-verum-blue focus-within:ring-verum-blue/10 border-slate-300'
+            "
+          >
+            <div class="flex min-w-0 flex-1 items-center">
+              <svg
+                lucideSearch
+                class="ml-3 shrink-0 text-slate-500 sm:ml-4"
+                [size]="20"
+                [strokeWidth]="1.9"
+                aria-hidden="true"
+              ></svg>
+
+              <input
+                #inputBusca
+                type="search"
+                formControlName="termo"
+                maxlength="120"
+                autocomplete="off"
+                enterkeyhint="search"
+                placeholder="Busque produto, marca ou modelo"
+                class="text-verum-navy h-11 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-slate-400 sm:h-12 sm:px-4 sm:text-base"
+                aria-label="Produto que deseja pesquisar"
+                [attr.aria-describedby]="buscaInvalida ? 'erro-termo-busca' : null"
+                [attr.aria-invalid]="buscaInvalida"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="bg-verum-blue focus-visible:ring-verum-blue inline-flex h-11 items-center justify-center rounded-lg px-8 text-sm font-semibold text-white transition-colors duration-150 hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none sm:h-12 sm:px-10"
+            >
+              Buscar
+            </button>
+          </div>
+
+          @if (buscaInvalida) {
+            <p
+              id="erro-termo-busca"
+              class="mt-2 text-left text-sm font-medium text-red-600"
+              role="alert"
+            >
+              {{ obterMensagemErroBusca() }}
+            </p>
+          }
+        </form>
+
+        <div
+          class="text-verum-navy mx-auto mt-6 grid max-w-3xl grid-cols-3 gap-2 sm:gap-4"
+          aria-label="Benefícios do Verum"
+        >
+          <div
+            class="flex min-w-0 flex-col items-center gap-1.5 text-center min-[360px]:gap-2 sm:flex-row sm:justify-center sm:gap-3 sm:text-left"
+          >
+            <svg
+              lucideShieldCheck
+              class="size-[22px] shrink-0 min-[360px]:size-6 sm:size-7"
+              [strokeWidth]="1.8"
+              aria-hidden="true"
+            ></svg>
+
+            <span class="text-[11px] leading-4 font-medium sm:text-sm"> Lojas confiáveis </span>
+          </div>
+
+          <div
+            class="flex min-w-0 flex-col items-center gap-1.5 text-center min-[360px]:gap-2 sm:flex-row sm:justify-center sm:gap-3 sm:text-left"
+          >
+            <svg
+              lucideBadgeCheck
+              class="size-[22px] shrink-0 min-[360px]:size-6 sm:size-7"
+              [strokeWidth]="1.8"
+              aria-hidden="true"
+            ></svg>
+
+            <span class="text-[11px] leading-4 font-medium sm:text-sm"> Preços verificados </span>
+          </div>
+
+          <div
+            class="flex min-w-0 flex-col items-center gap-1.5 text-center min-[360px]:gap-2 sm:flex-row sm:justify-center sm:gap-3 sm:text-left"
+          >
+            <svg
+              lucideChartNoAxesColumnIncreasing
+              class="size-[22px] shrink-0 min-[360px]:size-6 sm:size-7"
+              [strokeWidth]="1.8"
+              aria-hidden="true"
+            ></svg>
+
+            <span class="text-[11px] leading-4 font-medium sm:text-sm"> Ranking transparente </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="como-funciona"
+    class="scroll-mt-24 border-b border-slate-200 bg-white py-7 sm:py-8"
+    aria-labelledby="titulo-como-funciona"
+  >
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div class="min-w-0 lg:border-r lg:border-slate-200 lg:pr-8">
+          <h2
+            id="titulo-como-funciona"
+            class="font-heading text-verum-navy text-center text-xl font-bold sm:text-2xl"
+          >
+            Como o Verum encontra a melhor escolha
+          </h2>
+
+          <div class="mt-7 grid gap-8 md:grid-cols-3">
+            @for (etapa of etapasFuncionamento; track etapa.titulo; let indice = $index) {
+              <article class="etapa-funcionamento relative flex min-w-0 items-start gap-4">
+                <div
+                  class="etapa-funcionamento__icone flex size-[4.75rem] shrink-0 items-center justify-center rounded-full border-[7px] border-[#f3f8fa] text-emerald-600 md:size-24 md:border-[10px]"
+                  aria-hidden="true"
+                >
+                  @switch (etapa.icone) {
+                    @case ('loja') {
+                      <svg lucideStore [size]="42" [strokeWidth]="1.6"></svg>
+                    }
+
+                    @case ('preco') {
+                      <svg lucideTag [size]="42" [strokeWidth]="1.6"></svg>
+                    }
+
+                    @case ('recomendacao') {
+                      <svg lucideStar [size]="42" [strokeWidth]="1.6"></svg>
+                    }
+                  }
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <h3 class="font-heading text-verum-navy text-base leading-5 font-bold">
+                    {{ indice + 1 }}. {{ etapa.titulo }}
+                  </h3>
+
+                  <p class="mt-2 text-[13px] leading-5 text-slate-600">
+                    {{ etapa.descricao }}
+                  </p>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
+
+        <aside
+          class="radar-card flex flex-col justify-between rounded-xl border border-slate-200 p-6"
+          aria-labelledby="titulo-radar"
+        >
+          <div>
+            <div class="flex w-full items-center justify-center" aria-label="Verum Radar">
+              <verum-ilustracao-radar tamanho="compacto" />
+
+              <div
+                class="font-heading -ml-2 flex flex-col text-[19px] leading-none font-bold"
+                aria-hidden="true"
+              >
+                <span class="text-verum-navy"> VERUM </span>
+
+                <span class="mt-1 text-emerald-600"> RADAR </span>
+              </div>
+            </div>
+
+            <h2
+              id="titulo-radar"
+              class="font-heading text-verum-navy mt-5 text-lg leading-6 font-bold"
+            >
+              Quer esperar por um preço melhor?
+            </h2>
+
+            <p class="mt-2 text-[13px] leading-5 text-slate-600">
+              Monitore preços, receba alertas e compre na hora certa.
+            </p>
+          </div>
+
+          <a
+            routerLink="/radar/criar"
+            class="bg-verum-green focus-visible:ring-verum-green mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+          >
+            Criar radar
+
+            <svg lucideArrowRight [size]="17" [strokeWidth]="2" aria-hidden="true"></svg>
+          </a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="produtos"
+    class="scroll-mt-24 bg-white py-6 sm:py-7"
+    aria-labelledby="titulo-ofertas"
+  >
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-wrap items-center gap-3">
+          <h2 id="titulo-ofertas" class="font-heading text-verum-navy text-lg font-bold sm:text-xl">
+            Ofertas que valem a pena
+          </h2>
+
+          <span
+            class="inline-flex rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-100"
+          >
+            Preços atualizados agora
+          </span>
+        </div>
+
+        <a
+          routerLink="/busca"
+          class="text-verum-blue inline-flex items-center gap-1 text-sm font-medium transition-colors hover:text-blue-700"
+        >
+          Ver mais resultados
+
+          <svg lucideArrowRight [size]="17" [strokeWidth]="2" aria-hidden="true"></svg>
+        </a>
+      </div>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        @for (oferta of ofertasDestaque; track oferta.id) {
+          <article
+            class="flex min-h-48 flex-col rounded-xl border border-slate-200 bg-white p-4 transition-[border-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:border-blue-700/30 hover:shadow-[0_12px_28px_rgba(15,23,42,0.07)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          >
+            <div class="flex min-w-0 flex-1 gap-4">
+              <div
+                class="oferta-card__imagem text-verum-navy flex h-26 w-[5.75rem] shrink-0 items-center justify-center rounded-xl"
+                aria-hidden="true"
+              >
+                @switch (oferta.icone) {
+                  @case ('celular') {
+                    <svg lucideSmartphone [size]="54" [strokeWidth]="1.4"></svg>
+                  }
+
+                  @case ('eletrodomestico') {
+                    <svg lucidePackage [size]="54" [strokeWidth]="1.4"></svg>
+                  }
+
+                  @case ('notebook') {
+                    <svg lucideLaptop [size]="58" [strokeWidth]="1.4"></svg>
+                  }
+
+                  @case ('relogio') {
+                    <svg lucideWatch [size]="54" [strokeWidth]="1.4"></svg>
+                  }
+                }
+              </div>
+
+              <div class="min-w-0 flex-1">
+                <h3 class="font-heading text-verum-navy text-[13px] leading-4 font-semibold">
+                  {{ oferta.nome }}
+                </h3>
+
+                <p class="mt-1 text-xs text-slate-500">
+                  {{ oferta.complemento }}
+                </p>
+
+                <p class="text-verum-navy mt-2 text-xl leading-6 font-bold">
+                  {{ oferta.preco }}
+                </p>
+
+                <span
+                  class="mt-2 inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700"
+                >
+                  <svg lucideArrowDown [size]="13" [strokeWidth]="2" aria-hidden="true"></svg>
+
+                  {{ oferta.oportunidade }}
+                </span>
+              </div>
+            </div>
+
+            <div class="mt-3 flex items-center justify-between">
+              <a
+                [routerLink]="['/historico', oferta.id]"
+                class="text-verum-blue text-sm font-medium transition-colors hover:text-blue-700"
+              >
+                Ver histórico
+              </a>
+
+              <span class="text-verum-navy" aria-hidden="true">
+                <svg lucideBookmark [size]="18" [strokeWidth]="1.7"></svg>
+              </span>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+</main>
