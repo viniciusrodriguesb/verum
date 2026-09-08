@@ -1,15 +1,21 @@
-name: Verum Web CI
+name: Frontend CI
 
 on:
   pull_request:
     branches:
       - main
+    paths:
+      - "src/frontend/web/**"
+      - ".github/workflows/frontend-ci.yml"
+      - ".editorconfig"
 
   push:
     branches:
       - main
-    tags:
-      - 'v*.*.*'
+    paths:
+      - "src/frontend/web/**"
+      - ".github/workflows/frontend-ci.yml"
+      - ".editorconfig"
 
   workflow_dispatch:
 
@@ -17,11 +23,15 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: frontend-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    working-directory: src/frontend/web
+
 env:
-  CI: 'true'
+  CI: "true"
 
 jobs:
   validar-codigo:
@@ -36,9 +46,9 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: .nvmrc
+          node-version-file: src/frontend/web/.nvmrc
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: src/frontend/web/package-lock.json
 
       - name: Instalar dependências
         run: npm ci --prefer-offline --no-audit --no-fund
@@ -63,9 +73,9 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: .nvmrc
+          node-version-file: src/frontend/web/.nvmrc
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: src/frontend/web/package-lock.json
 
       - name: Instalar dependências
         run: npm ci --prefer-offline --no-audit --no-fund
@@ -78,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cobertura-${{ github.sha }}
-          path: coverage/
+          path: src/frontend/web/coverage/
           if-no-files-found: warn
           retention-days: 7
 
@@ -96,9 +106,9 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: .nvmrc
+          node-version-file: src/frontend/web/.nvmrc
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: src/frontend/web/package-lock.json
 
       - name: Auditar dependências de produção
         run: npm audit --omit=dev --audit-level=high
@@ -119,9 +129,9 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: .nvmrc
+          node-version-file: src/frontend/web/.nvmrc
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: src/frontend/web/package-lock.json
 
       - name: Instalar dependências
         run: npm ci --prefer-offline --no-audit --no-fund
@@ -133,6 +143,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: verum-web-${{ github.sha }}
-          path: dist/
+          path: src/frontend/web/dist/
           if-no-files-found: error
           retention-days: 14

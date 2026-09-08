@@ -1,21 +1,55 @@
-# Dependencies
-/node_modules/
-/.npm/
-/.pnpm-store/
+# Frontend dependencies and caches
+**/node_modules/
+**/.npm/
+**/.pnpm-store/
+**/.angular/cache/
+**/.eslintcache
+**/.sass-cache/
 
-# Compiled output
-/dist/
-/tmp/
-/out-tsc/
-/bazel-out/
-
-# Angular cache
-/.angular/cache/
-
-# TypeScript and tooling cache
+# Frontend build output
+**/dist/
+**/tmp/
+**/out-tsc/
+**/bazel-out/
 *.tsbuildinfo
-/.eslintcache
-.sass-cache/
+
+# Frontend tests and reports
+**/coverage/
+**/reports/
+**/playwright-report/
+**/blob-report/
+**/test-results/
+**/__screenshots__/
+
+# .NET build output
+**/bin/
+**/obj/
+**/TestResults/
+**/BenchmarkDotNet.Artifacts/
+*.nupkg
+*.snupkg
+
+# .NET user-specific files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local application settings
+**/appsettings.Local.json
+**/appsettings.*.local.json
+secrets.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Certificates and private keys
+*.pfx
+*.p12
 
 # Logs
 *.log
@@ -25,26 +59,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Environment files — never commit secrets
-.env
-.env.*
-!.env.example
-!.env.*.example
-
-# Tests and coverage
-/coverage/
-/reports/
-/playwright-report/
-/blob-report/
-/test-results/
-__screenshots__/
-
-# Legacy test/build artifacts
-/connect.lock
-/libpeerconnection.log
-/typings/
-
-# IntelliJ IDEA and Eclipse
+# IDEs and editors
 .idea/
 .project
 .classpath
