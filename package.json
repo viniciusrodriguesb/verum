@@ -6,14 +6,15 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:production": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:ci": "ng test --watch=false",
+    "test:ci": "ng test --watch=false --coverage --coverage-reporters=text-summary --coverage-reporters=cobertura",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run lint && npm run test:ci && npm run build"
+    "check": "npm run format:check && npm run lint && npm run test:ci && npm run build:production"
   },
   "private": true,
   "engines": {
@@ -41,6 +42,7 @@
     "@angular/compiler-cli": "^22.1.0",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.1.12",
+    "@vitest/coverage-v8": "^4.1.11",
     "angular-eslint": "^22.2.0",
     "eslint": "^10.10.0",
     "jsdom": "^28.0.0",

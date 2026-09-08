@@ -1,0 +1,138 @@
+name: Verum Web CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: 'true'
+
+jobs:
+  validar-codigo:
+    name: Validar código
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Obter código-fonte
+        uses: actions/checkout@v5
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Validar formatação
+        run: npm run format:check
+
+      - name: Executar lint
+        run: npm run lint
+
+  testar-aplicacao:
+    name: Executar testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - validar-codigo
+
+    steps:
+      - name: Obter código-fonte
+        uses: actions/checkout@v5
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Executar testes e gerar cobertura
+        run: npm run test:ci
+
+      - name: Publicar cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-${{ github.sha }}
+          path: coverage/
+          if-no-files-found: warn
+          retention-days: 7
+
+  auditar-dependencias:
+    name: Auditar dependências
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - validar-codigo
+
+    steps:
+      - name: Obter código-fonte
+        uses: actions/checkout@v5
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Auditar dependências de produção
+        run: npm audit --omit=dev --audit-level=high
+
+  buildar-producao:
+    name: Build de produção
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - validar-codigo
+      - testar-aplicacao
+      - auditar-dependencias
+
+    steps:
+      - name: Obter código-fonte
+        uses: actions/checkout@v5
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Gerar build de produção
+        run: npm run build:production
+
+      - name: Publicar build
+        uses: actions/upload-artifact@v4
+        with:
+          name: verum-web-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
