@@ -22,4 +22,8 @@ export const routes: Routes = [
         (componente) => componente.ResultadosComponent,
       ),
   },
+  {
+    path: 'radar',
+    loadChildren: () => import('@domain/radar/radar.routes').then((rotas) => rotas.ROTAS_RADAR),
+  },
 ];

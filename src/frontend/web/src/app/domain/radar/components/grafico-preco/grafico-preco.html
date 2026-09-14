@@ -1,0 +1,36 @@
+<svg
+  viewBox="0 0 260 90"
+  preserveAspectRatio="none"
+  class="block h-full w-full overflow-visible"
+  aria-hidden="true"
+>
+  <defs>
+    <linearGradient [attr.id]="identificadorGradiente()" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" [attr.stop-color]="corHexadecimal()" stop-opacity="0.2"></stop>
+
+      <stop offset="100%" [attr.stop-color]="corHexadecimal()" stop-opacity="0"></stop>
+    </linearGradient>
+  </defs>
+
+  <polygon
+    [attr.points]="pontosArea()"
+    [attr.fill]="'url(#' + identificadorGradiente() + ')'"
+  ></polygon>
+
+  <polyline
+    class="grafico-preco__linha"
+    [attr.points]="pontos()"
+    [attr.stroke]="corHexadecimal()"
+    fill="none"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  ></polyline>
+
+  <circle
+    [attr.cx]="pontoFinal().x"
+    [attr.cy]="pontoFinal().y"
+    [attr.fill]="corHexadecimal()"
+    r="4"
+  ></circle>
+</svg>

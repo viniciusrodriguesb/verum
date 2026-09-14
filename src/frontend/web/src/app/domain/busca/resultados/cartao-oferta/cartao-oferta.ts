@@ -13,7 +13,7 @@ import {
   LucideTag,
   LucideTruck,
 } from '@lucide/angular';
-import { DestaqueOferta, OfertaResultado } from '../models/oferta-resultado.model';
+import { DestaqueOferta, OfertaResultado } from '../oferta-resultado.model';
 
 const ROTULOS_DESTAQUE: Readonly<Record<DestaqueOferta, string>> = {
   'melhor-escolha': 'Melhor escolha',

@@ -22,8 +22,8 @@
 
 .etapa-processamento--concluida .etapa-processamento__marcador {
   color: #ffffff;
-  background-color: #0eaa75;
-  border-color: #0eaa75;
+  background-color: #047857;
+  border-color: #047857;
 }
 
 .etapa-processamento--ativa .etapa-processamento__marcador {
@@ -75,6 +75,7 @@
 }
 
 @keyframes pulsar-etapa {
+
   0%,
   100% {
     box-shadow:

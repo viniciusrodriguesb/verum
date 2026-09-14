@@ -29,9 +29,9 @@ import { distinctUntilChanged, map, startWith } from 'rxjs';
 import { Header } from '@shared/components/header/header';
 import { NavegacaoMobileComponent } from '@shared/components/navegacao-mobile/navegacao-mobile';
 
-import { OfertaResultado } from '../models/oferta-resultado.model';
+import { OfertaResultado } from './oferta-resultado.model';
 import { normalizarTermoBusca, validarTermoBusca } from '../validators/termo-busca.validator';
-import { CartaoOfertaComponent } from '../cartao-oferta/cartao-oferta';
+import { CartaoOfertaComponent } from './cartao-oferta/cartao-oferta';
 
 type OrdemResultado = 'melhor-escolha' | 'menor-preco' | 'mais-confiavel';
 

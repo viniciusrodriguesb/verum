@@ -18,9 +18,12 @@ interface ItemMenu {
 export class Header {
   protected readonly itensMenu: readonly ItemMenu[] = [
     {
-      rotulo: 'Produtos',
+      rotulo: 'Buscar preços',
       rota: '/',
-      fragmento: 'produtos',
+    },
+    {
+      rotulo: 'Verum Radar',
+      rota: '/radar',
     },
     {
       rotulo: 'Como funciona',
