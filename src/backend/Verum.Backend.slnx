@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/Apps/">
+    <Project Path="Apps/Verum.Api/Verum.Api.csproj" />
+    <Project Path="Apps/Verum.Worker.Descoberta/Verum.Worker.Descoberta.csproj" />
+    <Project Path="Apps/Verum.Worker.Radar/Verum.Worker.Radar.csproj" />
+  </Folder>
+  <Folder Name="/Modules/">
+    <Project Path="Modules/Verum.Modules.Busca/Verum.Modules.Busca.csproj" />
+    <Project Path="Modules/Verum.Modules.Catalogo/Verum.Modules.Catalogo.csproj" />
+    <Project Path="Modules/Verum.Modules.Ofertas/Verum.Modules.Ofertas.csproj" />
+    <Project Path="Modules/Verum.Modules.Radar/Verum.Modules.Radar.csproj" />
+    <Project Path="Modules/Verum.Modules.Contas/Verum.Modules.Contas.csproj" />
+    <Project Path="Modules/Verum.Modules.Notificacoes/Verum.Modules.Notificacoes.csproj" />
+    <Project Path="Modules/Verum.Modules.Acesso/Verum.Modules.Acesso.csproj" />
+    <Project Path="Modules/Verum.Modules.Assinaturas/Verum.Modules.Assinaturas.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Verum.Tests.Integracao/Verum.Tests.Integracao.csproj" />
+  </Folder>
+  <Project Path="CrossCutting/Verum.CrossCutting/Verum.CrossCutting.csproj" />
+</Solution>
