@@ -8,42 +8,130 @@ internal sealed class MonitoramentoMapping : IEntityTypeConfiguration<Entidade>
 {
   public void Configure(EntityTypeBuilder<Entidade> builder)
   {
-    builder.ToTable("monitoramento", table =>
+    builder.ToTable("MONITORAMENTO", table =>
     {
-      table.HasCheckConstraint("ck_monitoramento_id", "id <> '00000000-0000-0000-0000-000000000000'::uuid");
-      table.HasCheckConstraint("ck_monitoramento_conta_id", "conta_id <> '00000000-0000-0000-0000-000000000000'::uuid");
-      table.HasCheckConstraint("ck_monitoramento_produto_id", "produto_id <> '00000000-0000-0000-0000-000000000000'::uuid");
-      table.HasCheckConstraint("ck_monitoramento_produto_variante_id", "produto_variante_id <> '00000000-0000-0000-0000-000000000000'::uuid");
-      table.HasCheckConstraint("ck_monitoramento_nome", "length(btrim(nome)) > 0");
-      table.HasCheckConstraint("ck_monitoramento_preco_inicial", "preco_inicial >= 0.01 AND preco_inicial <= 999999999999.99");
-      table.HasCheckConstraint("ck_monitoramento_preco_alvo", "preco_alvo >= 0.01 AND preco_alvo <= 999999999999.99");
-      table.HasCheckConstraint("ck_monitoramento_menor_preco_atual", "menor_preco_atual >= 0 AND menor_preco_atual <= 999999999999.99");
-      table.HasCheckConstraint("ck_monitoramento_ultima_oferta_id", "ultima_oferta_id <> '00000000-0000-0000-0000-000000000000'::uuid");
-      table.HasCheckConstraint("ck_monitoramento_ultima_observacao_id", "ultima_observacao_id >= 1 AND ultima_observacao_id <= 9223372036854775807");
-      table.HasCheckConstraint("ck_monitoramento_status", "status IN (1, 2, 3)");
-      table.HasCheckConstraint("ck_monitoramento_ultimo_preco_alertado", "ultimo_preco_alertado >= 0 AND ultimo_preco_alertado <= 999999999999.99");
+      table.HasCheckConstraint("CK_MONITORAMENTO_ID", "\"ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_CONTA_ID", "\"CONTA_ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_PRODUTO_ID", "\"PRODUTO_ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_PRODUTO_VARIANTE_ID", "\"PRODUTO_VARIANTE_ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_NOME", "length(btrim(\"NOME\")) > 0");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_PRECO_INICIAL", "\"PRECO_INICIAL\" >= 0.01 AND \"PRECO_INICIAL\" <= 999999999999.99");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_PRECO_ALVO", "\"PRECO_ALVO\" >= 0.01 AND \"PRECO_ALVO\" <= 999999999999.99");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_MENOR_PRECO_ATUAL", "\"MENOR_PRECO_ATUAL\" >= 0 AND \"MENOR_PRECO_ATUAL\" <= 999999999999.99");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_ULTIMA_OFERTA_ID", "\"ULTIMA_OFERTA_ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_ULTIMA_OBSERVACAO_ID", "\"ULTIMA_OBSERVACAO_ID\" >= 1 AND \"ULTIMA_OBSERVACAO_ID\" <= 9223372036854775807");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_STATUS", "\"STATUS\" IN (1, 2, 3)");
+
+      table.HasCheckConstraint("CK_MONITORAMENTO_ULTIMO_PRECO_ALERTADO", "\"ULTIMO_PRECO_ALERTADO\" >= 0 AND \"ULTIMO_PRECO_ALERTADO\" <= 999999999999.99");
     });
+
     builder.HasKey(x => x.Id);
-    builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").IsRequired().ValueGeneratedNever();
-    builder.Property(x => x.ContaId).HasColumnName("conta_id").HasColumnType("uuid").IsRequired();
-    builder.Property(x => x.ProdutoId).HasColumnName("produto_id").HasColumnType("uuid").IsRequired();
-    builder.Property(x => x.ProdutoVarianteId).HasColumnName("produto_variante_id").HasColumnType("uuid");
-    builder.Property(x => x.Nome).HasColumnName("nome").HasMaxLength(250).HasColumnType("varchar(250)").IsRequired();
-    builder.Property(x => x.PrecoInicial).HasColumnName("preco_inicial").HasPrecision(14, 2).HasColumnType("numeric(14,2)").IsRequired();
-    builder.Property(x => x.PrecoAlvo).HasColumnName("preco_alvo").HasPrecision(14, 2).HasColumnType("numeric(14,2)").IsRequired();
-    builder.Property(x => x.MenorPrecoAtual).HasColumnName("menor_preco_atual").HasPrecision(14, 2).HasColumnType("numeric(14,2)");
-    builder.Property(x => x.UltimaOfertaId).HasColumnName("ultima_oferta_id").HasColumnType("uuid");
-    builder.Property(x => x.UltimaObservacaoId).HasColumnName("ultima_observacao_id").HasColumnType("bigint");
-    builder.Property(x => x.Status).HasColumnName("status").HasConversion<short>().HasColumnType("smallint").IsRequired();
-    builder.Property(x => x.UltimaVerificacaoEm).HasColumnName("ultima_verificacao_em").HasColumnType("timestamp with time zone");
-    builder.Property(x => x.ProximaVerificacaoEm).HasColumnName("proxima_verificacao_em").HasColumnType("timestamp with time zone");
-    builder.Property(x => x.CriadoEm).HasColumnName("criado_em").HasColumnType("timestamp with time zone").IsRequired();
-    builder.Property(x => x.AtualizadoEm).HasColumnName("atualizado_em").HasColumnType("timestamp with time zone").IsRequired();
-    builder.Property(x => x.PausadoEm).HasColumnName("pausado_em").HasColumnType("timestamp with time zone");
-    builder.Property(x => x.ExcluidoEm).HasColumnName("excluido_em").HasColumnType("timestamp with time zone");
-    builder.Property(x => x.UltimoAlertaEm).HasColumnName("ultimo_alerta_em").HasColumnType("timestamp with time zone");
-    builder.Property(x => x.UltimoPrecoAlertado).HasColumnName("ultimo_preco_alertado").HasPrecision(14, 2).HasColumnType("numeric(14,2)");
-    builder.Navigation(x => x.Oportunidades).HasField("_oportunidades").UsePropertyAccessMode(PropertyAccessMode.Field);
+
+    builder.Property(x => x.Id)
+           .HasColumnName("ID")
+           .HasColumnType("uuid")
+           .IsRequired()
+           .ValueGeneratedNever();
+
+    builder.Property(x => x.ContaId)
+           .HasColumnName("CONTA_ID")
+           .HasColumnType("uuid")
+           .IsRequired();
+
+    builder.Property(x => x.ProdutoId)
+           .HasColumnName("PRODUTO_ID")
+           .HasColumnType("uuid")
+           .IsRequired();
+
+    builder.Property(x => x.ProdutoVarianteId)
+           .HasColumnName("PRODUTO_VARIANTE_ID")
+           .HasColumnType("uuid");
+
+    builder.Property(x => x.Nome)
+           .HasColumnName("NOME")
+           .HasMaxLength(250)
+           .HasColumnType("varchar(250)")
+           .IsRequired();
+
+    builder.Property(x => x.PrecoInicial)
+           .HasColumnName("PRECO_INICIAL")
+           .HasPrecision(14, 2)
+           .HasColumnType("numeric(14,2)")
+           .IsRequired();
+
+    builder.Property(x => x.PrecoAlvo)
+           .HasColumnName("PRECO_ALVO")
+           .HasPrecision(14, 2)
+           .HasColumnType("numeric(14,2)")
+           .IsRequired();
+
+    builder.Property(x => x.MenorPrecoAtual)
+           .HasColumnName("MENOR_PRECO_ATUAL")
+           .HasPrecision(14, 2)
+           .HasColumnType("numeric(14,2)");
+
+    builder.Property(x => x.UltimaOfertaId)
+           .HasColumnName("ULTIMA_OFERTA_ID")
+           .HasColumnType("uuid");
+
+    builder.Property(x => x.UltimaObservacaoId)
+           .HasColumnName("ULTIMA_OBSERVACAO_ID")
+           .HasColumnType("bigint");
+
+    builder.Property(x => x.Status)
+           .HasColumnName("STATUS")
+           .HasConversion<short>()
+           .HasColumnType("smallint")
+           .IsRequired();
+
+    builder.Property(x => x.UltimaVerificacaoEm)
+           .HasColumnName("ULTIMA_VERIFICACAO_EM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.Property(x => x.ProximaVerificacaoEm)
+           .HasColumnName("PROXIMA_VERIFICACAO_EM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.Property(x => x.CriadoEm)
+           .HasColumnName("CRIADO_EM")
+           .HasColumnType("timestamp with time zone")
+           .IsRequired();
+
+    builder.Property(x => x.AtualizadoEm)
+           .HasColumnName("ATUALIZADO_EM")
+           .HasColumnType("timestamp with time zone")
+           .IsRequired();
+
+    builder.Property(x => x.PausadoEm)
+           .HasColumnName("PAUSADO_EM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.Property(x => x.ExcluidoEm)
+           .HasColumnName("EXCLUIDO_EM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.Property(x => x.UltimoAlertaEm)
+           .HasColumnName("ULTIMO_ALERTA_EM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.Property(x => x.UltimoPrecoAlertado)
+           .HasColumnName("ULTIMO_PRECO_ALERTADO")
+           .HasPrecision(14, 2)
+           .HasColumnType("numeric(14,2)");
+
+    builder.Navigation(x => x.Oportunidades)
+           .HasField("_oportunidades")
+           .UsePropertyAccessMode(PropertyAccessMode.Field);
   }
 }
 

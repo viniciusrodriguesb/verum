@@ -11,8 +11,10 @@ public static class DependencyInjection
     services.AddDbContext<AssinaturasDbContext>(options =>
     {
       var connection = configuration.GetConnectionString("PostgreSQL");
+
       if (string.IsNullOrWhiteSpace(connection))
         throw new InvalidOperationException("Configure ConnectionStrings:PostgreSQL.");
+
       options.UseNpgsql(connection, postgres =>
         postgres.MigrationsHistoryTable("__EFMigrationsHistory", "assinaturas"));
     });

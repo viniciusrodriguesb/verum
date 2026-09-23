@@ -6,6 +6,7 @@ namespace Verum.Tests.Integracao.Aplicacao
   internal abstract class AbstratoService;
   internal sealed class GenericoService<T>;
 }
+
 namespace Verum.Tests.Integracao.Dominio
 {
   internal sealed class NaoRegistrarService;

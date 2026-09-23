@@ -10,6 +10,7 @@ internal sealed class ContasDbContext(DbContextOptions<ContasDbContext> options)
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     modelBuilder.HasDefaultSchema("contas");
+
     modelBuilder.ApplyConfigurationsFromAssembly(typeof(ContasDbContext).Assembly);
   }
 }

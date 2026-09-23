@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-    <ProjectReference Include="../../CrossCutting/Verum.CrossCutting/Verum.CrossCutting.csproj" />
+    <ProjectReference Include="../../Verum.CrossCutting/Verum.CrossCutting.csproj" />
   </ItemGroup>
 
 </Project>

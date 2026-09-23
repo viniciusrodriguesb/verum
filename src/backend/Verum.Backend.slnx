@@ -17,5 +17,5 @@
   <Folder Name="/Tests/">
     <Project Path="Tests/Verum.Tests.Integracao/Verum.Tests.Integracao.csproj" />
   </Folder>
-  <Project Path="CrossCutting/Verum.CrossCutting/Verum.CrossCutting.csproj" />
+  <Project Path="Verum.CrossCutting/Verum.CrossCutting.csproj" />
 </Solution>

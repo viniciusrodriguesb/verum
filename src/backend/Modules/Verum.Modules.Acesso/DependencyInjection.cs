@@ -11,8 +11,10 @@ public static class DependencyInjection
     services.AddDbContext<AcessoDbContext>(options =>
     {
       var connection = configuration.GetConnectionString("PostgreSQL");
+
       if (string.IsNullOrWhiteSpace(connection))
         throw new InvalidOperationException("Configure ConnectionStrings:PostgreSQL.");
+
       options.UseNpgsql(connection, postgres =>
         postgres.MigrationsHistoryTable("__EFMigrationsHistory", "acesso"));
     });

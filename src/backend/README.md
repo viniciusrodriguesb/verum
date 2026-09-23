@@ -1,25 +1,25 @@
 # Backend Verum
 
-Base técnica do monólito modular em .NET 10. Esta etapa configura dependências,
-hosts e pipelines; não implementa entidades, casos de uso, scrapers, pagamentos,
-notificações, migrations ou endpoints de negócio.
+Base técnica do monólito modular em .NET 10, com oito módulos, 32 entidades,
+mappings EF Core, DbContexts próprios, cache Redis, hosts e pipelines.
+Casos de uso, scrapers, integrações de pagamento/notificação, migrations e
+endpoints de negócio ainda não foram implementados.
 
 ## Estrutura e composição
 
 - `Apps/Verum.Api`: ASP.NET Core; chama `AddVerumApi` e `UseVerumApi`.
 - `Apps/Verum.Worker.Descoberta`: Generic Host; chama `AddVerumWorkerDescoberta`.
 - `Apps/Verum.Worker.Radar`: Generic Host; chama `AddVerumWorkerRadar`.
-- `Modules`: Busca, Catálogo e Ofertas possuem projetos; Radar possui um projeto
-  apenas com o contrato de verificação. Demais módulos estão reservados.
-  Os marcadores públicos identificam assemblies para registro.
-- `CrossCutting/Verum.CrossCutting/Pipelines`: um arquivo por pipeline.
-- `CrossCutting/Verum.CrossCutting/Mensageria`: opções e componentes genéricos.
+- `Modules`: Contas, Acesso, Busca, Catálogo, Ofertas, Radar, Assinaturas e
+  Notificações, cada um com domínio, mappings, DbContext e registro de persistência.
+- `Verum.CrossCutting/Pipelines`: um arquivo por pipeline.
+- `Verum.CrossCutting/Mensageria`: opções e componentes genéricos.
 - `Tests/Verum.Tests.Integracao`: testes da configuração com infraestrutura em
   memória; demais categorias continuam reservadas.
 
-CrossCutting compõe os módulos; módulos nunca referenciam CrossCutting. API e
-Descoberta selecionam os módulos Busca, Catálogo e Ofertas. Radar seleciona apenas
-Catálogo e Ofertas enquanto seu próprio módulo não tem implementação.
+CrossCutting compõe os módulos; módulos nunca referenciam CrossCutting. A API
+registra os oito módulos. Descoberta registra Busca, Catálogo e Ofertas; o worker
+Radar registra Radar, Catálogo, Ofertas e Notificações.
 Consumidores são selecionados explicitamente por host, evitando processar a mesma
 mensagem em executáveis diferentes por uma varredura indiscriminada.
 
@@ -61,7 +61,7 @@ nenhum adaptador de negócio foi criado nesta etapa.
 | PublishersPipeline | PublicadorMensagem<T> scoped sobre IPublishEndpoint |
 | ConsumersPipeline | Concorrência, retry, redelivery opcional e buffer de publicações |
 | PersistenciaPipeline | Registro PostgreSQL por DbContext/schema e preparação de Outbox transacional |
-| CachePipeline | IDistributedCache via Redis quando habilitado |
+| CachePipeline | Cache genérico, contratos de cache por módulo, coordenação atômica e IDistributedCache |
 | ObservabilidadePipeline | Logs, tracing, métricas, exportação OTLP opcional e health checks |
 
 ## DI automática de services
@@ -220,7 +220,8 @@ O helper inicial de Bus Outbox deve ser usado com **um contexto proprietário
 por bus/host**. A composição de vários Bus Outboxes na mesma instância exige
 seleção explícita do contexto e será definida com os fluxos modulares; não se
 deve registrar vários e supor que IPublishEndpoint escolherá sozinho.
-Não há DbContext, tabelas, migrations ou Outbox durável ativo agora.
+Os oito DbContexts e seus mappings já existem. Migrations e tabelas técnicas
+de Outbox/Inbox ainda não foram criadas; o Outbox durável não está ativo.
 Retry de transação do EF não foi ligado globalmente para não competir com
 as transações gerenciadas pelo consumidor.
 
@@ -233,13 +234,16 @@ estão habilitados nesse ambiente. Os perfis locais dos workers selecionam
 Development, assim como os perfis da API. São endereços para executar o .NET
 na máquina host; em containers, localhost apontaria para o próprio container.
 
-Os schemas serão definidos nos futuros DbContexts com `HasDefaultSchema` e
+Os schemas já estão definidos nos DbContexts com `HasDefaultSchema` e serão
 criados ao aplicar as migrations do EF Core. Registrar a conexão ou iniciar o
 host não cria banco, schemas ou tabelas nesta etapa. Não há migrations ainda.
 
-Redis só é registrado com `Redis__Enabled=true` e
-`ConnectionStrings__Redis` preenchida. Não existe fallback silencioso para
-cache em memória, pois isso mudaria garantias futuras de cota e idempotência.
+O cache Redis possui operações genéricas, métodos por módulo, TTLs configuráveis,
+reservas de atualização e limites operacionais atômicos. Veja os
+[métodos, exemplos e garantias](Verum.CrossCutting/Cache/README.md).
+Com `Redis__Enabled=false`, leitura vira miss e gravação retorna false; reservas
+e limites não são concedidos. Para conectar, habilite e preencha
+`ConnectionStrings__Redis`. Não há substituição por cache em memória.
 
 A API exige `Authentication__Authority` (URL do realm Keycloak) e
 `Authentication__Audience`. Em Development há apenas valores locais de exemplo.
@@ -271,6 +275,63 @@ Fault de mensagem inválida, os consumidores reais dos workers e paralelismo
 respeitando o limite do endpoint. Transporte em memória e HTTP simulado permitem
 validar configuração sem serviços externos. Não substituem testes com RabbitMQ,
 PostgreSQL, Redis ou Keycloak reais.
+
+## Padrão de código e revisão da arquitetura
+
+- Tabelas e colunas de negócio usam `UPPER_SNAKE_CASE`: `BUSCA_ETAPA`, `INICIADA_EM`.
+  Schemas continuam em minúsculas por módulo e a tabela técnica de histórico do
+  EF mantém seu nome padrão. Propriedades C# continuam em PascalCase.
+  No SQL manual, use aspas duplas: `SELECT "ID", "INICIADA_EM" FROM busca."BUSCA_ETAPA";`.
+  O EF/Npgsql inclui as aspas no SQL gerado. Expressões SQL de checks e filtros
+  também usam identificadores explicitamente delimitados. Esse comportamento é
+  [nativo do PostgreSQL](https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS).
+  Sem aspas, o PostgreSQL converte identificadores para minúsculas.
+- Entidades ficam diretamente em `Dominio`, com seus métodos privados de validação
+  no final do mesmo arquivo. `Validacao.cs` mantém os auxiliares locais do módulo.
+- Enums ficam em `Dominio/Enums`; o namespace de domínio é preservado.
+- Testes são agrupados em `Configuracao`, `Persistencia`, `Cache`, `Mensageria`,
+  `Http` e `Fixtures`, no projeto de testes existente.
+- Uma linha em branco entre declarações, propriedades, instruções e métodos.
+- Duas linhas em branco antes das navegações, no próprio arquivo da entidade.
+- Cada cadeia de mapping mantém uma chamada por linha, com os pontos alinhados;
+  uma linha em branco separa a configuração de uma propriedade da seguinte.
+- Um DbContext interno por módulo, schema e histórico de migrations próprios.
+- Mappings separados com `IEntityTypeConfiguration<T>`, descobertos por
+  `ApplyConfigurationsFromAssembly`; nenhuma configuração individual no contexto.
+- Entidades com setters privados, coleções somente leitura e validação de criação.
+- Nenhum relacionamento EF cruza schemas; integrações usam contratos/eventos.
+- Redis é descartável; consumo e efeitos definitivos pertencem ao PostgreSQL.
+
+Os testes verificam os oito modelos, 32 mappings, chaves, tipos de coluna,
+relacionamentos, encapsulamento e separação do histórico de migrations.
+Com `VERUM_TEST_POSTGRES` configurada para uma conexão de desenvolvimento, validam
+também a criação das 32 tabelas e suas constraints/índices no PostgreSQL real,
+em schemas aleatórios dentro de transações revertidas ao final. O usuário da
+conexão precisa poder criar schemas; os schemas da aplicação não são alterados.
+Nenhuma migration foi criada nesta etapa. Se existir um banco criado manualmente
+com nomes antigos, a alteração dos mappings não o renomeia automaticamente.
+A revisão cobre a base implementada; o ADR ainda prevê migrations, Outbox/Inbox
+duráveis, idempotência e os casos de uso que serão desenvolvidos nas próximas etapas.
+
+### Pastas reservadas para o desenvolvimento
+
+Pastas vazias com responsabilidade prevista permanecem na estrutura:
+
+| Local | Uso previsto |
+| --- | --- |
+| API: Controllers, Configuracoes, Filtros e Middlewares | Endpoints, configuração e comportamento HTTP |
+| Workers: Processadores | Orquestração do processamento, delegando regras aos módulos |
+| Worker Radar: Agendamentos | Disparo das verificações periódicas |
+| Módulos: Aplicacao | Casos de uso, organizados por funcionalidade quando implementados |
+| CrossCutting: Autenticacao e Web | Componentes de autenticação e HTTP usados pelos pipelines |
+| CrossCutting: Observabilidade e Resiliencia | Instrumentação e políticas técnicas de integração |
+| CrossCutting: Persistencia | Componentes técnicos de persistência e Outbox, sem centralizar DbContexts |
+| Tests: Unitarios, Arquitetura e Funcionais | Separação futura das suítes quando necessária; ainda sem novos projetos |
+
+`CrossCutting/Modulos` foi removida por redundância: a composição permanece em
+`Pipelines/ModulosPipeline.cs`, e os módulos de negócio em `Modules`.
+Os três `ModuleMarker.cs` sem referências foram removidos; a seleção de assemblies
+continua utilizando `DependencyInjection` de cada módulo.
 
 ## Referências
 

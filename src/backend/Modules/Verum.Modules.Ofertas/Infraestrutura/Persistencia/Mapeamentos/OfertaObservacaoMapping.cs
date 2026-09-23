@@ -8,35 +8,104 @@ internal sealed class OfertaObservacaoMapping : IEntityTypeConfiguration<Entidad
 {
   public void Configure(EntityTypeBuilder<Entidade> builder)
   {
-    builder.ToTable("oferta_observacao", table =>
+    builder.ToTable("OFERTA_OBSERVACAO", table =>
     {
-      table.HasCheckConstraint("ck_oferta_observacao_oferta_id", "oferta_id <> '00000000-0000-0000-0000-000000000000'::uuid");
-      table.HasCheckConstraint("ck_oferta_observacao_fonte_id", "fonte_id <> '00000000-0000-0000-0000-000000000000'::uuid");
-      table.HasCheckConstraint("ck_oferta_observacao_preco", "preco >= 0.01 AND preco <= 999999999999.99");
-      table.HasCheckConstraint("ck_oferta_observacao_preco_pix", "preco_pix >= 0.01 AND preco_pix <= 999999999999.99");
-      table.HasCheckConstraint("ck_oferta_observacao_quantidade_parcelas", "quantidade_parcelas >= 1 AND quantidade_parcelas <= 32767");
-      table.HasCheckConstraint("ck_oferta_observacao_valor_parcela", "valor_parcela >= 0.01 AND valor_parcela <= 999999999999.99");
-      table.HasCheckConstraint("ck_oferta_observacao_condicao_preco", "length(btrim(condicao_preco)) > 0");
-      table.HasCheckConstraint("ck_oferta_observacao_disponibilidade", "disponibilidade IN (1, 2, 3)");
-      table.HasCheckConstraint("ck_oferta_observacao_hash_conteudo", "length(btrim(hash_conteudo)) > 0");
-      table.HasCheckConstraint("ck_oferta_observacao_evidencia", "jsonb_typeof(evidencia) = 'object'");
-      table.HasCheckConstraint("ck_oferta_observacao_regra_10", "(quantidade_parcelas IS NULL) = (valor_parcela IS NULL)");
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_OFERTA_ID", "\"OFERTA_ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_FONTE_ID", "\"FONTE_ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_PRECO", "\"PRECO\" >= 0.01 AND \"PRECO\" <= 999999999999.99");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_PRECO_PIX", "\"PRECO_PIX\" >= 0.01 AND \"PRECO_PIX\" <= 999999999999.99");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_QUANTIDADE_PARCELAS", "\"QUANTIDADE_PARCELAS\" >= 1 AND \"QUANTIDADE_PARCELAS\" <= 32767");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_VALOR_PARCELA", "\"VALOR_PARCELA\" >= 0.01 AND \"VALOR_PARCELA\" <= 999999999999.99");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_CONDICAO_PRECO", "length(btrim(\"CONDICAO_PRECO\")) > 0");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_DISPONIBILIDADE", "\"DISPONIBILIDADE\" IN (1, 2, 3)");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_HASH_CONTEUDO", "length(btrim(\"HASH_CONTEUDO\")) > 0");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_EVIDENCIA", "jsonb_typeof(\"EVIDENCIA\") = 'object'");
+
+      table.HasCheckConstraint("CK_OFERTA_OBSERVACAO_REGRA_10", "(\"QUANTIDADE_PARCELAS\" IS NULL) = (\"VALOR_PARCELA\" IS NULL)");
     });
+
     builder.HasKey(x => x.Id);
-    builder.Property(x => x.Id).HasColumnName("id").HasColumnType("bigint").IsRequired().UseIdentityByDefaultColumn();
-    builder.Property(x => x.OfertaId).HasColumnName("oferta_id").HasColumnType("uuid").IsRequired();
-    builder.Property(x => x.FonteId).HasColumnName("fonte_id").HasColumnType("uuid").IsRequired();
-    builder.Property(x => x.Preco).HasColumnName("preco").HasPrecision(14, 2).HasColumnType("numeric(14,2)").IsRequired();
-    builder.Property(x => x.PrecoPix).HasColumnName("preco_pix").HasPrecision(14, 2).HasColumnType("numeric(14,2)");
-    builder.Property(x => x.QuantidadeParcelas).HasColumnName("quantidade_parcelas").HasColumnType("smallint");
-    builder.Property(x => x.ValorParcela).HasColumnName("valor_parcela").HasPrecision(14, 2).HasColumnType("numeric(14,2)");
-    builder.Property(x => x.CondicaoPreco).HasColumnName("condicao_preco").HasMaxLength(300).HasColumnType("varchar(300)");
-    builder.Property(x => x.Disponibilidade).HasColumnName("disponibilidade").HasConversion<short>().HasColumnType("smallint").IsRequired();
-    builder.Property(x => x.ObservadaEm).HasColumnName("observada_em").HasColumnType("timestamp with time zone").IsRequired();
-    builder.Property(x => x.HashConteudo).HasColumnName("hash_conteudo").HasMaxLength(64).HasColumnType("varchar(64)").IsRequired();
-    builder.Property(x => x.Evidencia).HasColumnName("evidencia").HasColumnType("jsonb");
-    builder.HasOne(x => x.Oferta).WithMany(x => x.Observacoes).HasForeignKey(x => x.OfertaId).OnDelete(DeleteBehavior.Restrict);
-    builder.HasOne(x => x.Fonte).WithMany(x => x.Observacoes).HasForeignKey(x => x.FonteId).OnDelete(DeleteBehavior.Restrict);
+
+    builder.Property(x => x.Id)
+           .HasColumnName("ID")
+           .HasColumnType("bigint")
+           .IsRequired()
+           .UseIdentityByDefaultColumn();
+
+    builder.Property(x => x.OfertaId)
+           .HasColumnName("OFERTA_ID")
+           .HasColumnType("uuid")
+           .IsRequired();
+
+    builder.Property(x => x.FonteId)
+           .HasColumnName("FONTE_ID")
+           .HasColumnType("uuid")
+           .IsRequired();
+
+    builder.Property(x => x.Preco)
+           .HasColumnName("PRECO")
+           .HasPrecision(14, 2)
+           .HasColumnType("numeric(14,2)")
+           .IsRequired();
+
+    builder.Property(x => x.PrecoPix)
+           .HasColumnName("PRECO_PIX")
+           .HasPrecision(14, 2)
+           .HasColumnType("numeric(14,2)");
+
+    builder.Property(x => x.QuantidadeParcelas)
+           .HasColumnName("QUANTIDADE_PARCELAS")
+           .HasColumnType("smallint");
+
+    builder.Property(x => x.ValorParcela)
+           .HasColumnName("VALOR_PARCELA")
+           .HasPrecision(14, 2)
+           .HasColumnType("numeric(14,2)");
+
+    builder.Property(x => x.CondicaoPreco)
+           .HasColumnName("CONDICAO_PRECO")
+           .HasMaxLength(300)
+           .HasColumnType("varchar(300)");
+
+    builder.Property(x => x.Disponibilidade)
+           .HasColumnName("DISPONIBILIDADE")
+           .HasConversion<short>()
+           .HasColumnType("smallint")
+           .IsRequired();
+
+    builder.Property(x => x.ObservadaEm)
+           .HasColumnName("OBSERVADA_EM")
+           .HasColumnType("timestamp with time zone")
+           .IsRequired();
+
+    builder.Property(x => x.HashConteudo)
+           .HasColumnName("HASH_CONTEUDO")
+           .HasMaxLength(64)
+           .HasColumnType("varchar(64)")
+           .IsRequired();
+
+    builder.Property(x => x.Evidencia)
+           .HasColumnName("EVIDENCIA")
+           .HasColumnType("jsonb");
+
+    builder.HasOne(x => x.Oferta)
+           .WithMany(x => x.Observacoes)
+           .HasForeignKey(x => x.OfertaId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+    builder.HasOne(x => x.Fonte)
+           .WithMany(x => x.Observacoes)
+           .HasForeignKey(x => x.FonteId)
+           .OnDelete(DeleteBehavior.Restrict);
   }
 }
 

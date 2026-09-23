@@ -6,6 +6,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="MassTransit" />
     <ProjectReference Include="../../Modules/Verum.Modules.Radar/Verum.Modules.Radar.csproj" />
-    <ProjectReference Include="../../CrossCutting/Verum.CrossCutting/Verum.CrossCutting.csproj" />
+    <ProjectReference Include="../../Verum.CrossCutting/Verum.CrossCutting.csproj" />
   </ItemGroup>
 </Project>

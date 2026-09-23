@@ -8,31 +8,97 @@ internal sealed class PlanoMapping : IEntityTypeConfiguration<Entidade>
 {
   public void Configure(EntityTypeBuilder<Entidade> builder)
   {
-    builder.ToTable("plano", table =>
+    builder.ToTable("PLANO", table =>
     {
-      table.HasCheckConstraint("ck_plano_id", "id <> '00000000-0000-0000-0000-000000000000'::uuid");
-      table.HasCheckConstraint("ck_plano_codigo", "length(btrim(codigo)) > 0");
-      table.HasCheckConstraint("ck_plano_nome", "length(btrim(nome)) > 0");
-      table.HasCheckConstraint("ck_plano_descricao", "length(btrim(descricao)) > 0");
-      table.HasCheckConstraint("ck_plano_pacote_acesso_codigo", "length(btrim(pacote_acesso_codigo)) > 0");
-      table.HasCheckConstraint("ck_plano_valor_atual", "valor_atual >= 0.01 AND valor_atual <= 999999999999.99");
-      table.HasCheckConstraint("ck_plano_moeda", "length(btrim(moeda)) > 0");
-      table.HasCheckConstraint("ck_plano_periodicidade", "periodicidade IN (1, 2)");
+      table.HasCheckConstraint("CK_PLANO_ID", "\"ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+      table.HasCheckConstraint("CK_PLANO_CODIGO", "length(btrim(\"CODIGO\")) > 0");
+
+      table.HasCheckConstraint("CK_PLANO_NOME", "length(btrim(\"NOME\")) > 0");
+
+      table.HasCheckConstraint("CK_PLANO_DESCRICAO", "length(btrim(\"DESCRICAO\")) > 0");
+
+      table.HasCheckConstraint("CK_PLANO_PACOTE_ACESSO_CODIGO", "length(btrim(\"PACOTE_ACESSO_CODIGO\")) > 0");
+
+      table.HasCheckConstraint("CK_PLANO_VALOR_ATUAL", "\"VALOR_ATUAL\" >= 0.01 AND \"VALOR_ATUAL\" <= 999999999999.99");
+
+      table.HasCheckConstraint("CK_PLANO_MOEDA", "length(btrim(\"MOEDA\")) > 0");
+
+      table.HasCheckConstraint("CK_PLANO_PERIODICIDADE", "\"PERIODICIDADE\" IN (1, 2)");
     });
+
     builder.HasKey(x => x.Id);
-    builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").IsRequired().ValueGeneratedNever();
-    builder.Property(x => x.Codigo).HasColumnName("codigo").HasMaxLength(80).HasColumnType("varchar(80)").IsRequired();
-    builder.Property(x => x.Nome).HasColumnName("nome").HasMaxLength(120).HasColumnType("varchar(120)").IsRequired();
-    builder.Property(x => x.Descricao).HasColumnName("descricao").HasMaxLength(500).HasColumnType("varchar(500)").IsRequired();
-    builder.Property(x => x.PacoteAcessoCodigo).HasColumnName("pacote_acesso_codigo").HasMaxLength(80).HasColumnType("varchar(80)").IsRequired();
-    builder.Property(x => x.ValorAtual).HasColumnName("valor_atual").HasPrecision(14, 2).HasColumnType("numeric(14,2)").IsRequired();
-    builder.Property(x => x.Moeda).HasColumnName("moeda").HasMaxLength(3).IsFixedLength().HasColumnType("char(3)").IsRequired();
-    builder.Property(x => x.Periodicidade).HasColumnName("periodicidade").HasConversion<short>().HasColumnType("smallint").IsRequired();
-    builder.Property(x => x.Ativo).HasColumnName("ativo").HasColumnType("boolean").IsRequired();
-    builder.Property(x => x.CriadoEm).HasColumnName("criado_em").HasColumnType("timestamp with time zone").IsRequired();
-    builder.Property(x => x.AtualizadoEm).HasColumnName("atualizado_em").HasColumnType("timestamp with time zone").IsRequired();
-    builder.Navigation(x => x.Assinaturas).HasField("_assinaturas").UsePropertyAccessMode(PropertyAccessMode.Field);
-    builder.HasIndex(x => x.Codigo).IsUnique();
+
+    builder.Property(x => x.Id)
+           .HasColumnName("ID")
+           .HasColumnType("uuid")
+           .IsRequired()
+           .ValueGeneratedNever();
+
+    builder.Property(x => x.Codigo)
+           .HasColumnName("CODIGO")
+           .HasMaxLength(80)
+           .HasColumnType("varchar(80)")
+           .IsRequired();
+
+    builder.Property(x => x.Nome)
+           .HasColumnName("NOME")
+           .HasMaxLength(120)
+           .HasColumnType("varchar(120)")
+           .IsRequired();
+
+    builder.Property(x => x.Descricao)
+           .HasColumnName("DESCRICAO")
+           .HasMaxLength(500)
+           .HasColumnType("varchar(500)")
+           .IsRequired();
+
+    builder.Property(x => x.PacoteAcessoCodigo)
+           .HasColumnName("PACOTE_ACESSO_CODIGO")
+           .HasMaxLength(80)
+           .HasColumnType("varchar(80)")
+           .IsRequired();
+
+    builder.Property(x => x.ValorAtual)
+           .HasColumnName("VALOR_ATUAL")
+           .HasPrecision(14, 2)
+           .HasColumnType("numeric(14,2)")
+           .IsRequired();
+
+    builder.Property(x => x.Moeda)
+           .HasColumnName("MOEDA")
+           .HasMaxLength(3)
+           .IsFixedLength()
+           .HasColumnType("char(3)")
+           .IsRequired();
+
+    builder.Property(x => x.Periodicidade)
+           .HasColumnName("PERIODICIDADE")
+           .HasConversion<short>()
+           .HasColumnType("smallint")
+           .IsRequired();
+
+    builder.Property(x => x.Ativo)
+           .HasColumnName("ATIVO")
+           .HasColumnType("boolean")
+           .IsRequired();
+
+    builder.Property(x => x.CriadoEm)
+           .HasColumnName("CRIADO_EM")
+           .HasColumnType("timestamp with time zone")
+           .IsRequired();
+
+    builder.Property(x => x.AtualizadoEm)
+           .HasColumnName("ATUALIZADO_EM")
+           .HasColumnType("timestamp with time zone")
+           .IsRequired();
+
+    builder.Navigation(x => x.Assinaturas)
+           .HasField("_assinaturas")
+           .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+    builder.HasIndex(x => x.Codigo)
+           .IsUnique();
   }
 }
 

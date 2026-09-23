@@ -8,7 +8,7 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-    <ProjectReference Include="../../CrossCutting/Verum.CrossCutting/Verum.CrossCutting.csproj" />
+    <ProjectReference Include="../../Verum.CrossCutting/Verum.CrossCutting.csproj" />
     <ProjectReference Include="../../Apps/Verum.Api/Verum.Api.csproj" Aliases="global,VerumApi" />
     <ProjectReference Include="../../Apps/Verum.Worker.Descoberta/Verum.Worker.Descoberta.csproj" />
     <ProjectReference Include="../../Apps/Verum.Worker.Radar/Verum.Worker.Radar.csproj" />
