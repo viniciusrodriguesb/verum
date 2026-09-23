@@ -1,3 +1,5 @@
+using Verum.BuildingBlocks.Erros;
+
 namespace Verum.Modules.Catalogo.Dominio;
 
 internal sealed class Categoria
@@ -51,7 +53,7 @@ internal sealed class Categoria
 
     AtualizadaEm = ValidarAtualizadaEm(agora);
 
-    if (!(CategoriaPaiId != Id)) throw new ArgumentException("Uma categoria não pode ser sua própria categoria pai.");
+    if (!(CategoriaPaiId != Id)) throw ErroAplicacaoException.Validacao("Uma categoria não pode ser sua própria categoria pai.");
   }
 
   private static Guid ValidarId(Guid valor) =>

@@ -1,0 +1,170 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "consultaInterpretada",
+    "motivoSemResultado",
+    "produtos"
+  ],
+  "properties": {
+    "consultaInterpretada": {
+      "type": "string"
+    },
+    "motivoSemResultado": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "produtos": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nome",
+          "marca",
+          "modelo",
+          "variante",
+          "gtin",
+          "loja",
+          "vendedor",
+          "url",
+          "imagemUrl",
+          "preco",
+          "precoPix",
+          "precoAnterior",
+          "quantidadeParcelas",
+          "valorParcela",
+          "condicaoPreco",
+          "moeda",
+          "disponibilidade",
+          "condicaoProduto",
+          "correspondencia",
+          "evidencia"
+        ],
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "marca": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "modelo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "variante": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gtin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "loja": {
+            "type": "string"
+          },
+          "vendedor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "type": "string"
+          },
+          "imagemUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "preco": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "precoPix": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "precoAnterior": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "quantidadeParcelas": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "valorParcela": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "condicaoPreco": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "moeda": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "BRL",
+              null
+            ]
+          },
+          "disponibilidade": {
+            "type": "string",
+            "enum": [
+              "disponivel",
+              "indisponivel",
+              "desconhecida"
+            ]
+          },
+          "condicaoProduto": {
+            "type": "string",
+            "enum": [
+              "novo",
+              "usado",
+              "recondicionado",
+              "desconhecida"
+            ]
+          },
+          "correspondencia": {
+            "type": "string",
+            "enum": [
+              "exata",
+              "aproximada"
+            ]
+          },
+          "evidencia": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,3 +1,5 @@
+using Verum.BuildingBlocks.Erros;
+
 namespace Verum.Modules.Ofertas.Dominio;
 
 internal sealed class OfertaObservacao
@@ -71,7 +73,7 @@ internal sealed class OfertaObservacao
 
     Evidencia = ValidarEvidencia(evidencia);
 
-    if (!(QuantidadeParcelas.HasValue == ValorParcela.HasValue)) throw new ArgumentException("QuantidadeParcelas e ValorParcela devem ser informados juntos.");
+    if (!(QuantidadeParcelas.HasValue == ValorParcela.HasValue)) throw ErroAplicacaoException.Validacao("QuantidadeParcelas e ValorParcela devem ser informados juntos.");
   }
 
   private static long ValidarId(long valor) =>

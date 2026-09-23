@@ -1,3 +1,4 @@
+using Verum.BuildingBlocks.Erros;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -230,7 +231,7 @@ public sealed class PersistenciaModelTests
 
         var exception = Assert.Throws<TargetInvocationException>(() => constructor.Invoke(attempt));
 
-        Assert.IsAssignableFrom<ArgumentException>(exception.InnerException);
+        Assert.IsAssignableFrom<ErroAplicacaoException>(exception.InnerException);
       }
     }
   }
@@ -266,11 +267,11 @@ public sealed class PersistenciaModelTests
   {
     var now = DateTimeOffset.UtcNow;
 
-    Assert.Throws<ArgumentException>(() => new Modules.Busca.Dominio.Busca("key", "produto", now.AddHours(1)));
+    Assert.Throws<ErroAplicacaoException>(() => new Modules.Busca.Dominio.Busca("key", "produto", now.AddHours(1)));
 
-    Assert.Throws<ArgumentException>(() => new Modules.Busca.Dominio.Busca("key", "produto", now.AddHours(1), Guid.NewGuid(), Guid.NewGuid()));
+    Assert.Throws<ErroAplicacaoException>(() => new Modules.Busca.Dominio.Busca("key", "produto", now.AddHours(1), Guid.NewGuid(), Guid.NewGuid()));
 
-    Assert.Throws<ArgumentException>(() => new Modules.Busca.Dominio.Busca("key", "produto", now.AddMinutes(-1), Guid.NewGuid()));
+    Assert.Throws<ErroAplicacaoException>(() => new Modules.Busca.Dominio.Busca("key", "produto", now.AddMinutes(-1), Guid.NewGuid()));
 
     var busca = new Modules.Busca.Dominio.Busca("key", "  IPHONE 16  ", now.AddHours(1), Guid.NewGuid());
 
@@ -282,17 +283,17 @@ public sealed class PersistenciaModelTests
   [Fact]
   public void RankingNaoExibeMaisOfertasDoQueAnalisou()
   {
-    Assert.Throws<ArgumentException>(() => new Modules.Busca.Dominio.ResultadoBusca(Guid.NewGuid(), "v1", 1, 2, false));
+    Assert.Throws<ErroAplicacaoException>(() => new Modules.Busca.Dominio.ResultadoBusca(Guid.NewGuid(), "v1", 1, 2, false));
   }
 
   [Fact]
   public void JsonInvalidoEConfiancaForaDoIntervaloSaoRejeitados()
   {
-    Assert.Throws<ArgumentException>(() => new Modules.Catalogo.Dominio.ProdutoVariante(Guid.NewGuid(), "nome", "slug", "{"));
+    Assert.Throws<ErroAplicacaoException>(() => new Modules.Catalogo.Dominio.ProdutoVariante(Guid.NewGuid(), "nome", "slug", "{"));
 
-    Assert.Throws<ArgumentException>(() => new Modules.Catalogo.Dominio.ProdutoVariante(Guid.NewGuid(), "nome", "slug", "[]"));
+    Assert.Throws<ErroAplicacaoException>(() => new Modules.Catalogo.Dominio.ProdutoVariante(Guid.NewGuid(), "nome", "slug", "[]"));
 
-    Assert.Throws<ArgumentOutOfRangeException>(() => new Modules.Catalogo.Dominio.ProdutoTermoBusca(
+    Assert.Throws<ErroAplicacaoException>(() => new Modules.Catalogo.Dominio.ProdutoTermoBusca(
       Guid.NewGuid(), "termo", Modules.Catalogo.Dominio.OrigemTermo.Catalogo, 1.01m));
   }
 

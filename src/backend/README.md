@@ -1,267 +1,150 @@
 # Backend Verum
 
-Base técnica do monólito modular em .NET 10, com oito módulos, 32 entidades,
-mappings EF Core, DbContexts próprios, cache Redis, hosts e pipelines.
-Casos de uso, scrapers, integrações de pagamento/notificação, migrations e
-endpoints de negócio ainda não foram implementados.
+O Verum usa um **monólito modular em .NET 10**, com uma API e dois workers executados separadamente. O código é organizado por contexto de negócio, com uma Clean Architecture enxuta dentro de cada módulo. O objetivo é permitir evolução e escala sem exigir interfaces ou projetos extras para cada operação.
 
-## Estrutura e composição
+A base técnica já contém entidades, mappings, persistência por módulo, cache, mensageria, autenticação JWT, proteção HTTP e tratamento de erros. Endpoints e casos de uso de negócio, processamento das mensagens, agendamentos, migrations e integrações com provedores ainda serão implementados.
 
-- `Apps/Verum.Api`: ASP.NET Core; chama `AddVerumApi` e `UseVerumApi`.
-- `Apps/Verum.Worker.Descoberta`: Generic Host; chama `AddVerumWorkerDescoberta`.
-- `Apps/Verum.Worker.Radar`: Generic Host; chama `AddVerumWorkerRadar`.
-- `Modules`: Contas, Acesso, Busca, Catálogo, Ofertas, Radar, Assinaturas e
-  Notificações, cada um com domínio, mappings, DbContext e registro de persistência.
-- `Verum.CrossCutting/Pipelines`: um arquivo por pipeline.
-- `Verum.CrossCutting/Mensageria`: opções e componentes genéricos.
-- `Tests/Verum.Tests.Integracao`: testes da configuração com infraestrutura em
-  memória; demais categorias continuam reservadas.
+## Organização
 
-CrossCutting compõe os módulos; módulos nunca referenciam CrossCutting. A API
-registra os oito módulos. Descoberta registra Busca, Catálogo e Ofertas; o worker
-Radar registra Radar, Catálogo, Ofertas e Notificações.
-Consumidores são selecionados explicitamente por host, evitando processar a mesma
-mensagem em executáveis diferentes por uma varredura indiscriminada.
-
-## Pacotes
-
-Versões fixadas em `Directory.Packages.props`; cada projeto declara seus pacotes.
-
-| Base | Versão |
+| Local | Responsabilidade |
 | --- | --- |
-| ASP.NET OpenAPI, JWT, Hosting, Redis e EF Core | 10.0.12 |
-| Microsoft.Extensions.Http.Resilience | 10.10.0 |
-| Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 |
-| MassTransit.RabbitMQ e EntityFrameworkCore | 8.5.10 |
-| OpenTelemetry Hosting, ASP.NET Core e OTLP | 1.19.0 |
-| OpenTelemetry HTTP | 1.18.0 |
+| `Apps/Verum.Api` | Entrada HTTP, controllers, autenticação e respostas da API |
+| `Apps/Verum.Worker.Descoberta` | Consumo das solicitações de busca e futuro processamento de descoberta |
+| `Apps/Verum.Worker.Radar` | Consumo das verificações de monitoramento e futuros agendamentos |
+| `Modules` | Busca, Catálogo, Ofertas, Radar, Contas, Acesso, Assinaturas e Notificações |
+| `Verum.CrossCutting` | Composição de dependências e infraestrutura compartilhada, com um arquivo por pipeline |
+| `Verum.BuildingBlocks` | Contrato mínimo de erros esperados, compartilhado entre módulos e API, sem dependências externas |
+| `Tests` | Testes da base e pastas reservadas para as demais categorias |
 
-MassTransit 8.5.10 fornece assets para `net10.0` e licença Apache-2.0, conforme
-seus manifests NuGet. A versão foi fixada explicitamente; a linha 9 tem
-licenciamento comercial. O transporte usa RabbitMQ.Client transitivamente;
-não há conexão ou canal RabbitMQ manual paralelo ao MassTransit.
+Dentro de cada módulo, `Dominio` mantém entidades, validações e enums; `Aplicacao` recebe os casos de uso; `Contratos` define a comunicação com outros componentes; `Infraestrutura` implementa a persistência. Pastas vazias com responsabilidade futura conhecida permanecem reservadas.
 
-EF/Npgsql estão no CrossCutting porque o registro genérico de persistência os
-utiliza. Quando um módulo implementar um DbContext ou consumidor, deverá declarar
-também seus próprios PackageReferences para as APIs que usa. SDKs de provedores
-(OpenAI, pagamento, e-mail, Playwright) serão adicionados com seus adaptadores;
-nenhum adaptador de negócio foi criado nesta etapa.
+Os hosts usam CrossCutting para montar a aplicação. **Módulos não dependem de CrossCutting**: definem seus contratos e preservam suas regras. Integrações entre módulos usam contratos e eventos; relacionamentos EF não atravessam seus schemas. BuildingBlocks contém somente os erros compartilhados, sem bases genéricas de entidades ou serviços.
 
-## Pipelines
+A API registra os oito módulos. Descoberta registra Busca, Catálogo e Ofertas. Radar registra Radar, Catálogo, Ofertas e Notificações. Cada worker registra explicitamente seus consumidores.
 
-| Arquivo | Responsabilidade |
-| --- | --- |
-| ApplicationPipeline | Middleware HTTP, autenticação, autorização, CORS, Problem Details, OpenAPI e health endpoints |
-| WebPipeline | Registro de controllers, OpenAPI, Problem Details e CORS por origens explícitas |
-| AutenticacaoPipeline | JWT do realm Keycloak, validação de issuer, audience e validade |
-| ServicesPipeline | DI por convenção de nome, com lifetime scoped |
-| ModulosPipeline | Assemblies de aplicação selecionados para cada host |
-| HttpClientsPipeline | IHttpClientFactory e resiliência padrão para clientes nomeados/tipados |
-| MensageriaPipeline | Bus RabbitMQ, credenciais, TLS opcional, prefixos de filas e ciclo de vida |
-| PublishersPipeline | PublicadorMensagem<T> scoped sobre IPublishEndpoint |
-| ConsumersPipeline | Concorrência, retry, redelivery opcional e buffer de publicações |
-| PersistenciaPipeline | Registro PostgreSQL por DbContext/schema e preparação de Outbox transacional |
-| CachePipeline | Cache genérico, contratos de cache por módulo, coordenação atômica e IDistributedCache |
-| ObservabilidadePipeline | Logs, tracing, métricas, exportação OTLP opcional e health checks |
+## Fluxo do início ao fim
 
-## DI automática de services
+O fluxo previsto para uma funcionalidade é:
 
-Classes concretas fechadas com sufixo `Service` em um segmento de namespace
-`Aplicacao` dos assemblies selecionados são registradas automaticamente:
+1. A requisição entra na API, passa pelos middlewares, CORS, autenticação e autorização e chega ao controller.
+2. O controller delega ao serviço de aplicação do módulo, que coordena regras de domínio, persistência, cache e integrações.
+3. PostgreSQL mantém os dados definitivos. Redis pode fornecer uma projeção temporária; em uma ausência de cache, o caso de uso consulta a origem e atualiza o cache.
+4. Trabalho assíncrono é publicado pelo MassTransit no RabbitMQ. O worker responsável recebe a mensagem e delega o processamento aos módulos.
+5. O processamento consulta provedores por clientes HTTP protegidos, persiste o resultado e atualiza ou invalida as projeções. A API poderá expor andamento e resultado ao cliente.
+6. Falhas HTTP recebem respostas padronizadas; falhas de consumo seguem o tratamento do MassTransit. Logs e rastreamento permitem acompanhar a execução.
 
-```csharp
-namespace Verum.Modules.Busca.Aplicacao.IniciarBusca;
+Essa sequência descreve o desenho do produto. Atualmente, os consumidores recebem e validam os IDs, mas lançam `ProcessamentoNaoConfiguradoException` enquanto o processamento real não existir. A mensagem vai para a fila de erro, evitando confirmar um trabalho que não foi realizado.
 
-internal sealed class IniciarBuscaService
-{
-  // Futuro caso de uso.
-}
-```
+## Padrões da implementação
 
-Não é necessário adicionar uma linha de DI para cada nova classe. Classes
-internas são suportadas, desde que tenham construtores públicos para o container.
-Quando existe `IIniciarBuscaService`, contrato e classe resolvem a mesma instância
-dentro do escopo. A interface é opcional. Classes abstratas, genéricos abertos e
-classes fora de Aplicacao não são registradas. Contratos ambíguos geram erro.
-Lifetime padrão é scoped; não existe promoção automática para singleton.
-Novos módulos devem entrar na seleção de assemblies uma única vez.
+### Domínio, persistência e injeção de dependências
 
-## HTTP
+Cada módulo possui seu próprio DbContext, schema PostgreSQL e histórico de migrations. Os mappings ficam em classes `IEntityTypeConfiguration<T>` separadas e são descobertos por `ApplyConfigurationsFromAssembly`, mantendo o contexto limpo.
 
-Todos os clientes criados por `IHttpClientFactory` recebem a resiliência padrão:
-limite de concorrência, timeout total, retry exponencial com jitter, circuit
-breaker e timeout por tentativa. Cada cliente nomeado/tipado isola seu pipeline;
-crie um cliente por provedor. Configuração comum em `Http:Resilience`.
+Entidades possuem setters privados, construtores de criação e validações. Navegações permanecem no mesmo arquivo, separadas visualmente das propriedades. Enums ficam em `Dominio/Enums`. O código usa uma linha em branco entre propriedades, instruções e métodos, duas antes das navegações e uma chamada por linha nas cadeias dos mappings.
 
-```csharp
-services.AddHttpClient<ClienteDaFonte>(client =>
-  client.BaseAddress = new Uri("https://fonte.example"));
-```
+Tabelas e colunas usam `UPPER_SNAKE_CASE`; schemas usam minúsculas. O EF gera os identificadores corretamente. Em SQL manual, os nomes maiúsculos exigem aspas duplas, como `busca."BUSCA_ETAPA"`.
 
-POST, PATCH, PUT, DELETE e CONNECT não recebem retry automático, evitando
-duplicação de efeitos. Não empilhe outro handler padrão sobre o já configurado.
-Timeout e cancelamento propagam ao chamador. O fallback entre fontes pertence
-ao futuro caso de uso: esse pipeline não converte falhas em resultados vazios.
+O `ServicesPipeline` registra automaticamente classes concretas com sufixo `Service` no segmento de namespace `Aplicacao` dos módulos selecionados. O ciclo de vida é scoped. Interfaces são opcionais; quando existe o contrato correspondente `I...Service`, ele resolve a mesma instância. Classes internas precisam de construtores públicos para a injeção. Um novo módulo entra na composição uma vez, sem registros individuais para cada serviço.
 
-## RabbitMQ, publishers e consumers
+### Mensageria e concorrência
 
-`RabbitMQ:Enabled=false` permite executar a base sem broker. Nesse modo não há
-bus nem publicador registrado: não existe transporte falso ou descarte silencioso.
-Para habilitar, configure em cada executável, por variáveis de ambiente ou secrets:
+MassTransit administra conexões, publicação, confirmações, consumo e recuperação do transporte RabbitMQ. O publicador genérico utiliza o contexto scoped e um prazo configurável de publicação, sem um segundo ciclo de retry.
 
-```text
-RabbitMQ__Enabled=true
-RabbitMQ__Host=seu-host
-RabbitMQ__Port=5672
-RabbitMQ__VirtualHost=/
-RabbitMQ__Username=usuario
-RabbitMQ__Password=senha
-```
-
-Para TLS, use `RabbitMQ__UseSsl=true` e a porta TLS do ambiente (normalmente 5671).
-Certificados são validados normalmente. Não há credenciais reais versionadas.
-
-O host aguarda a conexão por até 30 segundos. Os endpoints usam prefixos
-`verum-api`, `verum-descoberta` ou `verum-radar`, com nomes kebab-case,
-prefetch e concorrência configuráveis. MassTransit gerencia publisher confirms,
-acknowledgments, conexões e recuperação do transporte.
-
-Os workers já registram seus consumidores, cada um em seu próprio host:
-
-| Worker | Contrato | Fila |
+| Worker | Mensagem | Fila |
 | --- | --- | --- |
-| Descoberta | `BuscaSolicitada(BuscaId)` | `verum-descoberta-busca-solicitada` |
-| Radar | `VerificacaoRadarSolicitada(MonitoramentoId)` | `verum-radar-verificacao-radar-solicitada` |
+| Descoberta | `BuscaSolicitada`, com `BuscaId` | `verum-descoberta-busca-solicitada` |
+| Radar | `VerificacaoRadarSolicitada`, com `MonitoramentoId` | `verum-radar-verificacao-radar-solicitada` |
 
-Os contratos pertencem aos módulos Busca e Radar e carregam somente o ID do
-registro persistido. Nenhum agendamento ou produtor de negócio foi criado.
-Os registros ficam em `Configuracoes/ConsumidoresConfiguration.cs` de cada
-worker. A API não registra esses consumidores.
+`ConcurrentMessageLimit` controla mensagens simultâneas por endpoint e instância; `PrefetchCount` controla mensagens antecipadas do broker. Os padrões são 8 e 16. Réplicas aumentam a concorrência total. Não há semáforo adicional nem garantia de ordenação ou exclusão por ID.
 
-Em cada consumidor, a região `#region Processamento...` indica onde injetar e
-chamar a fachada/serviço real. Até essa implementação, IDs vazios geram
-ArgumentException e mensagens válidas geram ProcessamentoNaoConfiguradoException.
-Ambas seguem para `_error` e emitem `Fault<T>` sem retries/redelivery.
-Isso evita confirmar como concluído um trabalho ainda não implementado.
-Após implementar o serviço, remova o throw e aguarde sua Task com o token do
-contexto. As mensagens na fila de erro poderão ser reenviadas para processamento.
+Falhas elegíveis recebem retries curtos. Erros esperados de aplicação, argumentos inválidos, cancelamento e processamento ainda não configurado não recebem retry/redelivery. Ao esgotar as tentativas, o MassTransit encaminha para `_error` e publica `Fault<T>`. Consumidores precisam ser idempotentes, pois mensagens podem ser entregues novamente.
 
-Para adicionar outro consumidor futuro no host correspondente:
+O Outbox em memória está habilitado: retém publicações de uma tentativa até o sucesso, mas não é durável nem torna alterações no banco atômicas com mensagens. Existem helpers para Outbox/Inbox com EF Core, porém ativação, tabelas técnicas, migrations e composição transacional estão pendentes. Sua adoção exige definir o contexto proprietário e substituir o buffer em memória.
 
-```csharp
-builder.Services.AddVerumWorkerDescoberta(builder.Configuration,
-  bus => bus.AddConsumer<MinhaMensagemConsumer>());
-```
+### Cache Redis
 
-O consumidor pode implementar `IConsumer<T>` diretamente ou, nos hosts, herdar
-`ConsumidorMensagem<T>`. A base adiciona escopo de logs com IDs e delega a
-`ProcessarAsync(ConsumeContext<T>)`, preservando cancellation e falhas.
-Módulos usam as interfaces nativas do MassTransit sem depender de CrossCutting.
+O padrão é **cache-aside**: PostgreSQL continua sendo a fonte definitiva e Redis guarda dados descartáveis. Os módulos acessam contratos próprios; CrossCutting implementa a integração com Redis.
 
-O `PublicadorMensagem<T>.PublicarAsync` aceita CancellationToken e usa o
-`IPublishEndpoint` scoped, preservando contexto e Outbox. Possui deadline
-configurável para publicação e não adiciona um segundo loop de retry que
-possa duplicar publicações. Se falhar ou expirar, a falha é devolvida ao chamador.
-O publicador não substitui a persistência durável de eventos.
+Há operações genéricas de leitura, gravação com validade, remoção, existência e obtenção com carregamento da origem. O cache armazena DTOs, não entidades EF com navegações, e compartilha uma conexão multiplexada por processo.
 
-Há até três retries curtos por padrão. ArgumentException,
-ProcessamentoNaoConfiguradoException e OperationCanceledException não são repetidas.
-Esgotadas as tentativas, o
-MassTransit mantém seu fluxo padrão de fila `_error` e `Fault<T>`; mensagens
-sem consumidor seguem para `_skipped`. Consumidores precisam ser idempotentes:
-entrega e confirmações não eliminam a possibilidade de duplicação.
+| Uso no produto | Conteúdo |
+| --- | --- |
+| Busca | Status e resultado temporários |
+| Catálogo | Variantes e resolução de consultas |
+| Ofertas | Ofertas atuais e reserva de atualização por variante/fonte |
+| Acesso | Permissões temporárias e limites operacionais por conta ou visitante |
 
-`UseDelayedRedelivery=true` habilita intervalos de 30, 120 e 600 segundos,
-configuráveis. Essa opção exige o plugin `rabbitmq_delayed_message_exchange`
-instalado no broker. Ela permanece desabilitada até essa preparação.
-Retry curto mantém a mensagem em processamento; redelivery libera o consumidor
-durante esperas longas. Não há scheduler de negócio nesta etapa.
+TTLs são configuráveis. A validade de ofertas, resultados e permissões limita o prazo do cache; leituras não o renovam. Alterações devem invalidar as projeções depois do commit. Autorização e dados que exigem consistência estrita devem ser confirmados no módulo proprietário.
 
-### Paralelismo de consumo
+Reservas com token e limites usam operações atômicas no Redis. Reservas reduzem consultas externas duplicadas, mas não substituem transações ou idempotência. Limites operacionais não representam cobrança ou consumo definitivo. A contenção de carregamento do cache genérico é local ao processo; a reserva de Ofertas coordena processos distintos.
 
-Não há SemaphoreSlim adicional. `RabbitMQ:ConcurrentMessageLimit=8` limita o
-processamento simultâneo por endpoint e instância; `PrefetchCount=16` limita as
-mensagens antecipadas pelo broker. Cada worker possui sua própria configuração.
-O MassTransit cria escopos de DI para as mensagens e aguarda suas Tasks.
-Não use Task.Run ou fire-and-forget para disparar o processamento.
+Com Redis desabilitado ou indisponível, leituras de cache retornam ausência e gravações retornam `false`; coordenação falha explicitamente, sem conceder reservas ou cotas. Não há cache em memória substituto. API e workers compartilham o prefixo Redis do ambiente, com prefixos distintos entre ambientes.
 
-Com duas réplicas do mesmo worker, o limite agregado pode chegar a 16 mensagens
-simultâneas na mesma fila. Esse limite não garante ordenação nem exclusão por
-BuscaId/MonitoramentoId; idempotência e proteção de alterações concorrentes serão
-implementadas com o processamento. Um semáforo local tampouco coordenaria réplicas.
-Limites por provedor externo e paralelismo dentro de uma busca são preocupações
-separadas. Os valores iniciais são configuráveis, não resultado de benchmark.
+### Chamadas externas e erros da API
 
-## Outbox e PostgreSQL
+Clientes criados por `IHttpClientFactory` recebem timeout total e por tentativa, retry exponencial com jitter, circuit breaker e controle de concorrência de saída. Cada cliente mantém seu próprio circuito. Use um nome estável por integração e não empilhe outro handler de resiliência.
 
-O buffer em memória dos consumidores impede publicar os eventos de uma tentativa
-que terminou com erro. Ele **não é durável**, não garante deduplicação persistente
-nem atomicidade com mudanças no banco.
+`Http:Resilience` define o padrão; `Http:Clients:<nome>:Resilience` permite ajustes por cliente. `RetryEnabled` e `CircuitBreakerEnabled` podem ser definidos globalmente ou por cliente. Reinicie o host após alterar essas políticas. POST, PUT, PATCH, DELETE e CONNECT não recebem retry automático. A proteção se aplica somente a chamadas externas; não foi adicionado limitador de entrada na API.
 
-A base fornece `AddVerumPostgreSql<TContext>(configuration, schema)`,
-`AddVerumOutbox<TContext>()` e `UseVerumOutbox<TContext>(context)`.
-Quando existir o contexto e suas migrations:
+A API responde erros em Problem Details, com status, descrição, código e `traceId`; validações podem incluir erros por campo. `ErroAplicacaoException` representa validação, ausência, conflito ou acesso negado, sem acoplar o domínio a códigos HTTP. Mensagens esperadas devem ser seguras para exposição. Falhas técnicas retornam descrições genéricas, com detalhes internos apenas nos logs. Nos workers, falhas seguem o fluxo de mensageria.
 
-1. Registre o DbContext com a conexão `ConnectionStrings:PostgreSQL` e schema
-   proprietário. O schema informado separa a tabela de histórico de migrations;
-   o próprio contexto deve definir `HasDefaultSchema` para suas entidades.
-2. No modelo do módulo, usando as extensões nativas de MassTransit, adicione
-   `AddInboxStateEntity`, `AddOutboxMessageEntity` e `AddOutboxStateEntity`.
-3. Registre `bus.AddVerumOutbox<TContext>()` no callback de composição.
-4. No ConsumerDefinition correspondente, aplique
-   `endpoint.UseEntityFrameworkOutbox<TContext>(context)` (ou a extensão
-   `UseVerumOutbox` se a definição estiver no host).
-5. Desabilite `RabbitMQ:UseInMemoryOutbox` no host que adotar o Outbox
-   transacional, para não empilhar os dois mecanismos.
-6. Publique pelo endpoint scoped e persista com `SaveChangesAsync` na mesma
-   unidade de trabalho das alterações. Crie/aplique migrations antes de habilitar.
+## Bibliotecas utilizadas
 
-O helper inicial de Bus Outbox deve ser usado com **um contexto proprietário
-por bus/host**. A composição de vários Bus Outboxes na mesma instância exige
-seleção explícita do contexto e será definida com os fluxos modulares; não se
-deve registrar vários e supor que IPublishEndpoint escolherá sozinho.
-Os oito DbContexts e seus mappings já existem. Migrations e tabelas técnicas
-de Outbox/Inbox ainda não foram criadas; o Outbox durável não está ativo.
-Retry de transação do EF não foi ligado globalmente para não competir com
-as transações gerenciadas pelo consumidor.
+As versões ficam centralizadas em `Directory.Packages.props`; cada projeto declara os pacotes que utiliza.
 
-## Configuração e execução
+| Biblioteca | Papel |
+| --- | --- |
+| ASP.NET Core e Microsoft.Extensions.Hosting | API, workers, configuração e injeção de dependências |
+| Microsoft.AspNetCore.OpenApi | Documento OpenAPI da API em Development |
+| Microsoft.AspNetCore.Authentication.JwtBearer | Validação de tokens JWT emitidos pelo Keycloak |
+| Entity Framework Core + Npgsql | Mapeamento das entidades e acesso ao PostgreSQL |
+| MassTransit + RabbitMQ | Publicação e consumo de mensagens, retries e tratamento de falhas |
+| MassTransit.EntityFrameworkCore | Suporte ao futuro Outbox/Inbox persistido no PostgreSQL |
+| StackExchange.Redis + Microsoft.Extensions.Caching.StackExchangeRedis | Cache, coordenação atômica e integração com `IDistributedCache` |
+| Microsoft.Extensions.Http.Resilience + Polly | Proteção configurável das chamadas HTTP externas |
+| OpenTelemetry | Logs, métricas e rastreamento; exportação OTLP opcional |
+| xUnit, Microsoft.NET.Test.Sdk e Microsoft.AspNetCore.Mvc.Testing | Execução dos testes e hospedagem da API em testes |
 
-Os três hosts possuem `appsettings.Development.json` com as conexões do Docker
-local: RabbitMQ em localhost:5672, Redis em localhost:6379 e PostgreSQL em
-localhost:5432. O banco escolhido para a aplicação é `verum`. RabbitMQ e Redis
-estão habilitados nesse ambiente. Os perfis locais dos workers selecionam
-Development, assim como os perfis da API. São endereços para executar o .NET
-na máquina host; em containers, localhost apontaria para o próprio container.
+## Dependências e configuração local
 
-Os schemas já estão definidos nos DbContexts com `HasDefaultSchema` e serão
-criados ao aplicar as migrations do EF Core. Registrar a conexão ou iniciar o
-host não cria banco, schemas ou tabelas nesta etapa. Não há migrations ainda.
+Instale o SDK indicado em `global.json` (10.0.401, com atualização de patch permitida). Docker pode hospedar as dependências abaixo; serviços instalados diretamente também atendem. O backend ainda não fornece Docker Compose para provisionar esse ambiente.
 
-O cache Redis possui operações genéricas, métodos por módulo, TTLs configuráveis,
-reservas de atualização e limites operacionais atômicos. Veja os
-[métodos, exemplos e garantias](Verum.CrossCutting/Cache/README.md).
-Com `Redis__Enabled=false`, leitura vira miss e gravação retorna false; reservas
-e limites não são concedidos. Para conectar, habilite e preencha
-`ConnectionStrings__Redis`. Não há substituição por cache em memória.
+| Serviço | Configuração local esperada | Preparação |
+| --- | --- | --- |
+| PostgreSQL | `localhost:5432`, banco `verum`, usuário/senha `postgres` | Disponibilizar o banco e acesso para o usuário da aplicação |
+| RabbitMQ | `localhost:5672`, usuário `admin`, senha `admin123`, virtual host `/` | Criar o usuário e conceder permissões no virtual host; MassTransit declara sua topologia |
+| Redis 6.2+ | `localhost:6379`, sem senha ou TLS localmente | Disponibilizar o serviço; não exige criação prévia de chaves |
+| Keycloak | `http://localhost:8080/realms/verum`, audience `verum-api` | Configurar realm e client para emitir tokens com o audience esperado |
+| Collector OTLP, opcional | Endpoint escolhido para telemetria | Necessário somente quando a exportação estiver habilitada |
 
-A API exige `Authentication__Authority` (URL do realm Keycloak) e
-`Authentication__Audience`. Em Development há apenas valores locais de exemplo.
-Em outros ambientes o issuer deve ser configurado, com metadados HTTPS por
-padrão. O realm e o client precisam emitir o audience esperado. As políticas
-de autorização e o mapeamento de papéis de negócio serão definidos depois.
+Em containers, publique essas portas para executar o .NET na máquina local. Se a aplicação também estiver em container, substitua `localhost` pelos nomes dos serviços na rede Docker. Use volumes para os dados persistentes de PostgreSQL e RabbitMQ. A interface administrativa do RabbitMQ é opcional e não substitui a porta AMQP 5672.
 
-`Cors__Origins__0` define a primeira origem permitida. A configuração de
-Development permite `http://localhost:4200`. OpenAPI é exposto apenas em
-Development. `/health/live` verifica o processo; `/health/ready` agrega os checks
-registrados, incluindo MassTransit quando habilitado. Não verifica Redis,
-PostgreSQL ou Keycloak nesta etapa e não atesta disponibilidade do ecossistema.
+Os três hosts possuem `appsettings.json` e `appsettings.Development.json`. Development já aponta para as conexões locais acima e habilita RabbitMQ e Redis. As credenciais são exclusivas de desenvolvimento. Os valores do Keycloak são referências de configuração: o projeto não provisiona realm ou client.
 
-Para exportar telemetria, habilite `Observability__OtlpEnabled=true` e configure
-as variáveis OTEL usuais, como `OTEL_EXPORTER_OTLP_ENDPOINT`. Sem habilitação,
-não há exportação para um collector externo.
+| Seção | O que configurar |
+| --- | --- |
+| `ConnectionStrings` | Conexões `PostgreSQL` e `Redis` |
+| `RabbitMQ` | Habilitação, host, porta, credenciais, TLS, concorrência, retries e publicação |
+| `Redis` | Habilitação, prefixo do ambiente, timeout e TTLs |
+| `Authentication` | Authority, audience e exigência de metadados HTTPS da API |
+| `Cors:Origins` | Origens permitidas; Development inclui `http://localhost:4200` |
+| `Http` | Políticas padrão e sobrescritas por cliente externo |
+| `Observability` | Habilitação da exportação OTLP |
 
-Execute em `src/backend`, com o SDK do `global.json`:
+Variáveis de ambiente sobrescrevem os arquivos e usam `__` entre níveis, por exemplo `ConnectionStrings__PostgreSQL` e `RabbitMQ__Password`. Configure segredos pelo mecanismo de secrets da implantação. Fora de Development, configure explicitamente conexões e autoridade de autenticação; metadados HTTPS são exigidos por padrão.
+
+`RabbitMQ:Enabled=false` permite iniciar sem broker, mas não registra bus nem publicador. `Redis:Enabled=false` mantém os contratos com o comportamento de indisponibilidade descrito acima. A autenticação de endpoints protegidos depende de um emissor JWT configurado corretamente.
+
+Redelivery adiado permanece desabilitado. Para habilitar `RabbitMQ:UseDelayedRedelivery`, o broker precisa do plugin `rabbitmq_delayed_message_exchange`. A exportação de telemetria exige `Observability:OtlpEnabled=true` e as variáveis OTEL, como `OTEL_EXPORTER_OTLP_ENDPOINT`.
+
+### Banco de dados
+
+Iniciar os hosts não cria banco, schemas ou tabelas. Os schemas já estão definidos nos DbContexts e serão criados pelas migrations do EF Core quando elas forem implementadas e aplicadas. Não é necessário desenhar os schemas manualmente; nesta etapa, disponibilize o banco `verum`. Ainda não há migrations para executar, e alterações nos mappings não atualizam um banco existente automaticamente.
+
+## Como executar e validar
+
+Com as dependências locais preparadas, execute em `src/backend`:
 
 ```powershell
 dotnet build Verum.Backend.slnx
@@ -269,78 +152,17 @@ dotnet test Verum.Backend.slnx
 dotnet run --project Apps/Verum.Api --launch-profile http
 ```
 
-Os testes cobrem DI por escopo, validação de opções, inicialização dos dois hosts,
-middleware da API, retries HTTP seguros, retry de consumo, Outbox em memória e
-Fault de mensagem inválida, os consumidores reais dos workers e paralelismo
-respeitando o limite do endpoint. Transporte em memória e HTTP simulado permitem
-validar configuração sem serviços externos. Não substituem testes com RabbitMQ,
-PostgreSQL, Redis ou Keycloak reais.
+Inicie cada worker em um terminal separado:
 
-## Padrão de código e revisão da arquitetura
+```powershell
+dotnet run --project Apps/Verum.Worker.Descoberta --launch-profile Verum.Worker.Descoberta
+dotnet run --project Apps/Verum.Worker.Radar --launch-profile Verum.Worker.Radar
+```
 
-- Tabelas e colunas de negócio usam `UPPER_SNAKE_CASE`: `BUSCA_ETAPA`, `INICIADA_EM`.
-  Schemas continuam em minúsculas por módulo e a tabela técnica de histórico do
-  EF mantém seu nome padrão. Propriedades C# continuam em PascalCase.
-  No SQL manual, use aspas duplas: `SELECT "ID", "INICIADA_EM" FROM busca."BUSCA_ETAPA";`.
-  O EF/Npgsql inclui as aspas no SQL gerado. Expressões SQL de checks e filtros
-  também usam identificadores explicitamente delimitados. Esse comportamento é
-  [nativo do PostgreSQL](https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS).
-  Sem aspas, o PostgreSQL converte identificadores para minúsculas.
-- Entidades ficam diretamente em `Dominio`, com seus métodos privados de validação
-  no final do mesmo arquivo. `Validacao.cs` mantém os auxiliares locais do módulo.
-- Enums ficam em `Dominio/Enums`; o namespace de domínio é preservado.
-- Testes são agrupados em `Configuracao`, `Persistencia`, `Cache`, `Mensageria`,
-  `Http` e `Fixtures`, no projeto de testes existente.
-- Uma linha em branco entre declarações, propriedades, instruções e métodos.
-- Duas linhas em branco antes das navegações, no próprio arquivo da entidade.
-- Cada cadeia de mapping mantém uma chamada por linha, com os pontos alinhados;
-  uma linha em branco separa a configuração de uma propriedade da seguinte.
-- Um DbContext interno por módulo, schema e histórico de migrations próprios.
-- Mappings separados com `IEntityTypeConfiguration<T>`, descobertos por
-  `ApplyConfigurationsFromAssembly`; nenhuma configuração individual no contexto.
-- Entidades com setters privados, coleções somente leitura e validação de criação.
-- Nenhum relacionamento EF cruza schemas; integrações usam contratos/eventos.
-- Redis é descartável; consumo e efeitos definitivos pertencem ao PostgreSQL.
+Esses perfis selecionam Development. A API HTTP fica em `http://localhost:5099`; o perfil alternativo `https` usa `https://localhost:7269` e requer certificado local confiável. O documento OpenAPI fica em `/openapi/v1.json` somente em Development.
 
-Os testes verificam os oito modelos, 32 mappings, chaves, tipos de coluna,
-relacionamentos, encapsulamento e separação do histórico de migrations.
-Com `VERUM_TEST_POSTGRES` configurada para uma conexão de desenvolvimento, validam
-também a criação das 32 tabelas e suas constraints/índices no PostgreSQL real,
-em schemas aleatórios dentro de transações revertidas ao final. O usuário da
-conexão precisa poder criar schemas; os schemas da aplicação não são alterados.
-Nenhuma migration foi criada nesta etapa. Se existir um banco criado manualmente
-com nomes antigos, a alteração dos mappings não o renomeia automaticamente.
-A revisão cobre a base implementada; o ADR ainda prevê migrations, Outbox/Inbox
-duráveis, idempotência e os casos de uso que serão desenvolvidos nas próximas etapas.
+`/health/live` verifica o processo. `/health/ready` agrega os checks registrados, incluindo MassTransit quando habilitado; ainda não verifica PostgreSQL, Redis ou Keycloak e não comprova a disponibilidade de todo o ecossistema.
 
-### Pastas reservadas para o desenvolvimento
+Os testes cobrem composição, modelos EF, cache, mensageria, concorrência, proteção HTTP e erros da API. A suíte usa transporte em memória e HTTP simulado para os testes que dispensam serviços externos. Para incluir testes reais, configure `VERUM_TEST_REDIS` com a conexão Redis e `VERUM_TEST_POSTGRES` com uma conexão PostgreSQL de desenvolvimento antes de executar `dotnet test`.
 
-Pastas vazias com responsabilidade prevista permanecem na estrutura:
-
-| Local | Uso previsto |
-| --- | --- |
-| API: Controllers, Configuracoes, Filtros e Middlewares | Endpoints, configuração e comportamento HTTP |
-| Workers: Processadores | Orquestração do processamento, delegando regras aos módulos |
-| Worker Radar: Agendamentos | Disparo das verificações periódicas |
-| Módulos: Aplicacao | Casos de uso, organizados por funcionalidade quando implementados |
-| CrossCutting: Autenticacao e Web | Componentes de autenticação e HTTP usados pelos pipelines |
-| CrossCutting: Observabilidade e Resiliencia | Instrumentação e políticas técnicas de integração |
-| CrossCutting: Persistencia | Componentes técnicos de persistência e Outbox, sem centralizar DbContexts |
-| Tests: Unitarios, Arquitetura e Funcionais | Separação futura das suítes quando necessária; ainda sem novos projetos |
-
-`CrossCutting/Modulos` foi removida por redundância: a composição permanece em
-`Pipelines/ModulosPipeline.cs`, e os módulos de negócio em `Modules`.
-Os três `ModuleMarker.cs` sem referências foram removidos; a seleção de assemblies
-continua utilizando `DependencyInjection` de cada módulo.
-
-## Referências
-
-- [Resiliência HTTP — Microsoft](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience)
-- [Retry, redelivery e falhas — MassTransit](https://masstransit.io/documentation/concepts/exceptions)
-- [RabbitMQ — configuração MassTransit](https://masstransit.io/documentation/configuration/transports/rabbitmq)
-- [Outbox — MassTransit](https://masstransit.io/documentation/configuration/middleware/outbox)
-- [Confiabilidade e duplicações — RabbitMQ](https://www.rabbitmq.com/docs/reliability)
-- [Provider EF Core — Npgsql](https://www.npgsql.org/efcore/)
-
-A documentação atual do MassTransit também descreve recursos da versão 9.
-O código desta base foi compilado e testado contra a versão 8.5.10 fixada.
+Sem essas variáveis, os respectivos testes externos são ignorados; quando configuradas, indisponibilidade causa falha. Os testes Redis usam chaves próprias. Os testes PostgreSQL criam schemas aleatórios em transações revertidas e precisam de permissão para criar schemas. Esses testes não aplicam migrations da aplicação nem validam integrações reais com RabbitMQ ou Keycloak.

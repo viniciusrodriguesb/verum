@@ -1,3 +1,5 @@
+using Verum.BuildingBlocks.Erros;
+
 namespace Verum.Modules.Busca.Dominio;
 
 internal sealed class Busca
@@ -104,9 +106,9 @@ internal sealed class Busca
 
     QuantidadeFontesComFalha = ValidarQuantidadeFontesComFalha(0);
 
-    if (!(ContaId.HasValue != VisitanteId.HasValue)) throw new ArgumentException("Informe somente ContaId ou VisitanteId.");
+    if (!(ContaId.HasValue != VisitanteId.HasValue)) throw ErroAplicacaoException.Validacao("Informe somente ContaId ou VisitanteId.");
 
-    if (!(ExpiraEm > IniciadaEm)) throw new ArgumentException("ExpiraEm deve ser posterior ao início.");
+    if (!(ExpiraEm > IniciadaEm)) throw ErroAplicacaoException.Validacao("ExpiraEm deve ser posterior ao início.");
   }
 
   private static Guid ValidarId(Guid valor) =>

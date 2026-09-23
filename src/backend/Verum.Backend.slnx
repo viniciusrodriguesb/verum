@@ -18,4 +18,5 @@
     <Project Path="Tests/Verum.Tests.Integracao/Verum.Tests.Integracao.csproj" />
   </Folder>
   <Project Path="Verum.CrossCutting/Verum.CrossCutting.csproj" />
+  <Project Path="Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
 </Solution>

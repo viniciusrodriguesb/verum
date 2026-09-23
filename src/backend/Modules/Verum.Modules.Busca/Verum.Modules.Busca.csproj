@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <Content Include="Aplicacao/InteligenciaArtificial/Contextos/*" Link="Contextos/Busca/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <InternalsVisibleTo Include="Verum.Tests.Integracao" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
   </ItemGroup>
 </Project>

@@ -1,3 +1,5 @@
+using Verum.BuildingBlocks.Erros;
+
 namespace Verum.Modules.Acesso.Dominio;
 
 internal sealed class RegistroUso
@@ -46,7 +48,7 @@ internal sealed class RegistroUso
 
     OcorridoEm = ValidarOcorridoEm(ocorridoEm);
 
-    if (!(ContaId.HasValue != VisitanteId.HasValue)) throw new ArgumentException("Informe somente ContaId ou VisitanteId.");
+    if (!(ContaId.HasValue != VisitanteId.HasValue)) throw ErroAplicacaoException.Validacao("Informe somente ContaId ou VisitanteId.");
   }
 
   private static long ValidarId(long valor) =>

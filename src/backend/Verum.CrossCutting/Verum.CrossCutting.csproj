@@ -27,4 +27,7 @@
     <ProjectReference Include="../Modules/Verum.Modules.Acesso/Verum.Modules.Acesso.csproj" />
     <ProjectReference Include="../Modules/Verum.Modules.Assinaturas/Verum.Modules.Assinaturas.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
+  </ItemGroup>
 </Project>

@@ -4,4 +4,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <InternalsVisibleTo Include="Verum.Tests.Integracao" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
+  </ItemGroup>
 </Project>

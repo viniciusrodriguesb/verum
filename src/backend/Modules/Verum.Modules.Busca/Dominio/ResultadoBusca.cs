@@ -1,3 +1,5 @@
+using Verum.BuildingBlocks.Erros;
+
 namespace Verum.Modules.Busca.Dominio;
 
 internal sealed class ResultadoBusca
@@ -49,7 +51,7 @@ internal sealed class ResultadoBusca
 
     GeradoEm = ValidarGeradoEm(agora);
 
-    if (!(QuantidadeExibida <= QuantidadeAnalisada)) throw new ArgumentException("QuantidadeExibida não pode exceder QuantidadeAnalisada.");
+    if (!(QuantidadeExibida <= QuantidadeAnalisada)) throw ErroAplicacaoException.Validacao("QuantidadeExibida não pode exceder QuantidadeAnalisada.");
   }
 
   private static Guid ValidarId(Guid valor) =>

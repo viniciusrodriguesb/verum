@@ -1,4 +1,5 @@
 using MassTransit;
+using Verum.BuildingBlocks.Erros;
 using Verum.CrossCutting.Mensageria;
 
 namespace Verum.CrossCutting.Pipelines;
@@ -14,6 +15,8 @@ public static class ConsumersPipeline
       {
         retry.Ignore<ArgumentException>();
 
+        retry.Ignore<ErroAplicacaoException>();
+
         retry.Ignore<ProcessamentoNaoConfiguradoException>();
 
         retry.Ignore<OperationCanceledException>();
@@ -24,6 +27,8 @@ public static class ConsumersPipeline
     endpoint.UseMessageRetry(retry =>
     {
       retry.Ignore<ArgumentException>();
+
+      retry.Ignore<ErroAplicacaoException>();
 
       retry.Ignore<ProcessamentoNaoConfiguradoException>();
 

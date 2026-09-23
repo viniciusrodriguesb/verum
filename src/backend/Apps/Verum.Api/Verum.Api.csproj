@@ -5,4 +5,7 @@
     <ProjectReference Include="../../Verum.CrossCutting/Verum.CrossCutting.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../../Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
+  </ItemGroup>
 </Project>

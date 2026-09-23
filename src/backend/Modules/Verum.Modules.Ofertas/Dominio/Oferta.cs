@@ -1,3 +1,5 @@
+using Verum.BuildingBlocks.Erros;
+
 namespace Verum.Modules.Ofertas.Dominio;
 
 internal sealed class Oferta
@@ -127,9 +129,9 @@ internal sealed class Oferta
 
     AtualizadaEm = ValidarAtualizadaEm(agora);
 
-    if (!(ValidaAte > ObservadaEm)) throw new ArgumentException("ValidaAte deve ser posterior à observação.");
+    if (!(ValidaAte > ObservadaEm)) throw ErroAplicacaoException.Validacao("ValidaAte deve ser posterior à observação.");
 
-    if (!(QuantidadeParcelas.HasValue == ValorParcela.HasValue)) throw new ArgumentException("QuantidadeParcelas e ValorParcela devem ser informados juntos.");
+    if (!(QuantidadeParcelas.HasValue == ValorParcela.HasValue)) throw ErroAplicacaoException.Validacao("QuantidadeParcelas e ValorParcela devem ser informados juntos.");
   }
 
   private static Guid ValidarId(Guid valor) =>

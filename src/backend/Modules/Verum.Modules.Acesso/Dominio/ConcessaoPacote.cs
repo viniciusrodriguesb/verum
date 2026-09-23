@@ -1,3 +1,5 @@
+using Verum.BuildingBlocks.Erros;
+
 namespace Verum.Modules.Acesso.Dominio;
 
 internal sealed class ConcessaoPacote
@@ -54,7 +56,7 @@ internal sealed class ConcessaoPacote
     CriadaEm = ValidarCriadaEm(agora);
 
     if (!(ValidaAte is null || ValidaAte > ValidaDe))
-      throw new ArgumentException("ValidaAte deve ser posterior a ValidaDe.");
+      throw ErroAplicacaoException.Validacao("ValidaAte deve ser posterior a ValidaDe.");
   }
 
   private static Guid ValidarId(Guid valor) =>

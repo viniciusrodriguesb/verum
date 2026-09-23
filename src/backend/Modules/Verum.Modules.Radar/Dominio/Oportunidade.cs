@@ -1,3 +1,5 @@
+using Verum.BuildingBlocks.Erros;
+
 namespace Verum.Modules.Radar.Dominio;
 
 internal sealed class Oportunidade
@@ -73,9 +75,9 @@ internal sealed class Oportunidade
 
     ExpiraEm = ValidarExpiraEm(expiraEm);
 
-    if (!(PrecoObservado <= PrecoAlvo)) throw new ArgumentException("O preço observado deve atingir o preço-alvo.");
+    if (!(PrecoObservado <= PrecoAlvo)) throw ErroAplicacaoException.Validacao("O preço observado deve atingir o preço-alvo.");
 
-    if (!(ExpiraEm is null || ExpiraEm > DetectadaEm)) throw new ArgumentException("A expiração deve ser posterior à detecção.");
+    if (!(ExpiraEm is null || ExpiraEm > DetectadaEm)) throw ErroAplicacaoException.Validacao("A expiração deve ser posterior à detecção.");
   }
 
   private static Guid ValidarId(Guid valor) =>
