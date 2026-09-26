@@ -7,6 +7,9 @@ namespace Verum.Modules.Ofertas;
 
 public static class DependencyInjection
 {
+  public static IServiceCollection AddOfertasDescoberta(this IServiceCollection services, IConfiguration configuration) =>
+    Infraestrutura.Descoberta.Playwright.ConfiguracaoPlaywright.Registrar(services, configuration);
+
   public static IServiceCollection AddOfertasPersistencia(this IServiceCollection services, IConfiguration configuration) =>
     services.AddDbContext<OfertasDbContext>(options =>
     {
@@ -19,4 +22,3 @@ public static class DependencyInjection
         postgres.MigrationsHistoryTable("__EFMigrationsHistory", "ofertas"));
     });
 }
-

@@ -1,0 +1,46 @@
+{
+  "Playwright": {
+    "Enabled": false,
+    "ConsultasSimultaneas": 2,
+    "TimeoutTotalSegundos": 60,
+    "TimeoutAcaoSegundos": 10,
+    "Lojas": {
+      "loja-exemplo": {
+        "UrlBusca": "https://loja.example/busca?q={consulta}",
+        "HostsPermitidos": [
+          "loja.example",
+          "cdn.loja.example"
+        ],
+        "CampoBusca": null,
+        "BotaoBusca": null,
+        "BotaoPreparacao": null,
+        "ResultadosProntos": "#resultados-carregados",
+        "Itens": "article.produto",
+        "SemResultados": ".sem-resultados",
+        "LinkProduto": "a.produto-link",
+        "ProximaPagina": "a.proxima-pagina",
+        "MaxPaginas": 3,
+        "MaxItens": 50,
+        "Campos": {
+          "nome": {
+            "Seletor": ".nome",
+            "Obrigatorio": true
+          },
+          "preco": {
+            "Seletor": ".preco",
+            "Obrigatorio": false
+          },
+          "imagem": {
+            "Seletor": "img",
+            "Atributo": "src",
+            "Obrigatorio": false
+          },
+          "disponibilidade": {
+            "Seletor": ".disponibilidade",
+            "Obrigatorio": false
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,13 @@ using Verum.BuildingBlocks.InteligenciaArtificial;
 
 namespace Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 
-public sealed record DescobertaProdutosIa(ResultadoProdutosIa Resultado, RespostaIa Execucao);
+public sealed record DescobertaProdutosIa(ResultadoProdutosIa Resultado, RespostaIa Execucao)
+{
+  public IReadOnlyList<CandidatoIaDescartado> Descartados { get; init; } = [];
+}
+
+// Índice baseado em zero no array original; não guarda o conteúdo externo inválido.
+public sealed record CandidatoIaDescartado(int Indice, string Codigo);
 
 public sealed record ResultadoProdutosIa
 {
@@ -55,4 +61,3 @@ public sealed record ProdutoCandidatoIa
 
   public required string Evidencia { get; init; }
 }
-

@@ -22,6 +22,7 @@ public static class DependencyInjection
   private static IServiceCollection AddBase(this IServiceCollection services,
     IConfiguration configuration, string host, Action<IBusRegistrationConfigurator>? configureBus) =>
     services.AddVerumHttpClients(configuration)
+      .AddVerumPlaywright(configuration)
       .AddVerumInteligenciaArtificial(configuration)
       .AddVerumCache(configuration)
       .AddVerumObservabilidade(configuration, $"Verum.{host}")

@@ -2,7 +2,7 @@
 
 O Verum usa um **monólito modular em .NET 10**, com uma API e dois workers executados separadamente. O código é organizado por contexto de negócio, com uma Clean Architecture enxuta dentro de cada módulo. O objetivo é permitir evolução e escala sem exigir interfaces ou projetos extras para cada operação.
 
-A base técnica já contém entidades, mappings, persistência por módulo, cache, mensageria, autenticação JWT, proteção HTTP e tratamento de erros. Endpoints e casos de uso de negócio, processamento das mensagens, agendamentos, migrations e integrações com provedores ainda serão implementados.
+A base técnica já contém entidades, mappings, persistência por módulo, cache, mensageria, autenticação JWT, proteção HTTP e tratamento de erros. Endpoints e casos de uso de negócio, processamento das mensagens, agendamentos e integrações de negócio ainda serão implementados. As migrations iniciais dos oito módulos já estão disponíveis.
 
 ## Organização
 
@@ -89,6 +89,34 @@ Clientes criados por `IHttpClientFactory` recebem timeout total e por tentativa,
 
 A API responde erros em Problem Details, com status, descrição, código e `traceId`; validações podem incluir erros por campo. `ErroAplicacaoException` representa validação, ausência, conflito ou acesso negado, sem acoplar o domínio a códigos HTTP. Mensagens esperadas devem ser seguras para exposição. Falhas técnicas retornam descrições genéricas, com detalhes internos apenas nos logs. Nos workers, falhas seguem o fluxo de mensageria.
 
+## Descoberta com Playwright
+
+`IConsultaLoja`, nos contratos de Ofertas, recebe o identificador de uma loja configurada e uma consulta de até 500 caracteres. A implementação usa `Microsoft.Playwright` com Chromium headless, compartilhado por processo e iniciado somente na primeira consulta. Cada execução ganha um contexto isolado; cookies e armazenamento não passam para a seguinte. O contexto é fechado ao concluir, falhar ou cancelar. O navegador é recriado na próxima consulta se desconectar.
+
+A implementação está em `Modules/Verum.Modules.Ofertas/Infraestrutura/Descoberta/Playwright`; o `PlaywrightPipeline` centraliza sua composição nos hosts. Busca e Radar podem usar o mesmo contrato sem depender de CrossCutting ou de APIs do navegador. Os consumidores ainda não foram conectados a esse serviço.
+
+As configurações ficam em `Playwright`, inicialmente desabilitado. O arquivo [playwright.lojas.exemplo.json](playwright.lojas.exemplo.json) mostra uma loja fictícia e **não é carregado automaticamente**. Copie e adapte sua seção para o appsettings do host que fará a consulta. Não há seletores de lojas reais implementados nesta etapa.
+
+Por loja, configure URL com `{consulta}` ou formulário com `CampoBusca` e `BotaoBusca` (ausente significa Enter), botão opcional de preparação, marcador de resultados prontos, cards, link de produto, mensagem de ausência de resultados, campos e limites. O marcador deve representar dados já carregados, inclusive o estado vazio; não basta apontar para um contêiner que existe antes da busca. O botão de preparação é acionado somente se já estiver visível.
+
+Seletores usam a sintaxe de locators Playwright, como CSS ou `text=Buscar`, em vez de coordenadas de tela. Campos são relativos ao card; seletor vazio usa o próprio card. Sem `Atributo`, extrai texto; com ele, extrai o atributo indicado. Campos obrigatórios ausentes e links inválidos descartam apenas o card. O retorno contém campos brutos, URLs absolutas deduplicadas, descartes e indicação de limite atingido. Preços, variantes e disponibilidade ainda precisam de normalização e validação antes de se tornarem ofertas.
+
+A paginação genérica segue links `href`, com limites de páginas e cards examinados por página, além do total de itens retornados. Formulários complexos, iframes, rolagem infinita e botões de paginação sem link exigirão um adaptador específico dentro de Ofertas, reaproveitando `NavegadorPlaywright`. Não há interpretador de scripts configuráveis ou tentativa de contornar CAPTCHA.
+
+`ConsultasSimultaneas` limita consultas por processo; réplicas multiplicam esse limite. `TimeoutTotalSegundos` inclui a espera por vaga e a execução; inicialização/encerramento do navegador podem adicionar tempo de limpeza, e o lançamento tem limite próprio de 10 segundos. `TimeoutAcaoSegundos` limita ações e navegação. O cancelamento fecha somente o contexto daquela consulta. Não há retries automáticos de navegação; o pipeline de `HttpClient` não intercepta o tráfego do navegador.
+
+`HostsPermitidos` lista exatamente os hosts da loja e de seus recursos necessários. Configurações são controladas pelo backend, nunca recebidas do usuário final. A interceptação não substitui isolamento de rede do navegador no ambiente de execução. Downloads e service workers ficam desabilitados. Falha de navegação, timeout ou mudança de layout gera erro; uma lista vazia exige o marcador explícito de ausência de resultados.
+
+Após compilar, instale o Chromium correspondente à versão do pacote:
+
+```powershell
+pwsh Apps/Verum.Worker.Descoberta/bin/Debug/net10.0/playwright.ps1 install chromium --no-remove
+```
+
+Em Linux/containers, prepare também as dependências de sistema com `install --with-deps chromium` na construção da imagem e execute com usuário sem privilégios. O navegador não é instalado durante a inicialização do host. Para testar localmente, configure `VERUM_TEST_PLAYWRIGHT=1`: a suíte usa Chromium real contra páginas locais, sem acessar lojas externas. Esses testes não comprovam os seletores de uma loja real.
+
+Referências: [biblioteca oficial .NET](https://playwright.dev/dotnet/docs/library), [locators](https://playwright.dev/dotnet/docs/locators) e [instalação de navegadores](https://playwright.dev/dotnet/docs/browsers).
+
 ## Bibliotecas utilizadas
 
 As versões ficam centralizadas em `Directory.Packages.props`; cada projeto declara os pacotes que utiliza.
@@ -99,6 +127,7 @@ As versões ficam centralizadas em `Directory.Packages.props`; cada projeto decl
 | Microsoft.AspNetCore.OpenApi | Documento OpenAPI da API em Development |
 | Microsoft.AspNetCore.Authentication.JwtBearer | Validação de tokens JWT emitidos pelo Keycloak |
 | Entity Framework Core + Npgsql | Mapeamento das entidades e acesso ao PostgreSQL |
+| Microsoft.Playwright | Chromium e extração configurável de páginas de lojas |
 | MassTransit + RabbitMQ | Publicação e consumo de mensagens, retries e tratamento de falhas |
 | MassTransit.EntityFrameworkCore | Suporte ao futuro Outbox/Inbox persistido no PostgreSQL |
 | StackExchange.Redis + Microsoft.Extensions.Caching.StackExchangeRedis | Cache, coordenação atômica e integração com `IDistributedCache` |
@@ -140,7 +169,21 @@ Redelivery adiado permanece desabilitado. Para habilitar `RabbitMQ:UseDelayedRed
 
 ### Banco de dados
 
-Iniciar os hosts não cria banco, schemas ou tabelas. Os schemas já estão definidos nos DbContexts e serão criados pelas migrations do EF Core quando elas forem implementadas e aplicadas. Não é necessário desenhar os schemas manualmente; nesta etapa, disponibilize o banco `verum`. Ainda não há migrations para executar, e alterações nos mappings não atualizam um banco existente automaticamente.
+O banco local `verum` utiliza oito schemas, 32 tabelas de negócio e um histórico de migrations por módulo. As migrations iniciais e snapshots ficam em `Infraestrutura/Persistencia/Migracoes`. Tabelas e colunas de negócio permanecem em maiúsculas; schemas em minúsculas. Os DbContexts continuam descobrindo seus mappings automaticamente.
+
+Iniciar os hosts não aplica migrations. As factories de design usam `ConnectionStrings__PostgreSQL` e não inicializam API, RabbitMQ ou Redis. Em `src/backend`, execute `dotnet tool restore` e `dotnet build Verum.Backend.slnx`. Com a conexão do banco de destino configurada no ambiente, aplique cada módulo, por exemplo:
+
+```powershell
+dotnet ef database update --project Modules/Verum.Modules.Busca --context BuscaDbContext --no-build
+```
+
+Repita para Contas, Catálogo (`Catalogo`), Ofertas, Radar, Notificações (`Notificacoes`), Acesso e Assinaturas, usando o projeto e o DbContext correspondentes. Para alterações futuras, gere uma nova migration no módulo afetado; não edite uma migration já aplicada. O `dotnet-ef` local e os pacotes EF estão alinhados em 10.0.12.
+
+Cada aplicação de migration utiliza o controle transacional do EF; o conjunto dos oito módulos não é uma única transação. A revisão atual não encontrou casos de uso executando `SaveChanges`: o serviço de IA faz consulta externa e validação, sem transação de banco. Transações de gravação e Outbox durável serão definidos junto dos casos de uso, mantendo chamadas externas fora de transações longas.
+
+### Validação dos candidatos de IA
+
+A entrada da consulta e sua interpretação têm limite de 500 caracteres, alinhado à entidade Busca. Estrutura geral inválida continua sendo erro. Cada candidato é desserializado e validado separadamente: candidatos válidos são preservados, e `Descartados` informa o índice original (base zero) e o código do motivo. Logs registram esses identificadores, sem o conteúdo bruto. Se todos forem descartados, o resultado fica vazio com motivo explícito e a lista de descartes, distinguindo essa situação de uma pesquisa sem candidatos. O diagnóstico é retornado e registrado nos logs; não cria registros no banco.
 
 ## Como executar e validar
 

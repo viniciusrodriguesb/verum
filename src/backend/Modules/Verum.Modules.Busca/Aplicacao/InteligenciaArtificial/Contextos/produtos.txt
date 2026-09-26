@@ -16,7 +16,7 @@ PESQUISA
 
 SAÍDA
 Responda somente o objeto JSON definido pelo schema produtos_verum_v1, com todos os campos e sem propriedades adicionais.
-- consultaInterpretada: descrição curta do que foi buscado, sem inventar requisitos.
+- consultaInterpretada: descrição curta, com até 500 caracteres, do que foi buscado, sem inventar requisitos.
 - motivoSemResultado: explicação quando produtos estiver vazio; null quando houver candidatos.
 - produtos: uma entrada por anúncio/variante/loja. Não gere IDs internos.
 - nome, marca, modelo, variante e gtin: identidade do item; use null nos campos opcionais desconhecidos. Preserve zeros iniciais do GTIN.
@@ -32,4 +32,3 @@ Responda somente o objeto JSON definido pelo schema produtos_verum_v1, com todos
 
 CONFIABILIDADE
 Use null para valores desconhecidos e nunca zero para simular ausência de preço. Um candidato pode não ter preço: o backend decidirá se consulta a loja ou o descarta. A data da consulta não comprova atualização da oferta. Não atribua data de observação da loja, prazo de validade ou status de oferta confirmada. Mesmo JSON válido e fonte citada não garantem correção comercial; os resultados passarão por validação independente.
-

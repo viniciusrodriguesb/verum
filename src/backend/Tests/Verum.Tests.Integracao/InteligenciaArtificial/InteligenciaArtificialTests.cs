@@ -15,6 +15,69 @@ public sealed class InteligenciaArtificialTests
 {
   private const string UrlProduto = "https://loja.example/produto";
 
+  [Theory]
+  [InlineData(500, true)]
+  [InlineData(501, false)]
+  public async Task ConsultaRespeitaLimiteDaEntidade(int tamanho, bool aceita)
+  {
+    var handler = new RespostaHandler(Envelope(ProdutoJson()));
+
+    using var provider = CriarProvider(handler);
+
+    var service = provider.GetRequiredService<IDescobertaProdutosIaService>();
+
+    if (aceita)
+      Assert.Single((await service.ConsultarAsync(new string('a', tamanho))).Resultado.Produtos);
+    else
+      await Assert.ThrowsAsync<Verum.BuildingBlocks.Erros.ErroAplicacaoException>(() => service.ConsultarAsync(new string('a', tamanho)));
+
+    Assert.Equal(aceita ? 1 : 0, handler.Chamadas);
+  }
+
+  [Theory]
+  [InlineData("null")]
+  [InlineData("objeto")]
+  [InlineData("ausente")]
+  [InlineData("campo-extra")]
+  [InlineData("consulta-longa")]
+  public async Task EstruturaInvalidaContinuaFalhando(string cenario)
+  {
+    var json = ProdutoJson();
+
+    if (cenario == "null") json["produtos"] = null;
+
+    if (cenario == "objeto") json["produtos"] = new JsonObject();
+
+    if (cenario == "ausente") json.Remove("produtos");
+
+    if (cenario == "campo-extra") json["extra"] = true;
+
+    if (cenario == "consulta-longa") json["consultaInterpretada"] = new string('x', 501);
+
+    using var provider = CriarProvider(new RespostaHandler(Envelope(json)));
+
+    await Assert.ThrowsAsync<RespostaIaInvalidaException>(() =>
+      provider.GetRequiredService<IDescobertaProdutosIaService>().ConsultarAsync("Monitor"));
+  }
+
+  [Fact]
+  public async Task TodosDescartadosRetornaMotivoEDiagnostico()
+  {
+    var json = ProdutoJson();
+
+    json["produtos"]![0]!["preco"] = -1;
+
+    using var provider = CriarProvider(new RespostaHandler(Envelope(json)));
+
+    var resultado = await provider.GetRequiredService<IDescobertaProdutosIaService>().ConsultarAsync("Monitor");
+
+    Assert.Empty(resultado.Resultado.Produtos);
+
+    Assert.Single(resultado.Descartados);
+
+    Assert.Equal("Nenhum candidato retornado passou pela validação.", resultado.Resultado.MotivoSemResultado);
+  }
+
   [Fact]
   public async Task PesquisaWebEnviaSchemaEDevolveCandidatosComMetadados()
   {
@@ -91,9 +154,9 @@ public sealed class InteligenciaArtificialTests
   [InlineData("parcela")]
   [InlineData("propriedade-extra")]
   [InlineData("propriedade-ausente")]
-  [InlineData("null")]
+  [InlineData("candidato-null")]
   [InlineData("url-local")]
-  public async Task RejeitaCandidatoInconsistente(string cenario)
+  public async Task PreservaValidoEDescartaCandidatoInconsistente(string cenario)
   {
     var json = ProdutoJson();
 
@@ -111,14 +174,26 @@ public sealed class InteligenciaArtificialTests
 
     if (cenario == "propriedade-ausente") produto.AsObject().Remove("nome");
 
-    if (cenario == "null") json["produtos"] = null;
+    if (cenario == "candidato-null") json["produtos"]![0] = null;
 
     if (cenario == "url-local") produto["url"] = "http://127.0.0.1/produto";
 
+    json["produtos"]!.AsArray().Add(ProdutoJson()["produtos"]![0]!.DeepClone());
+
     using var provider = CriarProvider(new RespostaHandler(Envelope(json)));
 
-    await Assert.ThrowsAsync<RespostaIaInvalidaException>(() =>
-      provider.GetRequiredService<IDescobertaProdutosIaService>().ConsultarAsync("Monitor"));
+    var resultado = await provider.GetRequiredService<IDescobertaProdutosIaService>().ConsultarAsync("Monitor");
+
+    Assert.Single(resultado.Resultado.Produtos);
+
+    Assert.Null(resultado.Resultado.MotivoSemResultado);
+
+    var descarte = Assert.Single(resultado.Descartados);
+
+    Assert.Equal(0, descarte.Indice);
+
+    Assert.Equal(cenario == "sem-fonte" ? "PRODUTO_SEM_FONTE"
+      : cenario is "propriedade-extra" or "propriedade-ausente" ? "PRODUTO_JSON_INVALIDO" : "PRODUTO_INVALIDO", descarte.Codigo);
   }
 
   [Fact]
@@ -328,4 +403,3 @@ public sealed class InteligenciaArtificialTests
         DateTimeOffset.UtcNow, null, null, [new FonteIa(UrlProduto, "Produto")]));
   }
 }
-
