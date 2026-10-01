@@ -14,7 +14,7 @@ public sealed class PersistenciaModelTests
 {
   private static readonly (string Name, int Count)[] Modulos =
   [
-    ("Contas", 1), ("Catalogo", 7), ("Ofertas", 5), ("Busca", 4),
+    ("Contas", 1), ("Catalogo", 7), ("Ofertas", 5), ("Busca", 7),
     ("Radar", 2), ("Notificacoes", 3), ("Acesso", 5), ("Assinaturas", 5)
   ];
 
@@ -101,7 +101,8 @@ public sealed class PersistenciaModelTests
 
     Assert.All(configuracoes, item =>
     {
-      Assert.Equal(assembly, item.Entidade.Assembly);
+      if (item.Entidade.Namespace != "MassTransit.EntityFrameworkCoreIntegration")
+        Assert.Equal(assembly, item.Entidade.Assembly);
 
       Assert.Equal($"Verum.Modules.{modulo}.Infraestrutura.Persistencia.Mapeamentos", item.Mapping.Namespace);
 
@@ -137,7 +138,9 @@ public sealed class PersistenciaModelTests
 
     foreach (var entity in entities)
     {
-      Assert.Equal(context.GetType().Assembly, entity.ClrType.Assembly);
+      var tecnica = entity.ClrType.Namespace == "MassTransit.EntityFrameworkCoreIntegration";
+
+      if (!tecnica) Assert.Equal(context.GetType().Assembly, entity.ClrType.Assembly);
 
       Assert.Equal(modulo.ToLowerInvariant(), entity.GetSchema());
 
@@ -153,14 +156,14 @@ public sealed class PersistenciaModelTests
 
         Assert.Matches("^[A-Z][A-Z0-9_]*$", property.GetColumnName());
 
-        Assert.True(property.PropertyInfo!.SetMethod!.IsPrivate);
+        if (!tecnica) Assert.True(property.PropertyInfo!.SetMethod!.IsPrivate);
       });
 
       Assert.All(entity.GetForeignKeys(), fk =>
       {
         Assert.Equal(entity.GetSchema(), fk.PrincipalEntityType.GetSchema());
 
-        Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
+        if (!tecnica) Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
       });
 
       Assert.All(entity.GetNavigations().Where(n => n.IsCollection), navigation =>

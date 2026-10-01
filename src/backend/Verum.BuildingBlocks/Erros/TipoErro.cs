@@ -8,5 +8,9 @@ public enum TipoErro
 
   Conflito,
 
-  AcessoNegado
+  AcessoNegado,
+
+  LimiteExcedido,
+
+  Indisponivel
 }

@@ -7,6 +7,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="MassTransit.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
@@ -14,5 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
+    <ProjectReference Include="../Verum.Modules.Catalogo/Verum.Modules.Catalogo.csproj" />
+    <ProjectReference Include="../Verum.Modules.Ofertas/Verum.Modules.Ofertas.csproj" />
   </ItemGroup>
 </Project>

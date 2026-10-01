@@ -14,9 +14,9 @@ public static class TratamentoErrosConfiguration
 
     services.Configure<ApiBehaviorOptions>(options => options.InvalidModelStateResponseFactory = context =>
     {
-      // Mensagens do model binder podem conter valores recebidos: não os devolver ao cliente.
-      var errors = context.ModelState.Where(entry => entry.Value?.Errors.Count > 0)
-        .ToDictionary(entry => entry.Key, _ => new[] { "Valor inválido ou obrigatório não informado." });
+      var errors = context.ModelState
+                          .Where(entry => entry.Value?.Errors.Count > 0)
+                          .ToDictionary(entry => entry.Key, _ => new[] { "Valor inválido ou obrigatório não informado." });
 
       var problem = new ValidationProblemDetails(errors)
       {

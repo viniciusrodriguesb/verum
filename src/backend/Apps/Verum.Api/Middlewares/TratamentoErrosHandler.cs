@@ -9,7 +9,6 @@ using Verum.BuildingBlocks.InteligenciaArtificial;
 
 namespace Verum.Api.Middlewares;
 
-// Executado pelo middleware nativo UseExceptionHandler, inclusive em Development.
 public sealed class TratamentoErrosHandler(ILogger<TratamentoErrosHandler> logger) : IExceptionHandler
 {
   public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
@@ -31,6 +30,8 @@ public sealed class TratamentoErrosHandler(ILogger<TratamentoErrosHandler> logge
         TipoErro.NaoEncontrado => 404,
         TipoErro.Conflito => 409,
         TipoErro.AcessoNegado => 403,
+        TipoErro.LimiteExcedido => 429,
+        TipoErro.Indisponivel => 503,
         _ => 500
       }, erro.Codigo, erro.Message),
       BadHttpRequestException erro => (erro.StatusCode, "REQUISICAO_INVALIDA", "A requisição não pôde ser processada."),

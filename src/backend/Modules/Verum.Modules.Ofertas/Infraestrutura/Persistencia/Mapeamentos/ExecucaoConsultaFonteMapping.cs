@@ -20,7 +20,7 @@ internal sealed class ExecucaoConsultaFonteMapping : IEntityTypeConfiguration<En
 
       table.HasCheckConstraint("CK_EXECUCAO_CONSULTA_FONTE_TIPO_PROVEDOR", "\"TIPO_PROVEDOR\" IN (1, 2, 3, 4, 5)");
 
-      table.HasCheckConstraint("CK_EXECUCAO_CONSULTA_FONTE_STATUS", "\"STATUS\" IN (1, 2, 3, 4, 5, 6, 7)");
+      table.HasCheckConstraint("CK_EXECUCAO_CONSULTA_FONTE_STATUS", "\"STATUS\" IN (1, 2, 3, 4, 5, 6, 7, 8)");
 
       table.HasCheckConstraint("CK_EXECUCAO_CONSULTA_FONTE_QUANTIDADE_ITENS_ENCONTRADOS", "\"QUANTIDADE_ITENS_ENCONTRADOS\" >= 0 AND \"QUANTIDADE_ITENS_ENCONTRADOS\" <= 2147483647");
 
@@ -108,4 +108,3 @@ internal sealed class ExecucaoConsultaFonteMapping : IEntityTypeConfiguration<En
            .OnDelete(DeleteBehavior.Restrict);
   }
 }
-

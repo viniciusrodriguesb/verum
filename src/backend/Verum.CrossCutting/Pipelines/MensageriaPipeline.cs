@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Verum.CrossCutting.Mensageria;
+using Verum.Modules.Busca;
 
 namespace Verum.CrossCutting.Pipelines;
 
@@ -42,6 +43,8 @@ public static class MensageriaPipeline
 
       registrarConsumidores?.Invoke(bus);
 
+      if (hostName == "api") bus.AddBuscaOutbox();
+
       bus.UsingRabbitMq((context, rabbit) =>
       {
         var options = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
@@ -71,4 +74,3 @@ public static class MensageriaPipeline
     return services;
   }
 }
-

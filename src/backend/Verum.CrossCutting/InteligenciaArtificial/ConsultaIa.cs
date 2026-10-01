@@ -7,6 +7,11 @@ internal sealed class ConsultaIaService(
   IEnumerable<IProvedorIa> provedores,
   IOptions<InteligenciaArtificialOptions> options) : IConsultaIa
 {
+  public bool Disponivel => EstaDisponivel();
+
+  public bool EstaDisponivel(string? provedor = null) => options.Value.Enabled && provedores.Count(x =>
+    string.Equals(x.Nome, provedor ?? options.Value.ProvedorPadrao, StringComparison.OrdinalIgnoreCase) && x.Configurado) == 1;
+
   public Task<RespostaIa> ConsultarAsync(BuildingBlocks.InteligenciaArtificial.ConsultaIa consulta, CancellationToken cancellationToken = default)
   {
     ArgumentNullException.ThrowIfNull(consulta);
@@ -24,4 +29,3 @@ internal sealed class ConsultaIaService(
     return correspondentes[0].ConsultarAsync(consulta, cancellationToken);
   }
 }
-

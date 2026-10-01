@@ -44,6 +44,15 @@ internal sealed class BuscaEtapa
     Detalhes = ValidarDetalhes(detalhes);
   }
 
+  public void Finalizar(bool sucesso, string? detalhes = null)
+  {
+    Status = sucesso ? StatusEtapa.Concluida : StatusEtapa.Falhou;
+
+    ConcluidaEm = DateTimeOffset.UtcNow;
+
+    Detalhes = ValidarDetalhes(detalhes);
+  }
+
   private static long ValidarId(long valor) =>
     (long)Validacao.Numero(valor, nameof(Id), 0m, long.MaxValue, 0);
 

@@ -20,7 +20,6 @@ internal sealed class Recurso
 
   public IReadOnlyCollection<PacoteRecurso> Pacotes => _pacotes.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Recurso() { }
 
   public Recurso(

@@ -12,6 +12,8 @@ public sealed class OpenAiProvedor(IHttpClientFactory clients, IOptions<OpenAiOp
 
   public string Nome => "OpenAI";
 
+  public bool Configurado => !string.IsNullOrWhiteSpace(options.Value.ApiKey);
+
   public async Task<RespostaIa> ConsultarAsync(ConsultaIa consulta, CancellationToken cancellationToken = default)
   {
     ArgumentNullException.ThrowIfNull(consulta);
@@ -158,4 +160,3 @@ public sealed class OpenAiProvedor(IHttpClientFactory clients, IOptions<OpenAiOp
     fontes.Add(new FonteIa(uri.AbsoluteUri, item.TryGetProperty("title", out var title) ? title.GetString() : null));
   }
 }
-

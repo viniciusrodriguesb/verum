@@ -40,7 +40,7 @@ internal sealed class OfertaMapping : IEntityTypeConfiguration<Entidade>
 
       table.HasCheckConstraint("CK_OFERTA_DISPONIBILIDADE", "\"DISPONIBILIDADE\" IN (1, 2, 3)");
 
-      table.HasCheckConstraint("CK_OFERTA_CONDICAO_PRODUTO", "\"CONDICAO_PRODUTO\" IN (1, 2, 3)");
+      table.HasCheckConstraint("CK_OFERTA_CONDICAO_PRODUTO", "\"CONDICAO_PRODUTO\" IN (1, 2, 3, 4)");
 
       table.HasCheckConstraint("CK_OFERTA_IMAGEM_URL", "length(btrim(\"IMAGEM_URL\")) > 0");
 
@@ -191,4 +191,3 @@ internal sealed class OfertaMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

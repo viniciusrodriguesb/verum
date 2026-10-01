@@ -6,20 +6,24 @@ namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright;
 internal sealed class NavegadorPlaywright : IAsyncDisposable
 {
 
-  #region Construtor
   private readonly PlaywrightOptions _options;
+
   private readonly SemaphoreSlim _vagas;
+
   private readonly SemaphoreSlim _inicializacao = new(1, 1);
+
   private readonly CancellationTokenSource _encerramento = new();
+
   private IPlaywright? _playwright;
+
   private IBrowser? _browser;
+
   public NavegadorPlaywright(IOptions<PlaywrightOptions> options)
   {
     _options = options.Value;
 
     _vagas = new SemaphoreSlim(_options.ConsultasSimultaneas, _options.ConsultasSimultaneas);
-  } 
-  #endregion
+  }
 
   public async Task<T> ExecutarAsync<T>(Func<IBrowserContext, CancellationToken, Task<T>> executar, CancellationToken cancellationToken)
   {
@@ -124,4 +128,3 @@ internal sealed class NavegadorPlaywright : IAsyncDisposable
     _inicializacao.Dispose();
   }
 }
-

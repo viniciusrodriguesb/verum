@@ -111,6 +111,56 @@ internal sealed class Busca
     if (!(ExpiraEm > IniciadaEm)) throw ErroAplicacaoException.Validacao("ExpiraEm deve ser posterior ao início.");
   }
 
+  public void Iniciar()
+  {
+    if (ConcluidaEm.HasValue) throw new InvalidOperationException("Busca já finalizada.");
+
+    Status = StatusBusca.Processando;
+
+    EtapaAtual = EtapaBusca.Catalogo;
+  }
+
+  public void Avancar(EtapaBusca etapa)
+  {
+    if (Status != StatusBusca.Processando) throw new InvalidOperationException("Busca não está em processamento.");
+
+    EtapaAtual = ValidarEtapaAtual(etapa);
+  }
+
+  public void RegistrarFalhaTecnica()
+  {
+    if (ConcluidaEm.HasValue) return;
+
+    Status = ExpiraEm <= DateTimeOffset.UtcNow ? StatusBusca.Expirada : StatusBusca.Falhou;
+
+    CodigoErro = Status == StatusBusca.Expirada ? "PRAZO_ESGOTADO" : "PROCESSAMENTO_FALHOU";
+
+    ConcluidaEm = DateTimeOffset.UtcNow;
+  }
+
+  public void Finalizar(int quantidade, bool parcial, int sucesso, int falha, bool expirada = false,
+    MotivoBuscaSemResultado? motivo = null)
+  {
+    QuantidadeFontesComSucesso = ValidarQuantidadeFontesComSucesso(sucesso);
+
+    QuantidadeFontesComFalha = ValidarQuantidadeFontesComFalha(falha);
+
+    QuantidadeFontesConsultadas = sucesso + falha;
+
+    ResultadoParcial = parcial;
+
+    Status = expirada ? StatusBusca.Expirada : quantidade > 0 ? StatusBusca.Concluida
+      : sucesso == 0 && motivo is null ? StatusBusca.Falhou : StatusBusca.ConcluidaSemResultado;
+
+    CodigoErro = Status == StatusBusca.Falhou ? "FONTES_INDISPONIVEIS" : expirada ? "PRAZO_ESGOTADO" : null;
+
+    MotivoSemResultado = Status == StatusBusca.ConcluidaSemResultado ? motivo ?? MotivoBuscaSemResultado.ProdutoSemOfertas : null;
+
+    EtapaAtual = EtapaBusca.Resultado;
+
+    ConcluidaEm = DateTimeOffset.UtcNow;
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

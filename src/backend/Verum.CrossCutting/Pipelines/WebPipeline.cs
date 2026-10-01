@@ -23,10 +23,9 @@ public static class WebPipeline
     services.AddCors(cors => cors.AddPolicy(CorsPolicy, policy =>
     {
       if (origins.Length > 0)
-        policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     }));
 
     return services.AddVerumAutenticacao(configuration);
   }
 }
-

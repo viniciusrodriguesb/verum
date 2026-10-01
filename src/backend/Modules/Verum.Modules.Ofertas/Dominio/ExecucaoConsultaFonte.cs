@@ -38,7 +38,8 @@ internal sealed class ExecucaoConsultaFonte
     Guid correlacaoId,
     Guid buscaId,
     Guid fonteOfertaId,
-    TipoFonte tipoProvedor)
+    TipoFonte tipoProvedor,
+    DateTimeOffset? iniciadaEm = null)
   {
     var agora = DateTimeOffset.UtcNow;
 
@@ -58,7 +59,7 @@ internal sealed class ExecucaoConsultaFonte
 
     QuantidadeItensAceitos = ValidarQuantidadeItensAceitos(0);
 
-    IniciadaEm = ValidarIniciadaEm(agora);
+    IniciadaEm = ValidarIniciadaEm(iniciadaEm ?? agora);
 
     FinalizadaEm = ValidarFinalizadaEm(null);
 
@@ -67,6 +68,21 @@ internal sealed class ExecucaoConsultaFonte
     CodigoErro = ValidarCodigoErro(null);
 
     DetalhesErro = ValidarDetalhesErro(null);
+  }
+
+  public void Finalizar(StatusConsultaFonte status, int encontrados, int aceitos, string? codigo, DateTimeOffset? finalizadaEm = null)
+  {
+    Status = ValidarStatus(status);
+
+    QuantidadeItensEncontrados = ValidarQuantidadeItensEncontrados(encontrados);
+
+    QuantidadeItensAceitos = ValidarQuantidadeItensAceitos(aceitos);
+
+    CodigoErro = ValidarCodigoErro(codigo);
+
+    FinalizadaEm = ValidarFinalizadaEm(finalizadaEm ?? DateTimeOffset.UtcNow);
+
+    NumeroTentativas = status is StatusConsultaFonte.Ignorada or StatusConsultaFonte.IgnoradaPorCircuitBreaker ? (short)0 : (short)1;
   }
 
   private static Guid ValidarId(Guid valor) =>

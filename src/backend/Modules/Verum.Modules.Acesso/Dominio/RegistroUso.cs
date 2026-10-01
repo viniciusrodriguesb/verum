@@ -20,7 +20,6 @@ internal sealed class RegistroUso
 
   public DateTimeOffset OcorridoEm { get; private set; }
 
-  // Materialização pelo EF Core.
   private RegistroUso() { }
 
   public RegistroUso(

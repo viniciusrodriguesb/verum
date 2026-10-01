@@ -22,7 +22,6 @@ internal sealed class PacoteAcesso
 
   public IReadOnlyCollection<ConcessaoPacote> Concessoes => _concessoes.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private PacoteAcesso() { }
 
   public PacoteAcesso(

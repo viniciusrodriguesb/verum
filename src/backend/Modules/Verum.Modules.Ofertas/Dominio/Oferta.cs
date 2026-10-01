@@ -134,6 +134,33 @@ internal sealed class Oferta
     if (!(QuantidadeParcelas.HasValue == ValorParcela.HasValue)) throw ErroAplicacaoException.Validacao("QuantidadeParcelas e ValorParcela devem ser informados juntos.");
   }
 
+  public void AtualizarObservacao(string titulo, Guid fonteId, decimal preco, string condicao, string? imagem, DateTimeOffset observadaEm)
+  {
+    if (observadaEm < ObservadaEm) return;
+
+    TituloExterno = ValidarTituloExterno(titulo);
+
+    FonteId = ValidarFonteId(fonteId);
+
+    PrecoAtual = ValidarPrecoAtual(preco);
+
+    PrecoPix = ValidarPrecoPix(condicao.Contains("PIX", StringComparison.OrdinalIgnoreCase) ? preco : null);
+
+    CondicaoPreco = ValidarCondicaoPreco(condicao);
+
+    ImagemUrl = ValidarImagemUrl(imagem);
+
+    ObservadaEm = ValidarObservadaEm(observadaEm);
+
+    UltimaConfirmacaoEm = ObservadaEm;
+
+    ValidaAte = ValidarValidaAte(observadaEm.AddMinutes(15));
+
+    AtualizadaEm = DateTimeOffset.UtcNow;
+
+    Status = StatusOferta.Ativa;
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

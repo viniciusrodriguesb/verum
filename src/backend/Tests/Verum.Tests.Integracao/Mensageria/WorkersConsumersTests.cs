@@ -17,7 +17,7 @@ public sealed class WorkersConsumersTests
   [Theory]
   [InlineData(true)]
   [InlineData(false)]
-  public Task DescobertaRecebeMensagemSemConfirmarProcessamentoInexistente(bool idValido) =>
+  public Task DescobertaPropagaFalhaDoProcessamentoSemConfirmarMensagem(bool idValido) =>
     VerificarEsqueleto(new BuscaSolicitada(idValido ? Guid.NewGuid() : Guid.Empty),
       bus => bus.AddConsumidoresDescoberta(), "descoberta", typeof(VerificacaoRadarSolicitadaConsumer),
       idValido ? typeof(ProcessamentoNaoConfiguradoException) : typeof(ArgumentException));
@@ -39,6 +39,10 @@ public sealed class WorkersConsumersTests
     var observer = new TentativasObserver<T>();
 
     var services = new ServiceCollection().AddLogging();
+
+    services.AddScoped<IProcessamentoBuscaService, ProcessamentoFalha>();
+
+    services.AddScoped<IFalhaBuscaService, FalhaRegistrada>();
 
     services.AddMassTransit(bus =>
     {
@@ -193,7 +197,17 @@ public sealed class WorkersConsumersTests
 
     public Task ConsumeFault<T>(ConsumeContext<T> context, Exception exception) where T : class => Task.CompletedTask;
   }
+
+  private sealed class ProcessamentoFalha : IProcessamentoBuscaService
+  {
+    public Task ProcessarAsync(Guid buscaId, CancellationToken cancellationToken) =>
+      throw new ProcessamentoNaoConfiguradoException("Simulação de falha do processamento");
+  }
+
+  private sealed class FalhaRegistrada : IFalhaBuscaService
+  {
+    public Task RegistrarAsync(Guid buscaId, CancellationToken cancellationToken) => Task.CompletedTask;
+  }
 }
 
 public sealed record MensagemParalelismo(Guid Id);
-

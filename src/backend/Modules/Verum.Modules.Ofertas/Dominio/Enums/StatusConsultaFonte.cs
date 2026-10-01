@@ -9,5 +9,5 @@ internal enum StatusConsultaFonte : short
   Falhou = 5,
   IgnoradaPorCircuitBreaker = 6,
   Expirada = 7,
+  Ignorada = 8,
 }
-

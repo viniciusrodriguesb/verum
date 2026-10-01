@@ -35,6 +35,8 @@ public sealed class LojaPlaywrightOptions
 
   public string? ProximaPagina { get; set; }
 
+  public bool PaginacaoPorClique { get; set; }
+
   public int MaxPaginas { get; set; } = 3;
 
   public int MaxItens { get; set; } = 50;
@@ -50,4 +52,3 @@ public sealed class CampoLojaOptions
 
   public bool Obrigatorio { get; set; }
 }
-

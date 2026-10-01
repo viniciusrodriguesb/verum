@@ -9,6 +9,7 @@ internal static class ConfiguracaoPlaywright
   public static IServiceCollection Registrar(IServiceCollection services, IConfiguration configuration)
   {
     services.AddOptions<PlaywrightOptions>()
+      .Configure(options => options.Lojas[Provedores.KabumProvider.Nome] = Provedores.KabumProvider.CriarConfiguracao())
       .Bind(configuration.GetSection("Playwright"))
       .Validate(x => x.ConsultasSimultaneas is >= 1 and <= 16
         && x.TimeoutTotalSegundos is >= 1 and <= 300

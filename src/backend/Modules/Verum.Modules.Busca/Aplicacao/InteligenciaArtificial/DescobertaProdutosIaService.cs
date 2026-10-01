@@ -10,6 +10,8 @@ namespace Verum.Modules.Busca.Aplicacao.InteligenciaArtificial;
 
 internal sealed class DescobertaProdutosIaService(IConsultaIa ia, IConfiguration configuration, ILogger<DescobertaProdutosIaService> logger) : IDescobertaProdutosIaService
 {
+  public bool Disponivel => ia.EstaDisponivel(configuration["InteligenciaArtificial:Produtos:Provedor"]);
+
   private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
   {
     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
@@ -25,7 +27,6 @@ internal sealed class DescobertaProdutosIaService(IConsultaIa ia, IConfiguration
 
     var caminho = Path.GetFullPath(pasta, AppContext.BaseDirectory);
 
-    // Arquivos locais controlados pela implantação; nunca caminhos enviados pelo usuário.
     var contexto = await File.ReadAllTextAsync(Path.Combine(caminho, "produtos.txt"), cancellationToken);
 
     using var esquema = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(caminho, "produtos.schema.json"), cancellationToken));
@@ -36,6 +37,11 @@ internal sealed class DescobertaProdutosIaService(IConsultaIa ia, IConfiguration
       esquema.RootElement.Clone(), PesquisarWeb: true,
       Provedor: configuration["InteligenciaArtificial:Produtos:Provedor"]), cancellationToken);
 
+    return ValidarResposta(resposta);
+  }
+
+  private DescobertaProdutosIa ValidarResposta(RespostaIa resposta)
+  {
     EnvelopeProdutos resultado;
 
     try

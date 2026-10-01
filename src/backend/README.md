@@ -1,211 +1,165 @@
 # Backend Verum
 
-O Verum usa um **monólito modular em .NET 10**, com uma API e dois workers executados separadamente. O código é organizado por contexto de negócio, com uma Clean Architecture enxuta dentro de cada módulo. O objetivo é permitir evolução e escala sem exigir interfaces ou projetos extras para cada operação.
+O Verum usa um monólito modular em .NET 10, com API e workers separados. Cada módulo mantém domínio, aplicação, contratos e infraestrutura próprios. A organização preserva limites de negócio sem exigir uma interface para cada operação.
 
-A base técnica já contém entidades, mappings, persistência por módulo, cache, mensageria, autenticação JWT, proteção HTTP e tratamento de erros. Endpoints e casos de uso de negócio, processamento das mensagens, agendamentos e integrações de negócio ainda serão implementados. As migrations iniciais dos oito módulos já estão disponíveis.
+O primeiro fluxo de busca para visitante está implementado. Contas, planos, concessões de acesso e processamento do Radar permanecem para as próximas entregas.
 
 ## Organização
 
 | Local | Responsabilidade |
 | --- | --- |
-| `Apps/Verum.Api` | Entrada HTTP, controllers, autenticação e respostas da API |
-| `Apps/Verum.Worker.Descoberta` | Consumo das solicitações de busca e futuro processamento de descoberta |
-| `Apps/Verum.Worker.Radar` | Consumo das verificações de monitoramento e futuros agendamentos |
+| `Apps/Verum.Api` | Controllers, entrada HTTP, identificação do visitante e respostas |
+| `Apps/Verum.Worker.Descoberta` | Processamento assíncrono das buscas |
+| `Apps/Verum.Worker.Radar` | Host e consumidor preparados para monitoramento futuro |
 | `Modules` | Busca, Catálogo, Ofertas, Radar, Contas, Acesso, Assinaturas e Notificações |
-| `Verum.CrossCutting` | Composição de dependências e infraestrutura compartilhada, com um arquivo por pipeline |
-| `Verum.BuildingBlocks` | Contrato mínimo de erros esperados, compartilhado entre módulos e API, sem dependências externas |
-| `Tests` | Testes da base e pastas reservadas para as demais categorias |
+| `Verum.CrossCutting` | Configuração compartilhada, com um arquivo por pipeline |
+| `Verum.BuildingBlocks` | Contratos mínimos de erros e IA compartilhados |
+| `Tests` | Validações da infraestrutura e dos fluxos |
 
-Dentro de cada módulo, `Dominio` mantém entidades, validações e enums; `Aplicacao` recebe os casos de uso; `Contratos` define a comunicação com outros componentes; `Infraestrutura` implementa a persistência. Pastas vazias com responsabilidade futura conhecida permanecem reservadas.
+Os hosts usam CrossCutting para montar a aplicação. Módulos não dependem de CrossCutting; comunicam-se por contratos e mensagens. Relacionamentos EF não atravessam schemas. Pastas vazias com finalidade futura conhecida permanecem reservadas.
 
-Os hosts usam CrossCutting para montar a aplicação. **Módulos não dependem de CrossCutting**: definem seus contratos e preservam suas regras. Integrações entre módulos usam contratos e eventos; relacionamentos EF não atravessam seus schemas. BuildingBlocks contém somente os erros compartilhados, sem bases genéricas de entidades ou serviços.
+Cada módulo possui DbContext, schema e histórico de migrations próprios. Os mappings são classes separadas de `IEntityTypeConfiguration<T>`, descobertas por `ApplyConfigurationsFromAssembly`. Entidades têm setters privados, construtores de criação e validadores. Navegações permanecem no mesmo arquivo, separadas visualmente; enums ficam em `Dominio/Enums`.
 
-A API registra os oito módulos. Descoberta registra Busca, Catálogo e Ofertas. Radar registra Radar, Catálogo, Ofertas e Notificações. Cada worker registra explicitamente seus consumidores.
+Tabelas e colunas usam `UPPER_SNAKE_CASE`; schemas usam minúsculas. SQL manual exige aspas duplas nos identificadores maiúsculos, por exemplo `busca."BUSCA_ETAPA"`. O código mantém uma linha em branco entre instruções, propriedades e métodos, e uma chamada por linha nos mappings; arquivos gerados por ferramentas seguem sua formatação original.
 
-## Fluxo do início ao fim
+O `ServicesPipeline` registra automaticamente classes com sufixo `Service` no namespace `Aplicacao` dos módulos selecionados. O ciclo é scoped. O contrato correspondente `I...Service`, quando existente, resolve a mesma instância. Classes internas precisam de construtor público para a injeção.
 
-O fluxo previsto para uma funcionalidade é:
+## Fluxo da busca
 
-1. A requisição entra na API, passa pelos middlewares, CORS, autenticação e autorização e chega ao controller.
-2. O controller delega ao serviço de aplicação do módulo, que coordena regras de domínio, persistência, cache e integrações.
-3. PostgreSQL mantém os dados definitivos. Redis pode fornecer uma projeção temporária; em uma ausência de cache, o caso de uso consulta a origem e atualiza o cache.
-4. Trabalho assíncrono é publicado pelo MassTransit no RabbitMQ. O worker responsável recebe a mensagem e delega o processamento aos módulos.
-5. O processamento consulta provedores por clientes HTTP protegidos, persiste o resultado e atualiza ou invalida as projeções. A API poderá expor andamento e resultado ao cliente.
-6. Falhas HTTP recebem respostas padronizadas; falhas de consumo seguem o tratamento do MassTransit. Logs e rastreamento permitem acompanhar a execução.
+1. `POST /api/v1/buscas` recebe `consulta` e `chaveIdempotencia`. Valida entrada, identifica o visitante por cookie protegido e verifica repetição e cota. Retorna `202` com ID e endereço para acompanhamento.
+2. Busca e comando são gravados na mesma transação PostgreSQL. A Outbox entrega a mensagem à fila RabbitMQ, mesmo que o worker ainda não tenha iniciado.
+3. O worker reutiliza primeiro o catálogo e suas ofertas válidas. Havendo resultados suficientes, evita consultas externas.
+4. Quando necessário, consulta as lojas configuradas em paralelo. KaBuM é o primeiro provider Playwright. Se ainda faltarem ofertas, tenta a IA quando habilitada e configurada.
+5. Valida e normaliza candidatos, preservando resultados válidos quando outra fonte falha ou demora. Catálogo e Ofertas persistem seus dados e diagnósticos em transações curtas próprias.
+6. Busca grava o snapshot ordenado, finaliza o estado e invalida seu cache. `GET /api/v1/buscas/{id}` e `GET /api/v1/buscas/{id}/resultado` retornam andamento e resultado ao visitante proprietário.
 
-Essa sequência descreve o desenho do produto. Atualmente, os consumidores recebem e validam os IDs, mas lançam `ProcessamentoNaoConfiguradoException` enquanto o processamento real não existir. A mensagem vai para a fila de erro, evitando confirmar um trabalho que não foi realizado.
+Estados: `Recebida`, `Processando`, `Concluida`, `ConcluidaSemResultado`, `Falhou` e `Expirada`. Uma fonte operacional sem produtos difere de uma falha técnica de todas as fontes. O prazo global inclui a espera na fila. Resultados válidos já obtidos podem acompanhar uma busca expirada; `parcial` indica limitação ou indisponibilidade de fontes. Consultas genéricas sem especificação suficiente recebem motivo explícito para refinamento.
 
-## Padrões da implementação
+A identificação de produtos é conservadora: os termos da consulta precisam aparecer no título, e cada URL mantém uma identidade provisória. Não unificamos automaticamente produtos de lojas diferentes sem evidência suficiente. Marca e categoria desconhecidas ficam explícitas. O ranking combina preço dentro da mesma variante, confiança da fonte/loja e atualização. As ofertas são alternativas; o fluxo não afirma equivalência apenas por semelhança de nome.
 
-### Domínio, persistência e injeção de dependências
+O cookie `verum.visitante` é protegido, HttpOnly e válido por 30 dias. A cota padrão é uma busca por dia UTC, configurável. Repetir a mesma chave e consulta retorna o mesmo ID sem consumir outra cota; usar a mesma chave com outra consulta gera conflito. A identificação é operacional: apagar cookies permite uma nova identidade. Preserve e compartilhe as chaves de ASP.NET Core Data Protection entre reinicializações e réplicas da API. Clientes web precisam enviar o cookie; CORS aceita credenciais somente nas origens explicitamente configuradas.
 
-Cada módulo possui seu próprio DbContext, schema PostgreSQL e histórico de migrations. Os mappings ficam em classes `IEntityTypeConfiguration<T>` separadas e são descobertos por `ApplyConfigurationsFromAssembly`, mantendo o contexto limpo.
-
-Entidades possuem setters privados, construtores de criação e validações. Navegações permanecem no mesmo arquivo, separadas visualmente das propriedades. Enums ficam em `Dominio/Enums`. O código usa uma linha em branco entre propriedades, instruções e métodos, duas antes das navegações e uma chamada por linha nas cadeias dos mappings.
-
-Tabelas e colunas usam `UPPER_SNAKE_CASE`; schemas usam minúsculas. O EF gera os identificadores corretamente. Em SQL manual, os nomes maiúsculos exigem aspas duplas, como `busca."BUSCA_ETAPA"`.
-
-O `ServicesPipeline` registra automaticamente classes concretas com sufixo `Service` no segmento de namespace `Aplicacao` dos módulos selecionados. O ciclo de vida é scoped. Interfaces são opcionais; quando existe o contrato correspondente `I...Service`, ele resolve a mesma instância. Classes internas precisam de construtores públicos para a injeção. Um novo módulo entra na composição uma vez, sem registros individuais para cada serviço.
-
-### Mensageria e concorrência
-
-MassTransit administra conexões, publicação, confirmações, consumo e recuperação do transporte RabbitMQ. O publicador genérico utiliza o contexto scoped e um prazo configurável de publicação, sem um segundo ciclo de retry.
-
-| Worker | Mensagem | Fila |
-| --- | --- | --- |
-| Descoberta | `BuscaSolicitada`, com `BuscaId` | `verum-descoberta-busca-solicitada` |
-| Radar | `VerificacaoRadarSolicitada`, com `MonitoramentoId` | `verum-radar-verificacao-radar-solicitada` |
-
-`ConcurrentMessageLimit` controla mensagens simultâneas por endpoint e instância; `PrefetchCount` controla mensagens antecipadas do broker. Os padrões são 8 e 16. Réplicas aumentam a concorrência total. Não há semáforo adicional nem garantia de ordenação ou exclusão por ID.
-
-Falhas elegíveis recebem retries curtos. Erros esperados de aplicação, argumentos inválidos, cancelamento e processamento ainda não configurado não recebem retry/redelivery. Ao esgotar as tentativas, o MassTransit encaminha para `_error` e publica `Fault<T>`. Consumidores precisam ser idempotentes, pois mensagens podem ser entregues novamente.
-
-O Outbox em memória está habilitado: retém publicações de uma tentativa até o sucesso, mas não é durável nem torna alterações no banco atômicas com mensagens. Existem helpers para Outbox/Inbox com EF Core, porém ativação, tabelas técnicas, migrations e composição transacional estão pendentes. Sua adoção exige definir o contexto proprietário e substituir o buffer em memória.
-
-### Cache Redis
-
-O padrão é **cache-aside**: PostgreSQL continua sendo a fonte definitiva e Redis guarda dados descartáveis. Os módulos acessam contratos próprios; CrossCutting implementa a integração com Redis.
-
-Há operações genéricas de leitura, gravação com validade, remoção, existência e obtenção com carregamento da origem. O cache armazena DTOs, não entidades EF com navegações, e compartilha uma conexão multiplexada por processo.
-
-| Uso no produto | Conteúdo |
+| Configuração `Busca` | Padrão |
 | --- | --- |
-| Busca | Status e resultado temporários |
-| Catálogo | Variantes e resolução de consultas |
-| Ofertas | Ofertas atuais e reserva de atualização por variante/fonte |
-| Acesso | Permissões temporárias e limites operacionais por conta ou visitante |
+| `FilaSolicitacoes` | `verum-descoberta-busca-solicitada` |
+| `Lojas` | `kabum` |
+| `MinimoOfertas` / `MaximoResultados` | 3 / 10 |
+| `PrazoSegundos` | 180, incluindo a espera na fila |
+| `TimeoutFonteSegundos` / `TimeoutIaSegundos` | 45 / 20 |
+| `LimiteVisitanteDiario` | 1 |
 
-TTLs são configuráveis. A validade de ofertas, resultados e permissões limita o prazo do cache; leituras não o renovam. Alterações devem invalidar as projeções depois do commit. Autorização e dados que exigem consistência estrita devem ser confirmados no módulo proprietário.
+Mantenha fila e políticas de busca alinhadas na API e no worker. Ofertas observadas neste fluxo têm validade de 15 minutos.
 
-Reservas com token e limites usam operações atômicas no Redis. Reservas reduzem consultas externas duplicadas, mas não substituem transações ou idempotência. Limites operacionais não representam cobrança ou consumo definitivo. A contenção de carregamento do cache genérico é local ao processo; a reserva de Ofertas coordena processos distintos.
+## Mensageria e concorrência
 
-Com Redis desabilitado ou indisponível, leituras de cache retornam ausência e gravações retornam `false`; coordenação falha explicitamente, sem conceder reservas ou cotas. Não há cache em memória substituto. API e workers compartilham o prefixo Redis do ambiente, com prefixos distintos entre ambientes.
+MassTransit administra conexões, envio, consumo, recuperação e retries no RabbitMQ. `ConcurrentMessageLimit` controla mensagens simultâneas por endpoint e instância; `PrefetchCount` controla mensagens antecipadas. Os padrões são 8 e 16; réplicas multiplicam a concorrência. Não é necessário outro semáforo no consumidor. Playwright possui seu próprio limite de consultas simultâneas.
 
-### Chamadas externas e erros da API
+| Worker | Mensagem | Fila padrão |
+| --- | --- | --- |
+| Descoberta | `BuscaSolicitada` | `verum-descoberta-busca-solicitada` |
+| Radar | `VerificacaoRadarSolicitada` | `verum-radar-verificacao-radar-solicitada` |
 
-Clientes criados por `IHttpClientFactory` recebem timeout total e por tentativa, retry exponencial com jitter, circuit breaker e controle de concorrência de saída. Cada cliente mantém seu próprio circuito. Use um nome estável por integração e não empilhe outro handler de resiliência.
+A API utiliza Bus Outbox persistida no `BuscaDbContext`: solicitação e comando são atômicos e a entrega pendente sobrevive à reinicialização. As três tabelas técnicas do MassTransit possuem migrations. O consumidor usa advisory lock PostgreSQL por ID e ignora buscas finalizadas, evitando duplicação entre workers. Não mantém transação aberta durante consultas externas. As gravações entre módulos são independentes; uma reentrega reutiliza dados já persistidos.
 
-`Http:Resilience` define o padrão; `Http:Clients:<nome>:Resilience` permite ajustes por cliente. `RetryEnabled` e `CircuitBreakerEnabled` podem ser definidos globalmente ou por cliente. Reinicie o host após alterar essas políticas. POST, PUT, PATCH, DELETE e CONNECT não recebem retry automático. A proteção se aplica somente a chamadas externas; não foi adicionado limitador de entrada na API.
+Falhas elegíveis recebem retries curtos. Depois das tentativas, MassTransit envia a mensagem para `_error` e publica `Fault<T>`. `BuscaFalhouConsumer` finaliza a busca com código seguro. Falhas de providers são tratadas no próprio fluxo para preservar resultados válidos. O buffer em memória dos consumidores protege publicações de uma tentativa, mas não substitui a Outbox durável da API. O Inbox EF não envolve as consultas externas em uma transação longa.
 
-A API responde erros em Problem Details, com status, descrição, código e `traceId`; validações podem incluir erros por campo. `ErroAplicacaoException` representa validação, ausência, conflito ou acesso negado, sem acoplar o domínio a códigos HTTP. Mensagens esperadas devem ser seguras para exposição. Falhas técnicas retornam descrições genéricas, com detalhes internos apenas nos logs. Nos workers, falhas seguem o fluxo de mensageria.
+Redelivery adiado está desabilitado. Habilitar `RabbitMQ:UseDelayedRedelivery` exige o plugin `rabbitmq_delayed_message_exchange`. O processamento do Radar ainda lança `ProcessamentoNaoConfiguradoException` até sua implementação.
 
-## Descoberta com Playwright
+## Cache, HTTP e erros
 
-`IConsultaLoja`, nos contratos de Ofertas, recebe o identificador de uma loja configurada e uma consulta de até 500 caracteres. A implementação usa `Microsoft.Playwright` com Chromium headless, compartilhado por processo e iniciado somente na primeira consulta. Cada execução ganha um contexto isolado; cookies e armazenamento não passam para a seguinte. O contexto é fechado ao concluir, falhar ou cancelar. O navegador é recriado na próxima consulta se desconectar.
+Redis usa cache-aside: PostgreSQL é a fonte definitiva e o cache contém DTOs descartáveis. Há métodos genéricos de leitura, gravação com TTL, remoção, existência e carregamento da origem, além de contratos para Busca, Catálogo, Ofertas e Acesso. Reservas com token e limites usam operações atômicas, mas não substituem transações ou cobrança definitiva.
 
-A implementação está em `Modules/Verum.Modules.Ofertas/Infraestrutura/Descoberta/Playwright`; o `PlaywrightPipeline` centraliza sua composição nos hosts. Busca e Radar podem usar o mesmo contrato sem depender de CrossCutting ou de APIs do navegador. Os consumidores ainda não foram conectados a esse serviço.
+Neste fluxo, a API confirma a propriedade da busca no banco antes de acessar o cache e armazena somente resultados terminais. O andamento permanece no banco. A validade das ofertas limita a do cache. Sem Redis, leituras retornam ausência e gravações falham de forma controlada; não há cache local substituto. Coordenação indisponível não concede reservas ou cotas. API e workers compartilham o prefixo Redis do ambiente.
 
-As configurações ficam em `Playwright`, inicialmente desabilitado. O arquivo [playwright.lojas.exemplo.json](playwright.lojas.exemplo.json) mostra uma loja fictícia e **não é carregado automaticamente**. Copie e adapte sua seção para o appsettings do host que fará a consulta. Não há seletores de lojas reais implementados nesta etapa.
+Clientes de `IHttpClientFactory` recebem timeout total e por tentativa, retry com jitter, circuit breaker e limite de concorrência. `Http:Resilience` define o padrão; `Http:Clients:<nome>:Resilience` permite ajustes. POST, PUT, PATCH, DELETE e CONNECT não recebem retry automático. Essas políticas protegem chamadas externas; não interceptam o tráfego do navegador Playwright.
 
-Por loja, configure URL com `{consulta}` ou formulário com `CampoBusca` e `BotaoBusca` (ausente significa Enter), botão opcional de preparação, marcador de resultados prontos, cards, link de produto, mensagem de ausência de resultados, campos e limites. O marcador deve representar dados já carregados, inclusive o estado vazio; não basta apontar para um contêiner que existe antes da busca. O botão de preparação é acionado somente se já estiver visível.
+A API responde erros em Problem Details, com código e `traceId`. Validação pode incluir erros por campo; conflito retorna 409, cota excedida 429 e serviço indisponível 503. Falhas técnicas têm mensagem segura; detalhes ficam nos logs. Logs do processamento incluem `BuscaId`.
 
-Seletores usam a sintaxe de locators Playwright, como CSS ou `text=Buscar`, em vez de coordenadas de tela. Campos são relativos ao card; seletor vazio usa o próprio card. Sem `Atributo`, extrai texto; com ele, extrai o atributo indicado. Campos obrigatórios ausentes e links inválidos descartam apenas o card. O retorno contém campos brutos, URLs absolutas deduplicadas, descartes e indicação de limite atingido. Preços, variantes e disponibilidade ainda precisam de normalização e validação antes de se tornarem ofertas.
+## Providers Playwright e IA
 
-A paginação genérica segue links `href`, com limites de páginas e cards examinados por página, além do total de itens retornados. Formulários complexos, iframes, rolagem infinita e botões de paginação sem link exigirão um adaptador específico dentro de Ofertas, reaproveitando `NavegadorPlaywright`. Não há interpretador de scripts configuráveis ou tentativa de contornar CAPTCHA.
+`IConsultaLoja` recebe loja e consulta de até 500 caracteres. `Microsoft.Playwright` usa Chromium headless, compartilhado por processo e iniciado sob demanda. Cada consulta possui contexto isolado, fechado ao terminar, falhar ou cancelar. Não há retry automático de navegação nem tentativa de contornar CAPTCHA.
 
-`ConsultasSimultaneas` limita consultas por processo; réplicas multiplicam esse limite. `TimeoutTotalSegundos` inclui a espera por vaga e a execução; inicialização/encerramento do navegador podem adicionar tempo de limpeza, e o lançamento tem limite próprio de 10 segundos. `TimeoutAcaoSegundos` limita ações e navegação. O cancelamento fecha somente o contexto daquela consulta. Não há retries automáticos de navegação; o pipeline de `HttpClient` não intercepta o tráfego do navegador.
+A implementação está em `Modules/Verum.Modules.Ofertas/Infraestrutura/Descoberta/Playwright`. Configurações por loja definem URL/formulário, seletores de cards e campos, marcador de resultados vazios, paginação, limites e hosts permitidos. Use locators em vez de coordenadas. Cards inválidos são descartados individualmente. Formulários complexos, iframes ou rolagem infinita podem exigir adaptadores específicos, reutilizando o navegador compartilhado.
 
-`HostsPermitidos` lista exatamente os hosts da loja e de seus recursos necessários. Configurações são controladas pelo backend, nunca recebidas do usuário final. A interceptação não substitui isolamento de rede do navegador no ambiente de execução. Downloads e service workers ficam desabilitados. Falha de navegação, timeout ou mudança de layout gera erro; uma lista vazia exige o marcador explícito de ausência de resultados.
+KaBuM está registrada como `kabum`, com limite padrão de duas páginas e 100 itens. Seu perfil extrai nome, preço PIX, condição e imagem; preço de parcela não é tratado como preço final. Sobrescritas ficam em `Playwright:Lojas:kabum`. [playwright.lojas.exemplo.json](playwright.lojas.exemplo.json) mostra uma loja fictícia e não é carregado automaticamente. Seletores dependem do layout público e precisam de manutenção quando ele mudar.
 
-Após compilar, instale o Chromium correspondente à versão do pacote:
+Development habilita Playwright no worker Descoberta. Instale o Chromium correspondente depois do build, em `src/backend`:
 
 ```powershell
 pwsh Apps/Verum.Worker.Descoberta/bin/Debug/net10.0/playwright.ps1 install chromium --no-remove
 ```
 
-Em Linux/containers, prepare também as dependências de sistema com `install --with-deps chromium` na construção da imagem e execute com usuário sem privilégios. O navegador não é instalado durante a inicialização do host. Para testar localmente, configure `VERUM_TEST_PLAYWRIGHT=1`: a suíte usa Chromium real contra páginas locais, sem acessar lojas externas. Esses testes não comprovam os seletores de uma loja real.
+Em containers Linux, prepare as dependências com `install --with-deps chromium` durante a construção da imagem e execute sem privilégios. Hosts permitidos, downloads desabilitados e contextos isolados não substituem isolamento de rede da implantação.
 
-Referências: [biblioteca oficial .NET](https://playwright.dev/dotnet/docs/library), [locators](https://playwright.dev/dotnet/docs/locators) e [instalação de navegadores](https://playwright.dev/dotnet/docs/browsers).
+A integração IA possui contratos independentes de provider e implementação OpenAI Responses com busca web. Contexto e schema ficam separados no módulo Busca para edição. Ela permanece desabilitada e sem chave no desenvolvimento inicial; configure sua seção `InteligenciaArtificial` para habilitar. O fluxo ignora IA não configurada e preserva ofertas quando ocorrer falha ou timeout.
 
-## Bibliotecas utilizadas
+Entrada e interpretação aceitam até 500 caracteres. Estrutura inválida é falha da resposta; candidatos inválidos são descartados individualmente com motivo. São exigidos URL/evidência, correspondência com a consulta e preço válido. A consulta direta de IA retorna descartes detalhados; o fluxo grava diagnósticos agregados de execução da fonte. A chamada real OpenAI ainda exige validação com uma chave da aplicação.
 
-As versões ficam centralizadas em `Directory.Packages.props`; cada projeto declara os pacotes que utiliza.
+## Bibliotecas
 
-| Biblioteca | Papel |
+Versões ficam centralizadas em `Directory.Packages.props`.
+
+| Biblioteca | Função |
 | --- | --- |
-| ASP.NET Core e Microsoft.Extensions.Hosting | API, workers, configuração e injeção de dependências |
-| Microsoft.AspNetCore.OpenApi | Documento OpenAPI da API em Development |
-| Microsoft.AspNetCore.Authentication.JwtBearer | Validação de tokens JWT emitidos pelo Keycloak |
-| Entity Framework Core + Npgsql | Mapeamento das entidades e acesso ao PostgreSQL |
-| Microsoft.Playwright | Chromium e extração configurável de páginas de lojas |
-| MassTransit + RabbitMQ | Publicação e consumo de mensagens, retries e tratamento de falhas |
-| MassTransit.EntityFrameworkCore | Suporte ao futuro Outbox/Inbox persistido no PostgreSQL |
-| StackExchange.Redis + Microsoft.Extensions.Caching.StackExchangeRedis | Cache, coordenação atômica e integração com `IDistributedCache` |
-| Microsoft.Extensions.Http.Resilience + Polly | Proteção configurável das chamadas HTTP externas |
-| OpenTelemetry | Logs, métricas e rastreamento; exportação OTLP opcional |
-| xUnit, Microsoft.NET.Test.Sdk e Microsoft.AspNetCore.Mvc.Testing | Execução dos testes e hospedagem da API em testes |
+| ASP.NET Core / Microsoft.Extensions.Hosting | API, workers, configuração e DI |
+| Microsoft.AspNetCore.OpenApi | OpenAPI em Development |
+| Microsoft.AspNetCore.Authentication.JwtBearer | Validação JWT do Keycloak nos endpoints protegidos |
+| Entity Framework Core / Npgsql | Mappings, migrations e PostgreSQL |
+| Microsoft.Playwright | Navegação e extração de lojas |
+| MassTransit / RabbitMQ / EntityFrameworkCore | Mensageria, retries e Outbox persistida |
+| StackExchange.Redis / DistributedCache | Cache e operações atômicas |
+| Microsoft.Extensions.Http.Resilience / Polly | Resiliência HTTP |
+| OpenTelemetry | Logs, métricas e traces; exportação OTLP opcional |
+| xUnit / Microsoft.AspNetCore.Mvc.Testing | Testes e hospedagem da API para integração |
 
-## Dependências e configuração local
+## Ambiente local e execução
 
-Instale o SDK indicado em `global.json` (10.0.401, com atualização de patch permitida). Docker pode hospedar as dependências abaixo; serviços instalados diretamente também atendem. O backend ainda não fornece Docker Compose para provisionar esse ambiente.
+Use o SDK de `global.json`: .NET 10.0.401, com atualização de patch permitida. O backend não fornece Docker Compose; disponibilize os serviços abaixo.
 
-| Serviço | Configuração local esperada | Preparação |
-| --- | --- | --- |
-| PostgreSQL | `localhost:5432`, banco `verum`, usuário/senha `postgres` | Disponibilizar o banco e acesso para o usuário da aplicação |
-| RabbitMQ | `localhost:5672`, usuário `admin`, senha `admin123`, virtual host `/` | Criar o usuário e conceder permissões no virtual host; MassTransit declara sua topologia |
-| Redis 6.2+ | `localhost:6379`, sem senha ou TLS localmente | Disponibilizar o serviço; não exige criação prévia de chaves |
-| Keycloak | `http://localhost:8080/realms/verum`, audience `verum-api` | Configurar realm e client para emitir tokens com o audience esperado |
-| Collector OTLP, opcional | Endpoint escolhido para telemetria | Necessário somente quando a exportação estiver habilitada |
-
-Em containers, publique essas portas para executar o .NET na máquina local. Se a aplicação também estiver em container, substitua `localhost` pelos nomes dos serviços na rede Docker. Use volumes para os dados persistentes de PostgreSQL e RabbitMQ. A interface administrativa do RabbitMQ é opcional e não substitui a porta AMQP 5672.
-
-Os três hosts possuem `appsettings.json` e `appsettings.Development.json`. Development já aponta para as conexões locais acima e habilita RabbitMQ e Redis. As credenciais são exclusivas de desenvolvimento. Os valores do Keycloak são referências de configuração: o projeto não provisiona realm ou client.
-
-| Seção | O que configurar |
+| Serviço | Configuração Development |
 | --- | --- |
-| `ConnectionStrings` | Conexões `PostgreSQL` e `Redis` |
-| `RabbitMQ` | Habilitação, host, porta, credenciais, TLS, concorrência, retries e publicação |
-| `Redis` | Habilitação, prefixo do ambiente, timeout e TTLs |
-| `Authentication` | Authority, audience e exigência de metadados HTTPS da API |
-| `Cors:Origins` | Origens permitidas; Development inclui `http://localhost:4200` |
-| `Http` | Políticas padrão e sobrescritas por cliente externo |
-| `Observability` | Habilitação da exportação OTLP |
+| PostgreSQL | `localhost:5432`, banco `verum`, usuário/senha `postgres` |
+| RabbitMQ | `localhost:5672`, usuário `admin`, senha `admin123`, vhost `/` |
+| Redis 6.2+ | `localhost:6379`, sem senha ou TLS |
+| Keycloak | `http://localhost:8080/realms/verum`, audience `verum-api`; necessário nos futuros endpoints protegidos |
+| Collector OTLP | Opcional, quando exportação estiver habilitada |
 
-Variáveis de ambiente sobrescrevem os arquivos e usam `__` entre níveis, por exemplo `ConnectionStrings__PostgreSQL` e `RabbitMQ__Password`. Configure segredos pelo mecanismo de secrets da implantação. Fora de Development, configure explicitamente conexões e autoridade de autenticação; metadados HTTPS são exigidos por padrão.
+Publique as portas Docker para executar .NET na máquina. Se os hosts também estiverem em containers, substitua `localhost` pelos nomes dos serviços da rede. Use volumes para PostgreSQL, RabbitMQ e chaves Data Protection. MassTransit declara a topologia; Redis não exige criação manual de chaves.
 
-`RabbitMQ:Enabled=false` permite iniciar sem broker, mas não registra bus nem publicador. `Redis:Enabled=false` mantém os contratos com o comportamento de indisponibilidade descrito acima. A autenticação de endpoints protegidos depende de um emissor JWT configurado corretamente.
+Os appsettings Development habilitam RabbitMQ e Redis com credenciais locais. Em produção, configure conexões, autoridade JWT, origens CORS, providers e segredos explicitamente. Variáveis de ambiente usam `__` entre níveis, como `ConnectionStrings__PostgreSQL`. `RabbitMQ:Enabled=false` permite iniciar o host, mas novas buscas retornam indisponibilidade. `Redis:Enabled=false` mantém a degradação descrita acima. OTLP depende de `Observability:OtlpEnabled` e variáveis OTEL.
 
-Redelivery adiado permanece desabilitado. Para habilitar `RabbitMQ:UseDelayedRedelivery`, o broker precisa do plugin `rabbitmq_delayed_message_exchange`. A exportação de telemetria exige `Observability:OtlpEnabled=true` e as variáveis OTEL, como `OTEL_EXPORTER_OTLP_ENDPOINT`.
-
-### Banco de dados
-
-O banco local `verum` utiliza oito schemas, 32 tabelas de negócio e um histórico de migrations por módulo. As migrations iniciais e snapshots ficam em `Infraestrutura/Persistencia/Migracoes`. Tabelas e colunas de negócio permanecem em maiúsculas; schemas em minúsculas. Os DbContexts continuam descobrindo seus mappings automaticamente.
-
-Iniciar os hosts não aplica migrations. As factories de design usam `ConnectionStrings__PostgreSQL` e não inicializam API, RabbitMQ ou Redis. Em `src/backend`, execute `dotnet tool restore` e `dotnet build Verum.Backend.slnx`. Com a conexão do banco de destino configurada no ambiente, aplique cada módulo, por exemplo:
+O banco local possui oito schemas, 32 tabelas de negócio e três tabelas técnicas de mensageria, além dos históricos de migrations. EF cria schemas e tabelas pelas migrations; não é necessário criar schemas manualmente. Iniciar os hosts não aplica migrations. Em `src/backend`, execute `dotnet tool restore`, compile e aplique cada módulo no banco desejado:
 
 ```powershell
 dotnet ef database update --project Modules/Verum.Modules.Busca --context BuscaDbContext --no-build
 ```
 
-Repita para Contas, Catálogo (`Catalogo`), Ofertas, Radar, Notificações (`Notificacoes`), Acesso e Assinaturas, usando o projeto e o DbContext correspondentes. Para alterações futuras, gere uma nova migration no módulo afetado; não edite uma migration já aplicada. O `dotnet-ef` local e os pacotes EF estão alinhados em 10.0.12.
+Repita para os demais módulos usando seus projetos e contextos. As factories usam `ConnectionStrings__PostgreSQL` e não iniciam serviços externos. EF e dotnet-ef estão alinhados em 10.0.12. Gere novas migrations para alterações; não edite migrations aplicadas. As migrations de Outbox e estados de descoberta foram aplicadas ao banco local `verum`.
 
-Cada aplicação de migration utiliza o controle transacional do EF; o conjunto dos oito módulos não é uma única transação. A revisão atual não encontrou casos de uso executando `SaveChanges`: o serviço de IA faz consulta externa e validação, sem transação de banco. Transações de gravação e Outbox durável serão definidos junto dos casos de uso, mantendo chamadas externas fora de transações longas.
-
-### Validação dos candidatos de IA
-
-A entrada da consulta e sua interpretação têm limite de 500 caracteres, alinhado à entidade Busca. Estrutura geral inválida continua sendo erro. Cada candidato é desserializado e validado separadamente: candidatos válidos são preservados, e `Descartados` informa o índice original (base zero) e o código do motivo. Logs registram esses identificadores, sem o conteúdo bruto. Se todos forem descartados, o resultado fica vazio com motivo explícito e a lista de descartes, distinguindo essa situação de uma pesquisa sem candidatos. O diagnóstico é retornado e registrado nos logs; não cria registros no banco.
-
-## Como executar e validar
-
-Com as dependências locais preparadas, execute em `src/backend`:
+Para executar o primeiro fluxo, em terminais separados:
 
 ```powershell
 dotnet build Verum.Backend.slnx
-dotnet test Verum.Backend.slnx
 dotnet run --project Apps/Verum.Api --launch-profile http
-```
-
-Inicie cada worker em um terminal separado:
-
-```powershell
 dotnet run --project Apps/Verum.Worker.Descoberta --launch-profile Verum.Worker.Descoberta
-dotnet run --project Apps/Verum.Worker.Radar --launch-profile Verum.Worker.Radar
 ```
 
-Esses perfis selecionam Development. A API HTTP fica em `http://localhost:5099`; o perfil alternativo `https` usa `https://localhost:7269` e requer certificado local confiável. O documento OpenAPI fica em `/openapi/v1.json` somente em Development.
+A API fica em `http://localhost:5099`. `/openapi/v1.json` está disponível em Development. Envie a busca e acompanhe o endereço retornado mantendo o cookie. `/health/live` verifica o processo; `/health/ready` inclui MassTransit quando habilitado, mas não comprova PostgreSQL, Redis, Keycloak ou providers.
 
-`/health/live` verifica o processo. `/health/ready` agrega os checks registrados, incluindo MassTransit quando habilitado; ainda não verifica PostgreSQL, Redis ou Keycloak e não comprova a disponibilidade de todo o ecossistema.
+## Validação
 
-Os testes cobrem composição, modelos EF, cache, mensageria, concorrência, proteção HTTP e erros da API. A suíte usa transporte em memória e HTTP simulado para os testes que dispensam serviços externos. Para incluir testes reais, configure `VERUM_TEST_REDIS` com a conexão Redis e `VERUM_TEST_POSTGRES` com uma conexão PostgreSQL de desenvolvimento antes de executar `dotnet test`.
+`dotnet test Verum.Backend.slnx` executa a suíte; integrações externas são opcionais e exigem variáveis:
 
-Sem essas variáveis, os respectivos testes externos são ignorados; quando configuradas, indisponibilidade causa falha. Os testes Redis usam chaves próprias. Os testes PostgreSQL criam schemas aleatórios em transações revertidas e precisam de permissão para criar schemas. Esses testes não aplicam migrations da aplicação nem validam integrações reais com RabbitMQ ou Keycloak.
+| Variável | Habilitação |
+| --- | --- |
+| `VERUM_TEST_POSTGRES` | Conexão PostgreSQL de desenvolvimento |
+| `VERUM_TEST_REDIS` | Conexão Redis de desenvolvimento |
+| `VERUM_TEST_PLAYWRIGHT=1` | Chromium real com páginas locais simuladas |
+| `VERUM_TEST_RABBITMQ=1` | Broker local e management em 15672, junto de PostgreSQL |
+| `VERUM_TEST_KABUM=1` | Verificação opcional do site real |
+
+Sem habilitação, os testes correspondentes são ignorados; serviços habilitados indisponíveis causam falha. Os testes do fluxo criam bancos temporários próprios, aplicam migrations e os removem; precisam de permissão para criar bancos. Outros testes usam schemas transacionais. Redis e RabbitMQ usam recursos exclusivos dos testes, removidos ao terminar. O teste RabbitMQ confirma entrega durável antes da inicialização do worker.
+
+A validação cobre API/cookie/cota, idempotência, persistência, reutilização de ofertas, mensagens, concorrência, fontes parciais, IA simulada, timeout e erros. A verificação KaBuM real consulta produtos, paginação e ausência de resultados sem gravar ofertas. IA real e autenticação Keycloak não são comprovadas pelas simulações.
+
+Validação desta entrega: build sem avisos ou erros, 148 testes aprovados com serviços locais e teste adicional da KaBuM real aprovado. Os modelos de Busca e Ofertas não apresentam alterações pendentes em relação às migrations.

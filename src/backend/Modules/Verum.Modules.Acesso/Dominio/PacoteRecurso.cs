@@ -21,7 +21,6 @@ internal sealed class PacoteRecurso
 
   public Recurso Recurso { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private PacoteRecurso() { }
 
   public PacoteRecurso(
