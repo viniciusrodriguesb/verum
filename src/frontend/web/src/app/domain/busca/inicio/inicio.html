@@ -47,7 +47,7 @@
                 #inputBusca
                 type="search"
                 formControlName="termo"
-                maxlength="120"
+                maxlength="500"
                 autocomplete="off"
                 enterkeyhint="search"
                 placeholder="Busque produto, marca ou modelo"
@@ -60,6 +60,8 @@
 
             <button
               type="submit"
+              [disabled]="inicioBusca.enviando()"
+              [attr.aria-busy]="inicioBusca.enviando()"
               class="bg-verum-blue focus-visible:ring-verum-blue inline-flex h-11 items-center justify-center rounded-lg px-8 text-sm font-semibold text-white transition-colors duration-150 hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none sm:h-12 sm:px-10"
             >
               Buscar
@@ -312,6 +314,10 @@
               </span>
             </div>
           </article>
+        } @empty {
+          <p class="col-span-full py-8 text-center text-sm text-slate-500">
+            Faça uma busca para consultar as ofertas disponíveis.
+          </p>
         }
       </div>
     </div>

@@ -1,7 +1,8 @@
+import { IniciarBuscaService } from '../services/iniciar-busca.service';
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
   LucideArrowDown,
   LucideArrowRight,
@@ -45,6 +46,7 @@ interface OfertaDestaque {
 }
 
 @Component({
+  providers: [IniciarBuscaService],
   selector: 'verum-inicio',
   standalone: true,
   imports: [
@@ -76,7 +78,7 @@ interface OfertaDestaque {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InicioComponent {
-  private readonly roteador = inject(Router);
+  protected readonly inicioBusca = inject(IniciarBuscaService);
 
   private readonly inputBusca = viewChild.required<ElementRef<HTMLInputElement>>('inputBusca');
 
@@ -108,40 +110,7 @@ export class InicioComponent {
     },
   ];
 
-  protected readonly ofertasDestaque: readonly OfertaDestaque[] = [
-    {
-      id: 'iphone-15-128-gb',
-      nome: 'Apple iPhone 15 128 GB (Preto)',
-      complemento: 'Várias lojas',
-      preco: 'R$ 4.699,00',
-      oportunidade: '8% abaixo da média',
-      icone: 'celular',
-    },
-    {
-      id: 'air-fryer-philco-56l',
-      nome: 'Air Fryer Philco PFR2200P 5,6 L',
-      complemento: 'Várias lojas',
-      preco: 'R$ 399,90',
-      oportunidade: '12% abaixo da média',
-      icone: 'eletrodomestico',
-    },
-    {
-      id: 'lenovo-ideapad-15',
-      nome: 'Notebook Lenovo IdeaPad 1i 15,6"',
-      complemento: 'Várias lojas',
-      preco: 'R$ 2.799,00',
-      oportunidade: '6% abaixo da média',
-      icone: 'notebook',
-    },
-    {
-      id: 'galaxy-watch-6',
-      nome: 'Samsung Galaxy Watch 6 44 mm',
-      complemento: 'Várias lojas',
-      preco: 'R$ 1.199,00',
-      oportunidade: '9% abaixo da média',
-      icone: 'relogio',
-    },
-  ];
+  protected readonly ofertasDestaque: readonly OfertaDestaque[] = [];
 
   protected get buscaInvalida(): boolean {
     const campoTermo = this.formularioBusca.controls.termo;
@@ -159,11 +128,7 @@ export class InicioComponent {
 
     const termoNormalizado = normalizarTermoBusca(this.formularioBusca.controls.termo.value);
 
-    void this.roteador.navigate(['/busca/processamento'], {
-      queryParams: {
-        q: termoNormalizado,
-      },
-    });
+    this.inicioBusca.iniciar(termoNormalizado);
   }
 
   protected obterMensagemErroBusca(): string | null {
@@ -178,7 +143,7 @@ export class InicioComponent {
     }
 
     if (campoTermo.hasError('termoMuitoLongo')) {
-      return 'A pesquisa deve ter no máximo 120 caracteres.';
+      return 'A pesquisa deve ter no máximo 500 caracteres.';
     }
 
     return null;

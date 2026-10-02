@@ -1,3 +1,4 @@
+import { IniciarBuscaService } from '../services/iniciar-busca.service';
 import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -21,9 +22,14 @@ import {
   LucideShieldCheck,
   LucideTag,
 } from '@lucide/angular';
-import { Subscription, distinctUntilChanged, map, take, timer } from 'rxjs';
+import { EMPTY, switchMap, tap, timer } from 'rxjs';
 
 import { IlustracaoRadarComponent } from '@shared/components/ilustracao-radar/ilustracao-radar';
+
+import { BuscaConsulta } from '../dtos/busca-consulta.dto';
+import { BuscasService } from '../services/buscas.service';
+
+import { ParamMap } from '@angular/router';
 
 import { Header } from '@shared/components/header/header';
 import { NavegacaoMobileComponent } from '@shared/components/navegacao-mobile/navegacao-mobile';
@@ -53,6 +59,7 @@ interface InformacaoAvaliacao {
 }
 
 @Component({
+  providers: [IniciarBuscaService],
   selector: 'verum-processamento-busca',
   standalone: true,
   imports: [
@@ -78,19 +85,29 @@ interface InformacaoAvaliacao {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProcessamentoComponent {
-  private static readonly INTERVALO_ETAPAS_MS = 3_200;
-  private static readonly INDICE_ETAPA_INICIAL = 1;
-
   private readonly rota = inject(ActivatedRoute);
   private readonly roteador = inject(Router);
+
+  protected readonly inicioBusca = inject(IniciarBuscaService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly inputBuscaDesktop =
     viewChild.required<ElementRef<HTMLInputElement>>('inputBuscaDesktop');
 
-  private readonly indiceEtapaAtual = signal(ProcessamentoComponent.INDICE_ETAPA_INICIAL);
+  private readonly buscas = inject(BuscasService);
 
-  private simulacaoEtapas?: Subscription;
+  protected readonly busca = signal<BuscaConsulta | null>(null);
+
+  protected readonly erro = signal<string | null>(null);
+
+  protected readonly consulta = signal('');
+
+  // Progresso visual estimado; somente a resposta final da API libera os resultados.
+  private readonly indiceEtapaAtual = signal(0);
+
+  private inicioAcompanhamento = Date.now();
+
+  private ultimoAvanco = Date.now();
 
   protected readonly formularioBusca = new FormGroup({
     termo: new FormControl('', {
@@ -108,12 +125,12 @@ export class ProcessamentoComponent {
     {
       codigo: 'consulta-lojas',
       titulo: 'Consultando lojas confiáveis',
-      descricao: 'Buscando ofertas atualizadas em lojas verificadas.',
+      descricao: 'Buscando ofertas nas fontes disponíveis.',
     },
     {
       codigo: 'comparacao',
-      titulo: 'Comparando preços e histórico',
-      descricao: 'Analisando preços, histórico e reputação das lojas.',
+      titulo: 'Validando as ofertas',
+      descricao: 'Conferindo correspondência e condições das ofertas.',
     },
     {
       codigo: 'ranking',
@@ -161,6 +178,10 @@ export class ProcessamentoComponent {
 
   constructor() {
     this.observarTermoDaRota();
+
+    timer(650, 650)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.avancarStepper());
   }
 
   protected get buscaInvalida(): boolean {
@@ -179,21 +200,7 @@ export class ProcessamentoComponent {
 
     const termoNormalizado = normalizarTermoBusca(this.formularioBusca.controls.termo.value);
 
-    const termoAtual = this.rota.snapshot.queryParamMap.get('q') ?? '';
-
-    if (termoNormalizado === termoAtual) {
-      this.iniciarSimulacaoVisual();
-      return;
-    }
-
-    void this.roteador.navigate([], {
-      relativeTo: this.rota,
-      queryParams: {
-        q: termoNormalizado,
-      },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+    this.inicioBusca.iniciar(termoNormalizado);
   }
 
   protected alterarBusca(): void {
@@ -219,7 +226,7 @@ export class ProcessamentoComponent {
     }
 
     if (campoTermo.hasError('termoMuitoLongo')) {
-      return 'A pesquisa deve ter no máximo 120 caracteres.';
+      return 'A pesquisa deve ter no máximo 500 caracteres.';
     }
 
     return null;
@@ -228,53 +235,88 @@ export class ProcessamentoComponent {
   private observarTermoDaRota(): void {
     this.rota.queryParamMap
       .pipe(
-        map((parametros) => parametros.get('q')?.trim() ?? ''),
-        distinctUntilChanged(),
+        switchMap((parametros) => this.obterAcompanhamento(parametros)),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((termo) => {
-        if (!termo) {
+      .subscribe({
+        next: (busca) => {
+          this.busca.set(busca);
+        },
+        error: () => {
           void this.roteador.navigate(['/']);
-          return;
-        }
-
-        this.formularioBusca.controls.termo.setValue(termo, {
-          emitEvent: false,
-        });
-
-        this.iniciarSimulacaoVisual();
+        },
       });
   }
 
-  private iniciarSimulacaoVisual(): void {
-    this.simulacaoEtapas?.unsubscribe();
+  private obterAcompanhamento(parametros: ParamMap) {
+    this.erro.set(null);
+    this.busca.set(null);
 
-    const indiceInicial = ProcessamentoComponent.INDICE_ETAPA_INICIAL;
+    this.indiceEtapaAtual.set(0);
 
-    const quantidadeAvancos = this.etapas.length - indiceInicial - 1;
+    this.inicioAcompanhamento = Date.now();
 
-    this.indiceEtapaAtual.set(indiceInicial);
-
-    this.simulacaoEtapas = timer(
-      ProcessamentoComponent.INTERVALO_ETAPAS_MS,
-      ProcessamentoComponent.INTERVALO_ETAPAS_MS,
-    )
-      .pipe(take(quantidadeAvancos + 1), takeUntilDestroyed(this.destroyRef))
-      .subscribe((emissao) => {
-        const proximoIndice = indiceInicial + emissao + 1;
-
-        if (proximoIndice < this.etapas.length) {
-          this.indiceEtapaAtual.set(proximoIndice);
-          return;
-        }
-
-        void this.roteador.navigate(['/busca/resultado'], {
-          queryParams: {
-            q: this.formularioBusca.controls.termo.value,
+    this.ultimoAvanco = this.inicioAcompanhamento;
+    const consulta = parametros.get('q') ?? '';
+    this.consulta.set(consulta);
+    this.formularioBusca.controls.termo.setValue(consulta);
+    const id = parametros.get('id');
+    if (id)
+      return this.buscas.acompanhar(id).pipe(
+        tap({
+          complete: () => {
+            const status = this.busca()?.status;
+            if (!status || status === 'Recebida' || status === 'Processando') {
+              this.erro.set(
+                'A busca está demorando. Retome o acompanhamento para consultar a mesma solicitação.',
+              );
+            }
           },
-          replaceUrl: true,
-        });
+        }),
+      );
+    if (!consulta.trim() || consulta.length > 500) {
+      void this.roteador.navigate(['/']);
+      return EMPTY;
+    }
+    void this.roteador.navigate(['/'], { queryParams: { q: consulta }, replaceUrl: true });
+    return EMPTY;
+  }
+
+  protected retomar(): void {
+    window.location.reload();
+  }
+
+  private avancarStepper(): void {
+    if (this.erro()) return;
+
+    const busca = this.busca();
+
+    if (!busca) return;
+
+    const finalizada = busca.status !== 'Recebida' && busca.status !== 'Processando';
+
+    const agora = Date.now();
+
+    const indice = this.indiceEtapaAtual();
+
+    const destino = finalizada
+      ? 3
+      : Math.min(3, Math.floor((agora - this.inicioAcompanhamento) / 2200));
+
+    if (indice < destino) {
+      this.indiceEtapaAtual.update((atual) => atual + 1);
+
+      this.ultimoAvanco = agora;
+
+      return;
+    }
+
+    if (finalizada && indice === 3 && agora - this.ultimoAvanco >= 650) {
+      void this.roteador.navigate(['/busca/resultado'], {
+        queryParams: { id: busca.id, q: this.consulta() },
+        replaceUrl: true,
       });
+    }
   }
 
   private obterEstadoEtapa(indice: number, indiceAtual: number): EstadoEtapa {

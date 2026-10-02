@@ -1,3 +1,4 @@
+import { IniciarBuscaService } from '../services/iniciar-busca.service';
 import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -19,17 +20,21 @@ import {
   LucideSearch,
   LucideShieldCheck,
   LucideSlidersHorizontal,
-  LucideSparkles,
   LucideStar,
   LucideTag,
-  LucideTruck,
 } from '@lucide/angular';
-import { distinctUntilChanged, map, startWith } from 'rxjs';
+import { startWith } from 'rxjs';
+
+import { BuscaConsulta } from '../dtos/busca-consulta.dto';
+import { BuscasService } from '../services/buscas.service';
+import { mensagemErroBusca } from '../utils/mensagem-erro-busca';
+import { apresentarOferta } from './mappers/oferta-apresentacao.mapper';
+import { EMPTY, switchMap } from 'rxjs';
 
 import { Header } from '@shared/components/header/header';
 import { NavegacaoMobileComponent } from '@shared/components/navegacao-mobile/navegacao-mobile';
 
-import { OfertaResultado } from './oferta-resultado.model';
+import { OfertaResultado } from './models/oferta-resultado.model';
 import { normalizarTermoBusca, validarTermoBusca } from '../validators/termo-busca.validator';
 import { CartaoOfertaComponent } from './cartao-oferta/cartao-oferta';
 
@@ -44,6 +49,7 @@ interface OpcaoOrdenacao {
 }
 
 @Component({
+  providers: [IniciarBuscaService],
   selector: 'verum-resultado-busca',
   standalone: true,
   imports: [
@@ -58,10 +64,8 @@ interface OpcaoOrdenacao {
     LucideSearch,
     LucideShieldCheck,
     LucideSlidersHorizontal,
-    LucideSparkles,
     LucideStar,
     LucideTag,
-    LucideTruck,
   ],
   host: {
     class:
@@ -73,6 +77,8 @@ interface OpcaoOrdenacao {
 export class ResultadosComponent {
   private readonly rota = inject(ActivatedRoute);
   private readonly roteador = inject(Router);
+
+  protected readonly inicioBusca = inject(IniciarBuscaService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly inputBuscaDesktop =
@@ -88,15 +94,6 @@ export class ResultadosComponent {
   protected readonly formularioFiltros = new FormGroup({
     precoMinimo: new FormControl<number | null>(null),
     precoMaximo: new FormControl<number | null>(null),
-    freteGratis: new FormControl(false, {
-      nonNullable: true,
-    }),
-    somenteLojasConfiaveis: new FormControl(false, {
-      nonNullable: true,
-    }),
-    somenteProdutosNovos: new FormControl(true, {
-      nonNullable: true,
-    }),
   });
 
   private readonly filtrosAtuais = toSignal(
@@ -110,7 +107,15 @@ export class ResultadosComponent {
 
   private readonly favoritos = signal<ReadonlySet<string>>(new Set());
 
-  protected readonly totalOfertasAnalisadas = 57;
+  private readonly buscas = inject(BuscasService);
+
+  protected readonly resultado = signal<BuscaConsulta | null>(null);
+
+  protected readonly erro = signal<string | null>(null);
+
+  protected get totalOfertasAnalisadas(): number {
+    return this.resultado()?.ofertas.length ?? 0;
+  }
 
   protected readonly opcoesOrdenacao: readonly OpcaoOrdenacao[] = [
     {
@@ -130,94 +135,14 @@ export class ResultadosComponent {
     },
   ];
 
-  private readonly ofertas: readonly OfertaResultado[] = [
-    {
-      id: 'magazine-luiza-iphone-16',
-      produtoId: 'iphone-16-256-gb',
-      produto: 'iPhone 16 256 GB',
-      fabricante: 'Apple',
-      preco: 4499,
-      quantidadeParcelas: 12,
-      valorParcela: 374.92,
-      freteGratis: true,
-      produtoNovo: true,
-      verificadaHaMinutos: 10,
-      pontuacaoRanking: 9.6,
-      destaque: 'melhor-escolha',
-      loja: {
-        codigo: 'magazine-luiza',
-        nome: 'Magazine Luiza',
-        confiavel: true,
-      },
-      avaliacao: {
-        preco: 9.6,
-        confianca: 9.2,
-        atualizacao: 9.8,
-        resumo: 'Bom equilíbrio entre preço, reputação da loja e atualização da oferta.',
-      },
-      imagemUrl: null,
-      urlOferta: 'https://www.magazineluiza.com.br/',
-    },
-    {
-      id: 'amazon-iphone-16',
-      produtoId: 'iphone-16-256-gb',
-      produto: 'iPhone 16 256 GB',
-      fabricante: 'Apple',
-      preco: 4589,
-      quantidadeParcelas: 12,
-      valorParcela: 382.42,
-      freteGratis: true,
-      produtoNovo: true,
-      verificadaHaMinutos: 25,
-      pontuacaoRanking: 9.4,
-      destaque: 'mais-confiavel',
-      loja: {
-        codigo: 'amazon',
-        nome: 'Amazon.com.br',
-        confiavel: true,
-      },
-      avaliacao: {
-        preco: 9.1,
-        confianca: 9.8,
-        atualizacao: 9.5,
-        resumo: 'Loja com excelente reputação e oferta verificada recentemente.',
-      },
-      imagemUrl: null,
-      urlOferta: 'https://www.amazon.com.br/',
-    },
-    {
-      id: 'kabum-iphone-16',
-      produtoId: 'iphone-16-256-gb',
-      produto: 'iPhone 16 256 GB',
-      fabricante: 'Apple',
-      preco: 4399,
-      quantidadeParcelas: 12,
-      valorParcela: 366.58,
-      freteGratis: false,
-      produtoNovo: true,
-      verificadaHaMinutos: 40,
-      pontuacaoRanking: 9.1,
-      destaque: 'menor-preco',
-      loja: {
-        codigo: 'kabum',
-        nome: 'KaBuM!',
-        confiavel: true,
-      },
-      avaliacao: {
-        preco: 9.9,
-        confianca: 9.5,
-        atualizacao: 9,
-        resumo: 'Menor preço entre as ofertas selecionadas, em uma loja confiável.',
-      },
-      imagemUrl: null,
-      urlOferta: 'https://www.kabum.com.br/',
-    },
-  ];
+  private readonly ofertas = computed(() =>
+    (this.resultado()?.ofertas ?? []).map(apresentarOferta),
+  );
 
   protected readonly ofertasExibidas = computed(() => {
     const filtros = this.filtrosAtuais();
 
-    const ofertasFiltradas = this.ofertas.filter((oferta) => {
+    const ofertasFiltradas = this.ofertas().filter((oferta) => {
       if (
         filtros.precoMinimo !== null &&
         filtros.precoMinimo !== undefined &&
@@ -234,18 +159,6 @@ export class ResultadosComponent {
         return false;
       }
 
-      if (filtros.freteGratis && !oferta.freteGratis) {
-        return false;
-      }
-
-      if (filtros.somenteLojasConfiaveis && !oferta.loja.confiavel) {
-        return false;
-      }
-
-      if (filtros.somenteProdutosNovos && !oferta.produtoNovo) {
-        return false;
-      }
-
       return true;
     });
 
@@ -255,13 +168,7 @@ export class ResultadosComponent {
   protected readonly possuiFiltrosAtivos = computed(() => {
     const filtros = this.filtrosAtuais();
 
-    return (
-      filtros.precoMinimo !== null ||
-      filtros.precoMaximo !== null ||
-      Boolean(filtros.freteGratis) ||
-      Boolean(filtros.somenteLojasConfiaveis) ||
-      Boolean(filtros.somenteProdutosNovos)
-    );
+    return filtros.precoMinimo !== null || filtros.precoMaximo !== null;
   });
 
   constructor() {
@@ -292,11 +199,7 @@ export class ResultadosComponent {
 
     const termoNormalizado = normalizarTermoBusca(this.formularioBusca.controls.termo.value);
 
-    void this.roteador.navigate(['/busca/processamento'], {
-      queryParams: {
-        q: termoNormalizado,
-      },
-    });
+    this.inicioBusca.iniciar(termoNormalizado);
   }
 
   protected voltarParaBusca(): void {
@@ -307,9 +210,6 @@ export class ResultadosComponent {
     this.formularioFiltros.reset({
       precoMinimo: null,
       precoMaximo: null,
-      freteGratis: false,
-      somenteLojasConfiaveis: false,
-      somenteProdutosNovos: false,
     });
   }
 
@@ -343,7 +243,7 @@ export class ResultadosComponent {
     }
 
     if (campoTermo.hasError('termoMuitoLongo')) {
-      return 'A pesquisa deve ter no máximo 120 caracteres.';
+      return 'A pesquisa deve ter no máximo 500 caracteres.';
     }
 
     return null;
@@ -352,19 +252,32 @@ export class ResultadosComponent {
   private observarTermoDaRota(): void {
     this.rota.queryParamMap
       .pipe(
-        map((parametros) => parametros.get('q')?.trim() ?? ''),
-        distinctUntilChanged(),
+        switchMap((parametros) => {
+          this.resultado.set(null);
+          this.erro.set(null);
+          const consulta = parametros.get('q') ?? '';
+          this.formularioBusca.controls.termo.setValue(consulta);
+          const id = parametros.get('id');
+          if (!id) {
+            void this.roteador.navigate(['/']);
+            return EMPTY;
+          }
+          return this.buscas.obter(id);
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((termo) => {
-        if (!termo) {
-          void this.roteador.navigate(['/']);
-          return;
-        }
-
-        this.formularioBusca.controls.termo.setValue(termo, {
-          emitEvent: false,
-        });
+      .subscribe({
+        next: (resultado) => {
+          if (resultado.status === 'Recebida' || resultado.status === 'Processando') {
+            void this.roteador.navigate(['/busca/processamento'], {
+              queryParams: { id: resultado.id, q: this.formularioBusca.controls.termo.value },
+              replaceUrl: true,
+            });
+          } else {
+            this.resultado.set(resultado);
+          }
+        },
+        error: (erro) => this.erro.set(mensagemErroBusca(erro)),
       });
   }
 

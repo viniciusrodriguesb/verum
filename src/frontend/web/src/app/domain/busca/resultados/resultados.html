@@ -57,7 +57,7 @@
             #inputBuscaDesktop
             type="search"
             formControlName="termo"
-            maxlength="120"
+            maxlength="500"
             autocomplete="off"
             class="text-verum-navy h-14 min-w-0 flex-1 bg-transparent px-5 text-lg outline-none"
             aria-label="Produto pesquisado"
@@ -66,6 +66,8 @@
 
           <button
             type="submit"
+            [disabled]="inicioBusca.enviando()"
+            [attr.aria-busy]="inicioBusca.enviando()"
             class="bg-verum-blue min-w-[186px] self-stretch rounded-[9px] px-8 font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none focus-visible:ring-inset"
           >
             Buscar
@@ -97,7 +99,7 @@
             <span class="inline-flex items-center gap-2">
               <svg lucideClock [size]="19" [strokeWidth]="1.8" aria-hidden="true"></svg>
 
-              Atualizado há 2 min
+              Ofertas observadas nas fontes
             </span>
           </div>
 
@@ -111,12 +113,25 @@
     </div>
   </section>
 
+  @if (erro()) {
+    <p role="alert" class="mx-auto max-w-7xl px-5 py-4 text-sm text-red-700">{{ erro() }}</p>
+  }
+  @if (resultado()?.parcial) {
+    <p role="status" class="mx-auto max-w-7xl px-5 py-3 text-sm text-amber-800">
+      Resultado parcial: alguma fonte estava indisponível ou atingiu seus limites.
+    </p>
+  }
+  @if (resultado()?.status === 'Expirada') {
+    <p role="status" class="mx-auto max-w-7xl px-5 py-3 text-sm text-amber-800">
+      O prazo terminou. As ofertas encontradas foram preservadas.
+    </p>
+  }
   <section class="bg-slate-50/40">
     <div
       class="mx-auto grid max-w-7xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[272px_minmax(0,1fr)] lg:px-8 lg:py-5"
     >
       <aside
-        class="hidden overflow-hidden rounded-xl border border-slate-200 bg-white lg:block"
+        class="hidden self-start overflow-hidden rounded-xl border border-slate-200 bg-white lg:block"
         aria-labelledby="titulo-filtros"
       >
         <form [formGroup]="formularioFiltros">
@@ -173,52 +188,6 @@
               </label>
             </div>
           </fieldset>
-
-          <label
-            class="flex min-h-[54px] cursor-pointer items-center gap-3 border-b border-slate-200 px-4 text-sm"
-          >
-            <input
-              type="checkbox"
-              formControlName="freteGratis"
-              class="size-5 rounded accent-emerald-600"
-            />
-
-            <span class="flex-1">Frete grátis</span>
-
-            <svg lucideTruck [size]="19" [strokeWidth]="1.8" aria-hidden="true"></svg>
-          </label>
-
-          <label
-            class="flex min-h-[54px] cursor-pointer items-center gap-3 border-b border-slate-200 px-4 text-sm"
-          >
-            <input
-              type="checkbox"
-              formControlName="somenteLojasConfiaveis"
-              class="size-5 rounded accent-emerald-600"
-            />
-
-            <span class="flex-1">Somente lojas confiáveis</span>
-
-            <svg lucideShieldCheck [size]="19" [strokeWidth]="1.8" aria-hidden="true"></svg>
-          </label>
-
-          <label class="flex min-h-[54px] cursor-pointer items-center gap-3 px-4 text-sm">
-            <input
-              type="checkbox"
-              formControlName="somenteProdutosNovos"
-              class="size-5 rounded accent-emerald-600"
-            />
-
-            <span class="flex-1">Condição: novo</span>
-
-            <svg
-              lucideSparkles
-              class="text-emerald-600"
-              [size]="19"
-              [strokeWidth]="1.8"
-              aria-hidden="true"
-            ></svg>
-          </label>
         </form>
       </aside>
 
@@ -286,11 +255,21 @@
             ></svg>
 
             <h2 class="text-verum-navy mt-4 text-lg font-bold">
-              Nenhuma oferta corresponde aos filtros
+              {{
+                resultado()?.status === 'Falhou'
+                  ? 'Não foi possível concluir a busca'
+                  : resultado()?.motivo === 'ConsultaInsuficiente'
+                    ? 'Detalhe marca, modelo ou capacidade'
+                    : 'Nenhuma oferta disponível'
+              }}
             </h2>
 
             <p class="mt-2 max-w-md text-sm leading-6 text-slate-600">
-              Limpe os filtros para voltar a visualizar as melhores recomendações.
+              {{
+                resultado()?.status === 'Falhou'
+                  ? 'As fontes ficaram indisponíveis. Tente novamente mais tarde.'
+                  : 'Refine sua busca ou limpe os filtros para consultar as ofertas disponíveis.'
+              }}
             </p>
 
             <button

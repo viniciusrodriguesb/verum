@@ -1,7 +1,7 @@
 import { ValidationErrors, ValidatorFn } from '@angular/forms';
 
 const TAMANHO_MINIMO_TERMO = 2;
-const TAMANHO_MAXIMO_TERMO = 120;
+const TAMANHO_MAXIMO_TERMO = 500;
 
 export function normalizarTermoBusca(valor: string): string {
   return valor.trim().replace(/\s+/g, ' ');

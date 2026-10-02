@@ -62,7 +62,7 @@ module.exports = defineConfig([
         {
           patterns: [
             {
-              group: ['@core/*', '@domain/*', '**/core/**', '**/domain/**'],
+              group: ['@core/*', '@domain/*', '**/core/**', '**/domain/**', '!@angular/**'],
               message: 'Shared deve permanecer independente de Core e Domain.',
             },
           ],

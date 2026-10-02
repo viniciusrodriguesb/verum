@@ -32,9 +32,20 @@
 
 <main
   class="min-h-0 lg:min-h-[calc(100dvh-84px)]"
-  aria-busy="true"
+  [attr.aria-busy]="!erro()"
   aria-labelledby="titulo-processamento"
 >
+  @if (erro()) {
+    <div
+      role="alert"
+      class="mx-auto mt-5 max-w-3xl rounded-xl border border-red-200 bg-white px-5 py-4 text-sm text-red-700"
+    >
+      {{ erro() }}
+      <button type="button" class="ml-3 font-semibold text-blue-700" (click)="retomar()">
+        Retomar consulta
+      </button>
+    </div>
+  }
   <section class="hidden bg-white px-8 pt-[30px] pb-6 lg:block" aria-label="Busca atual">
     <div class="mx-auto flex w-full max-w-[1178px] items-center gap-[30px]">
       <form
@@ -63,7 +74,7 @@
             #inputBuscaDesktop
             type="search"
             formControlName="termo"
-            maxlength="120"
+            maxlength="500"
             autocomplete="off"
             enterkeyhint="search"
             class="text-verum-navy h-[54px] min-w-0 flex-1 border-0 bg-transparent px-5 text-base outline-none"
@@ -74,6 +85,8 @@
 
           <button
             type="submit"
+            [disabled]="inicioBusca.enviando()"
+            [attr.aria-busy]="inicioBusca.enviando()"
             class="min-w-[154px] self-stretch rounded-[9px] bg-[linear-gradient(135deg,#1d4ed8,#0568ed)] px-7 text-[15px] font-semibold text-white transition-[filter] duration-150 hover:brightness-95 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none focus-visible:ring-inset motion-reduce:transition-none"
           >
             Buscar

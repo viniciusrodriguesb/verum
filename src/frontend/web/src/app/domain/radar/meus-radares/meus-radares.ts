@@ -53,59 +53,7 @@ interface RadarMonitorado {
   readonly pontosGrafico: string;
 }
 
-const RADARES_INICIAIS: readonly RadarMonitorado[] = [
-  {
-    id: 'radar-iphone-16',
-    produtoSlug: 'iphone-16-256-gb',
-    produto: 'iPhone 16 256 GB',
-    loja: 'Magazine Luiza',
-    criadoEm: '20/05/2024',
-    criadoEmOrdem: 20240520,
-    precoAtual: 'R$ 4.499,00',
-    precoAlvo: 'R$ 4.500,00',
-    estado: 'preco-atingido',
-    atualizadoEm: 'há 10 min',
-    economiaPotencial: 500,
-    iconeProduto: 'celular',
-    corGrafico: 'verde',
-    pontosGrafico:
-      '0,42 18,36 34,45 50,27 66,41 82,24 99,48 116,42 134,31 151,47 168,39 185,45 202,61 220,67 239,60 260,62',
-  },
-  {
-    id: 'radar-notebook-lenovo',
-    produtoSlug: 'notebook-lenovo-ideapad-5',
-    produto: 'Notebook Lenovo IdeaPad 5',
-    loja: 'Amazon',
-    criadoEm: '18/05/2024',
-    criadoEmOrdem: 20240518,
-    precoAtual: 'R$ 2.799,00',
-    precoAlvo: 'R$ 2.600,00',
-    estado: 'monitorando',
-    atualizadoEm: 'há 25 min',
-    economiaPotencial: 199,
-    iconeProduto: 'notebook',
-    corGrafico: 'azul',
-    pontosGrafico:
-      '0,47 18,43 35,57 52,25 70,35 87,45 104,63 122,34 139,24 156,53 174,49 191,32 208,58 225,67 242,57 260,59',
-  },
-  {
-    id: 'radar-air-fryer',
-    produtoSlug: 'air-fryer-philco-56l',
-    produto: 'Air Fryer Philco 5,6 L',
-    loja: 'Casas Bahia',
-    criadoEm: '15/05/2024',
-    criadoEmOrdem: 20240515,
-    precoAtual: 'Sem estoque',
-    precoAlvo: 'Avisar quando voltar',
-    estado: 'sem-estoque',
-    atualizadoEm: 'há 2 h',
-    economiaPotencial: 81,
-    iconeProduto: 'eletrodomestico',
-    corGrafico: 'cinza',
-    pontosGrafico:
-      '0,39 18,46 35,62 52,33 70,54 87,42 104,59 122,38 139,45 156,66 174,52 191,43 208,61 225,56 242,68 260,65',
-  },
-];
+const RADARES_INICIAIS: readonly RadarMonitorado[] = [];
 
 const FILTROS: readonly OpcaoFiltro[] = [
   {
@@ -166,9 +114,9 @@ export class MeusRadaresComponent {
   protected readonly ordenacaoSelecionada = signal<OrdenacaoRadar>('mais-recentes');
 
   protected readonly resumo = {
-    radaresAtivos: 6,
-    oportunidades: 2,
-    economiaPotencial: 'R$ 780',
+    radaresAtivos: 0,
+    oportunidades: 0,
+    economiaPotencial: '—',
   } as const;
 
   protected readonly radaresFiltrados = computed(() => {

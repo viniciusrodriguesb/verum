@@ -26,4 +26,6 @@ export const routes: Routes = [
     path: 'radar',
     loadChildren: () => import('@domain/radar/radar.routes').then((rotas) => rotas.ROTAS_RADAR),
   },
+  { path: 'busca', pathMatch: 'full', redirectTo: '' },
+  { path: '**', redirectTo: '' },
 ];

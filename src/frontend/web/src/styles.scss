@@ -17,12 +17,16 @@
 
 html {
   height: 100%;
-  @include mat.theme((color: (primary: mat.$azure-palette,
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
       ),
       typography: Inter,
       density: 0,
-    ));
+    )
+  );
 }
 
 body {

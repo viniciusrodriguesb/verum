@@ -1,11 +1,11 @@
 export type DestaqueOferta = 'melhor-escolha' | 'mais-confiavel' | 'menor-preco';
 
-export type CodigoLoja = 'magazine-luiza' | 'amazon' | 'kabum';
+export type CodigoLoja = string;
 
 export interface LojaOferta {
   readonly codigo: CodigoLoja;
   readonly nome: string;
-  readonly confiavel: boolean;
+  readonly confiavel: boolean | null;
 }
 
 export interface AvaliacaoOferta {
@@ -21,10 +21,11 @@ export interface OfertaResultado {
   readonly produto: string;
   readonly fabricante: string;
   readonly preco: number;
-  readonly quantidadeParcelas: number;
-  readonly valorParcela: number;
-  readonly freteGratis: boolean;
-  readonly produtoNovo: boolean;
+  readonly condicaoPreco: string;
+  readonly quantidadeParcelas: number | null;
+  readonly valorParcela: number | null;
+  readonly freteGratis: boolean | null;
+  readonly produtoNovo: boolean | null;
   readonly verificadaHaMinutos: number;
   readonly pontuacaoRanking: number;
   readonly destaque: DestaqueOferta;

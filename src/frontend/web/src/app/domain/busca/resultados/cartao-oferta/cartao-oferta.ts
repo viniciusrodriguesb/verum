@@ -1,9 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { CurrencyPipe, DecimalPipe, NgClass } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import {
   LucideBadgeCheck,
-  LucideChevronDown,
   LucideClock,
   LucideHeart,
   LucideRadar,
@@ -13,10 +20,10 @@ import {
   LucideTag,
   LucideTruck,
 } from '@lucide/angular';
-import { DestaqueOferta, OfertaResultado } from '../oferta-resultado.model';
+import { DestaqueOferta, OfertaResultado } from '../models/oferta-resultado.model';
 
 const ROTULOS_DESTAQUE: Readonly<Record<DestaqueOferta, string>> = {
-  'melhor-escolha': 'Melhor escolha',
+  'melhor-escolha': 'Oferta encontrada',
   'mais-confiavel': 'Mais confiável',
   'menor-preco': 'Menor preço',
 };
@@ -28,9 +35,7 @@ const ROTULOS_DESTAQUE: Readonly<Record<DestaqueOferta, string>> = {
     CurrencyPipe,
     DecimalPipe,
     NgClass,
-    RouterLink,
     LucideBadgeCheck,
-    LucideChevronDown,
     LucideClock,
     LucideHeart,
     LucideRadar,
@@ -41,12 +46,16 @@ const ROTULOS_DESTAQUE: Readonly<Record<DestaqueOferta, string>> = {
     LucideTruck,
   ],
   host: {
-    class: 'block',
+    class: 'block min-w-0',
+    '(document:click)': 'fecharAoClicarFora($event)',
+    '(document:keydown.escape)': 'fecharExplicacao()',
   },
   templateUrl: './cartao-oferta.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartaoOfertaComponent {
+  private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
+
   readonly oferta = input.required<OfertaResultado>();
   readonly favorita = input(false);
 
@@ -58,6 +67,16 @@ export class CartaoOfertaComponent {
 
   protected alternarFavorito(): void {
     this.favoritoAlterado.emit(this.oferta().id);
+  }
+
+  protected fecharAoClicarFora(evento: MouseEvent): void {
+    if (!this.elemento.nativeElement.contains(evento.target as Node)) {
+      this.fecharExplicacao();
+    }
+  }
+
+  protected fecharExplicacao(): void {
+    this.explicacaoAberta.set(false);
   }
 
   protected alternarExplicacao(): void {

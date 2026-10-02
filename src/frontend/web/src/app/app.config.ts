@@ -1,4 +1,5 @@
-import { provideHttpClient } from '@angular/common/http';
+import { errosApiInterceptor } from './shared/interceptors/erros-api.interceptor';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, LOCALE_ID } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import localePtBr from '@angular/common/locales/pt';
@@ -10,7 +11,7 @@ registerLocaleData(localePtBr);
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([errosApiInterceptor])),
     provideRouter(routes),
     {
       provide: LOCALE_ID,

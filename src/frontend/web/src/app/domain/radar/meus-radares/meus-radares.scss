@@ -1,17 +1,16 @@
 :host {
-    display: block;
-    min-height: 100dvh;
-    background-color: #f8fafc;
+  display: block;
+  min-height: 100dvh;
+  background-color: #f8fafc;
 }
 
-.menu-radar>summary::-webkit-details-marker {
-    display: none;
+.menu-radar > summary::-webkit-details-marker {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    button,
-    a {
-        transition: none !important;
-    }
+  button,
+  a {
+    transition: none !important;
+  }
 }

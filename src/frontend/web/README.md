@@ -62,6 +62,16 @@ nvm install
 nvm use
 ```
 
+## Integração do primeiro fluxo
+
+A aplicação usa os endpoints reais de visitante: POST `/api/v1/buscas` e GET `/api/v1/buscas/{id}`. Os DTOs ficam em `domain/busca/dtos`, o cliente HTTP em `services` e os componentes exibem somente informações devolvidas pela API. A chave de idempotência e o ID são preservados na URL para retomar uma consulta sem criar outra. O acompanhamento consulta o servidor a cada dois segundos, sem requisições simultâneas; para ao receber estado final, sair da tela ou atingir quatro minutos. Retomar consulta usa o mesmo ID/chave.
+
+Para testar localmente, inicie PostgreSQL, RabbitMQ, Redis e Chromium, aplique as migrations e execute API (perfil `http`, porta 5099) e worker Descoberta conforme o README do backend. Execute `npm start` aqui e abra `http://localhost:4200`. `proxy.conf.json` encaminha `/api/**` à API; os pedidos enviam credenciais e preservam o cookie HttpOnly. Use sempre o mesmo hostname: alternar localhost e 127.0.0.1 muda a identificação do visitante. A cota padrão é uma busca diária; 429 será exibido na tela.
+
+Pesquise um produto específico, como `ssd kingston`, e aguarde o resultado. IA sem chave é ignorada pelo backend. Os estados vazio, falha, expiração, resultado parcial e indisponibilidade HTTP têm apresentação própria. Radar, contas, favoritos, histórico, frete e parcelamento não possuem endpoints disponíveis nesta entrega; não são simulados. A classificação não presume equivalência entre variantes.
+
+Em produção, encaminhe `/api` ao backend no mesmo domínio pelo reverse proxy e configure o fallback de rotas do Angular. O proxy do Angular serve somente para desenvolvimento. Nenhuma credencial de PostgreSQL, RabbitMQ ou OpenAI pertence ao frontend.
+
 ## Primeiros passos
 
 Instale exatamente as dependências registradas no lockfile:

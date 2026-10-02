@@ -3,7 +3,8 @@
     @for (item of itensNavegacao; track item.rota) {
       <li class="navegacao-mobile__item">
         <a
-          [routerLink]="item.rota"
+          [routerLink]="item.rota === '/historico' || item.rota === '/conta' ? null : item.rota"
+          [attr.aria-disabled]="item.rota === '/historico' || item.rota === '/conta' ? true : null"
           routerLinkActive="navegacao-mobile__link--ativo"
           [routerLinkActiveOptions]="{
             exact: item.correspondenciaExata,
