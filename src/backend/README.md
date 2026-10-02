@@ -18,6 +18,8 @@ O primeiro fluxo de busca para visitante está implementado. Contas, planos, con
 
 Os hosts usam CrossCutting para montar a aplicação. Módulos não dependem de CrossCutting; comunicam-se por contratos e mensagens. Relacionamentos EF não atravessam schemas. Pastas vazias com finalidade futura conhecida permanecem reservadas.
 
+Cada tipo possui seu próprio arquivo. DTOs públicos ficam em `Contratos/DTOs` ou na pasta `DTOs` da funcionalidade correspondente dentro de Contratos; DTOs internos da aplicação ficam em `Aplicacao/<funcionalidade>/DTOs`. Interfaces permanecem em Contratos, separadas dos objetos de entrada e saída. Options e classes de configuração ficam em `Configuracoes` dentro do componente responsável. Serviços permanecem em Aplicacao, controllers na API e consumidores nos workers. DTOs e opções não são definidos dentro de serviços.
+
 Cada módulo possui DbContext, schema e histórico de migrations próprios. Os mappings são classes separadas de `IEntityTypeConfiguration<T>`, descobertas por `ApplyConfigurationsFromAssembly`. Entidades têm setters privados, construtores de criação e validadores. Navegações permanecem no mesmo arquivo, separadas visualmente; enums ficam em `Dominio/Enums`.
 
 Tabelas e colunas usam `UPPER_SNAKE_CASE`; schemas usam minúsculas. SQL manual exige aspas duplas nos identificadores maiúsculos, por exemplo `busca."BUSCA_ETAPA"`. O código mantém uma linha em branco entre instruções, propriedades e métodos, e uma chamada por linha nos mappings; arquivos gerados por ferramentas seguem sua formatação original.
@@ -29,21 +31,21 @@ O `ServicesPipeline` registra automaticamente classes com sufixo `Service` no na
 1. `POST /api/v1/buscas` recebe `consulta` e `chaveIdempotencia`. Valida entrada, identifica o visitante por cookie protegido e verifica repetição e cota. Retorna `202` com ID e endereço para acompanhamento.
 2. Busca e comando são gravados na mesma transação PostgreSQL. A Outbox entrega a mensagem à fila RabbitMQ, mesmo que o worker ainda não tenha iniciado.
 3. O worker reutiliza primeiro o catálogo e suas ofertas válidas. Havendo resultados suficientes, evita consultas externas.
-4. Quando necessário, consulta as lojas configuradas em paralelo. KaBuM é o primeiro provider Playwright. Se ainda faltarem ofertas, tenta a IA quando habilitada e configurada.
+4. Quando necessário, consulta as lojas configuradas em paralelo. KaBuM e Amazon possuem perfis Playwright. Se ainda faltarem ofertas, tenta a IA quando habilitada e configurada.
 5. Valida e normaliza candidatos, preservando resultados válidos quando outra fonte falha ou demora. Catálogo e Ofertas persistem seus dados e diagnósticos em transações curtas próprias.
 6. Busca grava o snapshot ordenado, finaliza o estado e invalida seu cache. `GET /api/v1/buscas/{id}` e `GET /api/v1/buscas/{id}/resultado` retornam andamento e resultado ao visitante proprietário.
 
 Estados: `Recebida`, `Processando`, `Concluida`, `ConcluidaSemResultado`, `Falhou` e `Expirada`. Uma fonte operacional sem produtos difere de uma falha técnica de todas as fontes. O prazo global inclui a espera na fila. Resultados válidos já obtidos podem acompanhar uma busca expirada; `parcial` indica limitação ou indisponibilidade de fontes. Consultas genéricas sem especificação suficiente recebem motivo explícito para refinamento.
 
-A identificação de produtos é conservadora: os termos da consulta precisam aparecer no título, e cada URL mantém uma identidade provisória. Não unificamos automaticamente produtos de lojas diferentes sem evidência suficiente. Marca e categoria desconhecidas ficam explícitas. O ranking combina preço dentro da mesma variante, confiança da fonte/loja e atualização. As ofertas são alternativas; o fluxo não afirma equivalência apenas por semelhança de nome.
+A identificação de produtos é conservadora: os termos da consulta precisam aparecer no título, e cada URL mantém uma identidade provisória. Não unificamos automaticamente produtos de lojas diferentes sem evidência suficiente. Marca e categoria desconhecidas ficam explícitas. O ranking prioriza relevância textual (70%) e combina preço dentro da mesma variante (9%), confiança inicial da fonte/loja (12%) e atualização (9%). Reconhece PS5 como PlayStation 5 e televisão/televisor como TV. Reduz a prioridade de acessórios quando não solicitados, inclusive quando a marca aparece antes do tipo de acessório. É uma regra conservadora, não uma classificação universal de categorias. Uma nota máxima de preço com apenas uma oferta não comprova desconto. As ofertas são alternativas; o fluxo não afirma equivalência apenas por semelhança de nome.
 
 O cookie `verum.visitante` é protegido, HttpOnly e válido por 30 dias. A cota padrão é uma busca por dia UTC, configurável. Repetir a mesma chave e consulta retorna o mesmo ID sem consumir outra cota; usar a mesma chave com outra consulta gera conflito. A identificação é operacional: apagar cookies permite uma nova identidade. Preserve e compartilhe as chaves de ASP.NET Core Data Protection entre reinicializações e réplicas da API. Clientes web precisam enviar o cookie; CORS aceita credenciais somente nas origens explicitamente configuradas.
 
 | Configuração `Busca` | Padrão |
 | --- | --- |
 | `FilaSolicitacoes` | `verum-descoberta-busca-solicitada` |
-| `Lojas` | `kabum` |
-| `MinimoOfertas` / `MaximoResultados` | 3 / 10 |
+| `Lojas` | `kabum`, `amazon` |
+| `MinimoOfertas` / `MaximoResultados` | 3 / 12 |
 | `PrazoSegundos` | 180, incluindo a espera na fila |
 | `TimeoutFonteSegundos` / `TimeoutIaSegundos` | 45 / 20 |
 | `LimiteVisitanteDiario` | 1 |
@@ -82,6 +84,8 @@ A API responde erros em Problem Details, com código e `traceId`. Validação po
 A implementação está em `Modules/Verum.Modules.Ofertas/Infraestrutura/Descoberta/Playwright`. Configurações por loja definem URL/formulário, seletores de cards e campos, marcador de resultados vazios, paginação, limites e hosts permitidos. Use locators em vez de coordenadas. Cards inválidos são descartados individualmente. Formulários complexos, iframes ou rolagem infinita podem exigir adaptadores específicos, reutilizando o navegador compartilhado.
 
 KaBuM está registrada como `kabum`, com limite padrão de duas páginas e 100 itens. Seu perfil extrai nome, preço PIX, condição e imagem; preço de parcela não é tratado como preço final. Sobrescritas ficam em `Playwright:Lojas:kabum`. [playwright.lojas.exemplo.json](playwright.lojas.exemplo.json) mostra uma loja fictícia e não é carregado automaticamente. Seletores dependem do layout público e precisam de manutenção quando ele mudar.
+
+Amazon extrai preço total anunciado, sem presumir pagamento PIX, e normaliza URLs por ASIN para eliminar rastreamento e duplicatas. Seu perfil foi validado em buscas reais por monitor, televisão 4k, iphone 17 e samsung s25, junto da KaBuM. Não há tentativa de contornar CAPTCHA ou bloqueios. O diagnóstico FONTE_BLOQUEADA preserva ofertas de outras fontes. Cada perfil pode ser sobrescrito em Playwright:Lojas:<nome>.
 
 Development habilita Playwright no worker Descoberta. Instale o Chromium correspondente depois do build, em `src/backend`:
 
@@ -155,6 +159,7 @@ A API fica em `http://localhost:5099`. `/openapi/v1.json` está disponível em D
 | `VERUM_TEST_POSTGRES` | Conexão PostgreSQL de desenvolvimento |
 | `VERUM_TEST_REDIS` | Conexão Redis de desenvolvimento |
 | `VERUM_TEST_PLAYWRIGHT=1` | Chromium real com páginas locais simuladas |
+| `VERUM_TEST_NOVAS_LOJAS=1` | Três consultas reais na KaBuM e Amazon, com normalização e seleção de até 12 ofertas |
 | `VERUM_TEST_RABBITMQ=1` | Broker local e management em 15672, junto de PostgreSQL |
 | `VERUM_TEST_KABUM=1` | Verificação opcional do site real |
 

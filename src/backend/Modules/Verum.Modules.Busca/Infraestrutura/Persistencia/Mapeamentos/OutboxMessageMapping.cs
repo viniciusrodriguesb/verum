@@ -19,4 +19,3 @@ internal sealed class OutboxMessageMapping : IEntityTypeConfiguration<OutboxMess
       propriedade.SetColumnName(Regex.Replace(propriedade.Name, "([a-z])([A-Z])", "$1_$2").ToUpperInvariant());
   }
 }
-

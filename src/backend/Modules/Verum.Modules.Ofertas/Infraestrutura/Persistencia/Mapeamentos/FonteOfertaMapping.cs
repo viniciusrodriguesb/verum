@@ -79,4 +79,3 @@ internal sealed class FonteOfertaMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

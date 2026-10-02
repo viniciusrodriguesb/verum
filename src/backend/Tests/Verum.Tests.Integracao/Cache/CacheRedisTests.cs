@@ -8,6 +8,7 @@ using Verum.Modules.Busca.Contratos.Cache;
 using Verum.Modules.Catalogo.Contratos.Cache;
 using Verum.Modules.Ofertas.Contratos.Cache;
 using Xunit;
+using Verum.CrossCutting.Cache.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 

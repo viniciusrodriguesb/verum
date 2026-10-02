@@ -71,4 +71,3 @@ internal sealed class ContaMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

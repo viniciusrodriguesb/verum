@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Verum.Modules.Busca.Infraestrutura.Persistencia;
 using Verum.Modules.Busca.Aplicacao.Descoberta;
 using MassTransit;
+using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
 
 namespace Verum.Modules.Busca;
 

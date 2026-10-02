@@ -95,4 +95,3 @@ internal sealed class PagamentoMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

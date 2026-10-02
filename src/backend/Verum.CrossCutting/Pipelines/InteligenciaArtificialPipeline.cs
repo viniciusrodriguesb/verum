@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Verum.BuildingBlocks.InteligenciaArtificial;
 using Verum.CrossCutting.InteligenciaArtificial;
+using Verum.CrossCutting.InteligenciaArtificial.Configuracoes;
 
 namespace Verum.CrossCutting.Pipelines;
 

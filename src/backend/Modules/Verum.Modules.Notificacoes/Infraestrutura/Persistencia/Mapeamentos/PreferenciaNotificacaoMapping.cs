@@ -55,4 +55,3 @@ internal sealed class PreferenciaNotificacaoMapping : IEntityTypeConfiguration<E
            .IsUnique();
   }
 }
-

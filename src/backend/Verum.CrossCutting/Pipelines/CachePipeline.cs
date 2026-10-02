@@ -9,6 +9,7 @@ using Verum.Modules.Acesso.Contratos.Cache;
 using Verum.Modules.Busca.Contratos.Cache;
 using Verum.Modules.Catalogo.Contratos.Cache;
 using Verum.Modules.Ofertas.Contratos.Cache;
+using Verum.CrossCutting.Cache.Configuracoes;
 
 namespace Verum.CrossCutting.Pipelines;
 
@@ -19,7 +20,7 @@ public static class CachePipeline
     if (configuration.GetValue<bool>("Redis:Enabled") && string.IsNullOrWhiteSpace(configuration.GetConnectionString("Redis")))
       throw new InvalidOperationException("Configure ConnectionStrings:Redis quando Redis:Enabled for true.");
 
-    services.AddOptions<Cache.RedisOptions>().Bind(configuration.GetSection("Redis"))
+    services.AddOptions<Cache.Configuracoes.RedisOptions>().Bind(configuration.GetSection("Redis"))
       .Validate(options => options.Valido(), "Configuração Redis inválida: verifique prefixo, timeout e TTLs.")
       .ValidateOnStart();
 
@@ -27,7 +28,7 @@ public static class CachePipeline
 
     services.TryAddSingleton<TimeProvider>(TimeProvider.System);
 
-    services.TryAddSingleton(provider => new RedisConexao(configuration, provider.GetRequiredService<IOptions<Cache.RedisOptions>>()));
+    services.TryAddSingleton(provider => new RedisConexao(configuration, provider.GetRequiredService<IOptions<Cache.Configuracoes.RedisOptions>>()));
 
     services.TryAddSingleton<CacheRedis>();
 
@@ -45,7 +46,7 @@ public static class CachePipeline
     {
       services.AddStackExchangeRedisCache(_ => { });
 
-      services.AddOptions<RedisCacheOptions>().Configure<RedisConexao, IOptions<Cache.RedisOptions>>((options, conexao, settings) =>
+      services.AddOptions<RedisCacheOptions>().Configure<RedisConexao, IOptions<Cache.Configuracoes.RedisOptions>>((options, conexao, settings) =>
       {
         options.ConnectionMultiplexerFactory = conexao.ObterAsync;
 

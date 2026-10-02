@@ -63,4 +63,3 @@ internal sealed class BuscaEtapaMapping : IEntityTypeConfiguration<Entidade>
            .OnDelete(DeleteBehavior.Restrict);
   }
 }
-

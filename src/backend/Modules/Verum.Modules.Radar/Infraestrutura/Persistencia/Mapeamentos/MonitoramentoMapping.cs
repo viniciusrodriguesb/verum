@@ -134,4 +134,3 @@ internal sealed class MonitoramentoMapping : IEntityTypeConfiguration<Entidade>
            .UsePropertyAccessMode(PropertyAccessMode.Field);
   }
 }
-

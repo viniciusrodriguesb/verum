@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 using Verum.BuildingBlocks.InteligenciaArtificial;
+using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
+using Verum.CrossCutting.InteligenciaArtificial.Configuracoes;
 
 namespace Verum.CrossCutting.InteligenciaArtificial;
 
@@ -12,7 +14,7 @@ internal sealed class ConsultaIaService(
   public bool EstaDisponivel(string? provedor = null) => options.Value.Enabled && provedores.Count(x =>
     string.Equals(x.Nome, provedor ?? options.Value.ProvedorPadrao, StringComparison.OrdinalIgnoreCase) && x.Configurado) == 1;
 
-  public Task<RespostaIa> ConsultarAsync(BuildingBlocks.InteligenciaArtificial.ConsultaIa consulta, CancellationToken cancellationToken = default)
+  public Task<RespostaIa> ConsultarAsync(ConsultaIa consulta, CancellationToken cancellationToken = default)
   {
     ArgumentNullException.ThrowIfNull(consulta);
 

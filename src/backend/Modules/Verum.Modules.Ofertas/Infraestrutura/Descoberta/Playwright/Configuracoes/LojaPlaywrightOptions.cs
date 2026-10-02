@@ -1,17 +1,4 @@
-namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright;
-
-public sealed class PlaywrightOptions
-{
-  public bool Enabled { get; set; }
-
-  public int ConsultasSimultaneas { get; set; } = 2;
-
-  public int TimeoutTotalSegundos { get; set; } = 60;
-
-  public int TimeoutAcaoSegundos { get; set; } = 10;
-
-  public Dictionary<string, LojaPlaywrightOptions> Lojas { get; set; } = new();
-}
+namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
 
 public sealed class LojaPlaywrightOptions
 {
@@ -31,6 +18,10 @@ public sealed class LojaPlaywrightOptions
 
   public string? SemResultados { get; set; }
 
+  public string? Bloqueio { get; set; }
+
+  public string? CaminhoProdutoPadrao { get; set; }
+
   public string LinkProduto { get; set; } = string.Empty;
 
   public string? ProximaPagina { get; set; }
@@ -42,13 +33,4 @@ public sealed class LojaPlaywrightOptions
   public int MaxItens { get; set; } = 50;
 
   public Dictionary<string, CampoLojaOptions> Campos { get; set; } = new();
-}
-
-public sealed class CampoLojaOptions
-{
-  public string Seletor { get; set; } = string.Empty;
-
-  public string? Atributo { get; set; }
-
-  public bool Obrigatorio { get; set; }
 }

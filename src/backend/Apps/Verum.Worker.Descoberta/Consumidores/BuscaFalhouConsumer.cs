@@ -8,4 +8,3 @@ public sealed class BuscaFalhouConsumer(IFalhaBuscaService falhas) : IConsumer<F
   public Task Consume(ConsumeContext<Fault<BuscaSolicitada>> context) =>
     falhas.RegistrarAsync(context.Message.Message.BuscaId, context.CancellationToken);
 }
-

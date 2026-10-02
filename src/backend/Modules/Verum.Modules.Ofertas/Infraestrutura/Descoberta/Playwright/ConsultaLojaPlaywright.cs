@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Playwright;
+using System.Text.RegularExpressions;
 using Verum.BuildingBlocks.Erros;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
+using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
+using Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
 
 namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright;
 
@@ -160,7 +163,12 @@ internal sealed class ConsultaLojaPlaywright(NavegadorPlaywright navegador, IOpt
 
   private async Task<int> AguardarItensAsync(IPage page, LojaPlaywrightOptions config, CancellationToken cancellationToken)
   {
-    await page.Locator(config.ResultadosProntos).First.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+    var marcadores = config.Bloqueio is null ? config.ResultadosProntos : config.ResultadosProntos + ", " + config.Bloqueio;
+
+    await page.Locator(marcadores).First.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+
+    if (config.Bloqueio is not null && await page.Locator(config.Bloqueio).First.IsVisibleAsync())
+      throw new HttpRequestException("A loja bloqueou a consulta automatizada.", null, System.Net.HttpStatusCode.Forbidden);
 
     var cards = page.Locator(config.Itens);
 
@@ -208,6 +216,14 @@ internal sealed class ConsultaLojaPlaywright(NavegadorPlaywright navegador, IOpt
     var href = await link.CountAsync() == 1 ? await link.GetAttributeAsync("href") : null;
 
     var destino = ResolverLink(pagina, href, config);
+
+    if (destino is not null && config.CaminhoProdutoPadrao is not null)
+    {
+      var caminho = Regex.Match(new Uri(destino).PathAndQuery, config.CaminhoProdutoPadrao,
+        RegexOptions.None, TimeSpan.FromMilliseconds(100));
+
+      destino = caminho.Success ? new Uri(new Uri(destino).GetLeftPart(UriPartial.Authority) + caminho.Value).AbsoluteUri : null;
+    }
 
     return valido && destino is not null ? new(destino, campos) : null;
   }

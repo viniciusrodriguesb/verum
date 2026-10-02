@@ -1,6 +1,7 @@
 using MassTransit;
 using Verum.BuildingBlocks.Erros;
 using Verum.CrossCutting.Mensageria;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.CrossCutting.Pipelines;
 

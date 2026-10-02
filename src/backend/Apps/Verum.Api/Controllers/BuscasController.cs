@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Verum.Modules.Busca.Contratos;
+using Verum.Modules.Busca.Contratos.DTOs;
 
 namespace Verum.Api.Controllers;
 
@@ -55,4 +56,3 @@ public sealed class BuscasController(IBuscaService buscas, IDataProtectionProvid
     return visitante;
   }
 }
-

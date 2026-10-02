@@ -38,4 +38,3 @@ public static class ServicesPipeline
     return services;
   }
 }
-

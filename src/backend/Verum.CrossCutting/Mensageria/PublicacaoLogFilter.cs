@@ -15,4 +15,3 @@ public sealed class PublicacaoLogFilter<TMensagem>(ILogger<PublicacaoLogFilter<T
   }
 
 }
-

@@ -26,6 +26,7 @@ using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Ofertas.Infraestrutura.Persistencia;
 using Verum.Worker.Descoberta.Configuracoes;
 using Xunit;
+using Verum.Modules.Busca.Contratos.DTOs;
 
 namespace Verum.Tests.Integracao;
 
@@ -349,6 +350,9 @@ public sealed class FluxoBuscaPersistenciaTests
 
         services.AddVerumWorkerDescoberta(config);
 
+        // Este cenário mede reutilização e idempotência com uma fonte, independente do catálogo de providers padrão.
+        services.PostConfigure<Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes.BuscaOptions>(options => options.Lojas = ["kabum"]);
+
         services.Replace(ServiceDescriptor.Singleton<IConsultaLoja>(loja));
 
         services.Replace(ServiceDescriptor.Singleton<IDescobertaProdutosIaService>(new FluxoFontesTests.IaFake { Disponivel = false }));
@@ -513,5 +517,3 @@ public sealed class FluxoBuscaPersistenciaTests
     }
   }
 }
-
-

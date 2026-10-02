@@ -66,4 +66,3 @@ internal sealed class MarcaMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

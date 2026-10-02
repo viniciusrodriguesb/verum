@@ -1,3 +1,5 @@
+using Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
+
 namespace Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 
 public interface IDescobertaProdutosIaService

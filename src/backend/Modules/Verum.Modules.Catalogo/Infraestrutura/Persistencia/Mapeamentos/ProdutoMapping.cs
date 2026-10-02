@@ -123,4 +123,3 @@ internal sealed class ProdutoMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

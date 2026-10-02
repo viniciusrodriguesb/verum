@@ -113,4 +113,3 @@ internal sealed class OportunidadeMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

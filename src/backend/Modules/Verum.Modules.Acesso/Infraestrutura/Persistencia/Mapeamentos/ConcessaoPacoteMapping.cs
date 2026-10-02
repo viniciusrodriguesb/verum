@@ -75,4 +75,3 @@ internal sealed class ConcessaoPacoteMapping : IEntityTypeConfiguration<Entidade
            .OnDelete(DeleteBehavior.Restrict);
   }
 }
-

@@ -85,4 +85,3 @@ internal sealed class EventoGatewayMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

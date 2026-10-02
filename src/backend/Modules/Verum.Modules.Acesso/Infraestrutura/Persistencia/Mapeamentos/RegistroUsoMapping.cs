@@ -66,4 +66,3 @@ internal sealed class RegistroUsoMapping : IEntityTypeConfiguration<Entidade>
            .IsRequired();
   }
 }
-

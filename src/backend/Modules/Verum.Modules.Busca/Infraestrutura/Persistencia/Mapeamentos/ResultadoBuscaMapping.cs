@@ -75,4 +75,3 @@ internal sealed class ResultadoBuscaMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

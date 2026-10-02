@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Ofertas.Dominio;
 using Verum.Modules.Ofertas.Infraestrutura.Persistencia;
+using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 
 namespace Verum.Modules.Ofertas.Aplicacao;
 

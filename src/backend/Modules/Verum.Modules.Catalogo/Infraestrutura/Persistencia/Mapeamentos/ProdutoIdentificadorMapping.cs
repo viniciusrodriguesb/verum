@@ -58,4 +58,3 @@ internal sealed class ProdutoIdentificadorMapping : IEntityTypeConfiguration<Ent
            .IsUnique();
   }
 }
-

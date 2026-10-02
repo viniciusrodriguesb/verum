@@ -1,3 +1,6 @@
+using Verum.Modules.Busca.Aplicacao.Descoberta.DTOs;
+using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
+using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
@@ -5,7 +8,6 @@ using Verum.Modules.Ofertas.Contratos.Descoberta;
 
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
-internal sealed record ColetaOfertas(IReadOnlyList<OfertaDescoberta> Ofertas, IReadOnlyList<DiagnosticoFonte> Fontes);
 
 internal sealed class ConsultaFontesService(
   IConsultaLoja lojas, IDescobertaProdutosIaService ia, IOptions<BuscaOptions> options,
@@ -57,7 +59,9 @@ internal sealed class ConsultaFontesService(
       logger.LogWarning("Fonte {Fonte} indisponível: {TipoErro}.", fonte, erro.GetType().Name);
 
       return (Itens: new List<OfertaDescoberta>(), Diagnostico: new DiagnosticoFonte(fonte, false, "Falhou", 0, 0,
-        erro is OperationCanceledException or TimeoutException ? "TIMEOUT" : "FONTE_INDISPONIVEL", inicio, DateTimeOffset.UtcNow));
+        erro is OperationCanceledException or TimeoutException ? "TIMEOUT"
+          : erro is HttpRequestException { StatusCode: System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.TooManyRequests }
+            ? "FONTE_BLOQUEADA" : "FONTE_INDISPONIVEL", inicio, DateTimeOffset.UtcNow));
     }
   }
 

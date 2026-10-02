@@ -1,23 +1,6 @@
 using Verum.BuildingBlocks.InteligenciaArtificial;
 
-namespace Verum.Modules.Busca.Contratos.InteligenciaArtificial;
-
-public sealed record DescobertaProdutosIa(ResultadoProdutosIa Resultado, RespostaIa Execucao)
-{
-  public IReadOnlyList<CandidatoIaDescartado> Descartados { get; init; } = [];
-}
-
-// Índice baseado em zero no array original; não guarda o conteúdo externo inválido.
-public sealed record CandidatoIaDescartado(int Indice, string Codigo);
-
-public sealed record ResultadoProdutosIa
-{
-  public required string ConsultaInterpretada { get; init; }
-
-  public required string? MotivoSemResultado { get; init; }
-
-  public required ProdutoCandidatoIa[] Produtos { get; init; }
-}
+namespace Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
 
 public sealed record ProdutoCandidatoIa
 {

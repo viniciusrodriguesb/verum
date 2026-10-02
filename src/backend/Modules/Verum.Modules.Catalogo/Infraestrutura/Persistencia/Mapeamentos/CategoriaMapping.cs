@@ -77,4 +77,3 @@ internal sealed class CategoriaMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

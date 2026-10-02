@@ -93,4 +93,3 @@ internal sealed class EntregaNotificacaoMapping : IEntityTypeConfiguration<Entid
            .IsUnique();
   }
 }
-

@@ -3,6 +3,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Verum.BuildingBlocks.InteligenciaArtificial;
+using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
+using Verum.CrossCutting.InteligenciaArtificial.Configuracoes;
 
 namespace Verum.CrossCutting.InteligenciaArtificial;
 

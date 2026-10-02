@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
+using Verum.CrossCutting.Cache.Configuracoes;
 
 namespace Verum.CrossCutting.Cache;
 

@@ -19,4 +19,3 @@ public static class DependencyInjection
         postgres.MigrationsHistoryTable("__EFMigrationsHistory", "contas"));
     });
 }
-

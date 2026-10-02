@@ -37,4 +37,3 @@ public static class ApplicationPipeline
     return app;
   }
 }
-

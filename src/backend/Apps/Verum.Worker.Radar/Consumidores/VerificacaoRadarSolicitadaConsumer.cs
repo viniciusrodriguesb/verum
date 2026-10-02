@@ -21,4 +21,3 @@ public sealed class VerificacaoRadarSolicitadaConsumer(ILogger<VerificacaoRadarS
     throw new ProcessamentoNaoConfiguradoException(nameof(VerificacaoRadarSolicitadaConsumer));
   }
 }
-

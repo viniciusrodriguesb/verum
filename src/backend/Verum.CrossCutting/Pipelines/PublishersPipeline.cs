@@ -13,4 +13,3 @@ public static class PublishersPipeline
     return services;
   }
 }
-

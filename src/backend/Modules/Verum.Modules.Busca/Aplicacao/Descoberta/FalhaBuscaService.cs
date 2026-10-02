@@ -39,4 +39,3 @@ internal sealed class FalhaBuscaService(BuscaDbContext db) : IFalhaBuscaService
     }
   }
 }
-

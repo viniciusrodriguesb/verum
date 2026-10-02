@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Verum.CrossCutting.Mensageria;
 using Verum.Modules.Busca;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.CrossCutting.Pipelines;
 

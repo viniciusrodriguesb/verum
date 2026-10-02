@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Verum.CrossCutting.Mensageria;
+namespace Verum.CrossCutting.Mensageria.Configuracoes;
 
 public sealed class RabbitMqOptions
 {

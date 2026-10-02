@@ -18,4 +18,3 @@ public static class DependencyInjection
       options.UseNpgsql(connection, postgres => postgres.MigrationsHistoryTable("__EFMigrationsHistory", "notificacoes"));
     });
 }
-

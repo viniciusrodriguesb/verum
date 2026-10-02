@@ -45,4 +45,3 @@ public static class ObservabilidadePipeline
     return services;
   }
 }
-

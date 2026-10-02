@@ -111,4 +111,3 @@ internal sealed class ResultadoOfertaMapping : IEntityTypeConfiguration<Entidade
            .IsUnique();
   }
 }
-

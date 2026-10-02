@@ -1,11 +1,4 @@
-namespace Verum.CrossCutting.InteligenciaArtificial;
-
-public sealed class InteligenciaArtificialOptions
-{
-  public bool Enabled { get; set; }
-
-  public string ProvedorPadrao { get; set; } = "OpenAI";
-}
+namespace Verum.CrossCutting.InteligenciaArtificial.Configuracoes;
 
 public sealed class OpenAiOptions
 {
@@ -17,4 +10,3 @@ public sealed class OpenAiOptions
 
   public int MaxToolCalls { get; set; } = 3;
 }
-

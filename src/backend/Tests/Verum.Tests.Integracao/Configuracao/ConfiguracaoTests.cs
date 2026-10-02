@@ -8,6 +8,7 @@ using Verum.CrossCutting.Mensageria;
 using Verum.CrossCutting.Pipelines;
 using Verum.Tests.Integracao.Aplicacao;
 using Xunit;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 

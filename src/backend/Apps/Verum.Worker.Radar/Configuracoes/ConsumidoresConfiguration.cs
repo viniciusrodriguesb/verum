@@ -8,4 +8,3 @@ public static class ConsumidoresConfiguration
   public static void AddConsumidoresRadar(this IBusRegistrationConfigurator bus) =>
     bus.AddConsumer<VerificacaoRadarSolicitadaConsumer>();
 }
-

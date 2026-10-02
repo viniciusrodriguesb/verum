@@ -80,4 +80,3 @@ internal sealed class NotificacaoMapping : IEntityTypeConfiguration<Entidade>
            .UsePropertyAccessMode(PropertyAccessMode.Field);
   }
 }
-

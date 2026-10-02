@@ -86,4 +86,3 @@ internal sealed class LojaMapping : IEntityTypeConfiguration<Entidade>
            .UsePropertyAccessMode(PropertyAccessMode.Field);
   }
 }
-

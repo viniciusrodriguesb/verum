@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
+using Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
 
-namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright;
+namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
 
 internal static class ConfiguracaoPlaywright
 {
@@ -10,6 +11,7 @@ internal static class ConfiguracaoPlaywright
   {
     services.AddOptions<PlaywrightOptions>()
       .Configure(options => options.Lojas[Provedores.KabumProvider.Nome] = Provedores.KabumProvider.CriarConfiguracao())
+      .Configure(options => options.Lojas[Provedores.AmazonProvider.Nome] = Provedores.AmazonProvider.CriarConfiguracao())
       .Bind(configuration.GetSection("Playwright"))
       .Validate(x => x.ConsultasSimultaneas is >= 1 and <= 16
         && x.TimeoutTotalSegundos is >= 1 and <= 300

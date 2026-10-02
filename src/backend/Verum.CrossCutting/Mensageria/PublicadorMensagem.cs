@@ -1,5 +1,6 @@
 using MassTransit;
 using Microsoft.Extensions.Options;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.CrossCutting.Mensageria;
 
@@ -16,4 +17,3 @@ public sealed class PublicadorMensagem<TMensagem>(IPublishEndpoint endpoint, IOp
     await endpoint.Publish(mensagem, deadline.Token);
   }
 }
-

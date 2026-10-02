@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Playwright;
+using Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
 
 namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright;
 

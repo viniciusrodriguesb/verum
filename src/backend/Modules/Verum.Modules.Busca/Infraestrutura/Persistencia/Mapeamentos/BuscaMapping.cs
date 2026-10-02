@@ -169,4 +169,3 @@ internal sealed class BuscaMapping : IEntityTypeConfiguration<Entidade>
            .HasFilter("\"VISITANTE_ID\" IS NOT NULL");
   }
 }
-

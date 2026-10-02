@@ -20,4 +20,3 @@ public abstract class ConsumidorMensagem<TMensagem>(ILogger logger) : IConsumer<
 
   protected abstract Task ProcessarAsync(ConsumeContext<TMensagem> context);
 }
-

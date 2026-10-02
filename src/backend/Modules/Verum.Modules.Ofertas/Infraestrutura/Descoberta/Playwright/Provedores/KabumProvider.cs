@@ -1,3 +1,5 @@
+using Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
+
 namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Provedores;
 
 // Seletores verificados em 30/09/2026. O executor compartilhado faz navegação e extração.

@@ -1,5 +1,4 @@
 using Verum.BuildingBlocks.Erros;
-
 using System.Net.Mail;
 using System.Text.Json;
 
@@ -116,4 +115,3 @@ internal static class Validacao
     return valor;
   }
 }
-

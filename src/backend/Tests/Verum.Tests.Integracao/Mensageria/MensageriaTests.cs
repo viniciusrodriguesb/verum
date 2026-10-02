@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Verum.CrossCutting.Mensageria;
 using Verum.CrossCutting.Pipelines;
 using Xunit;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 
@@ -131,4 +132,3 @@ public sealed class MensageriaTests
     }
   }
 }
-

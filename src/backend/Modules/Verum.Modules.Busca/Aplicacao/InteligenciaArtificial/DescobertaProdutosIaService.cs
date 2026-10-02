@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 using Verum.BuildingBlocks.Erros;
 using Verum.BuildingBlocks.InteligenciaArtificial;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
+using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
+using Verum.Modules.Busca.Aplicacao.InteligenciaArtificial.DTOs;
+using Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
 
 namespace Verum.Modules.Busca.Aplicacao.InteligenciaArtificial;
 
@@ -109,14 +112,7 @@ internal sealed class DescobertaProdutosIaService(IConsultaIa ia, IConfiguration
       throw new RespostaIaInvalidaException("PRODUTOS_INCONSISTENTES");
   }
 
-  private sealed record EnvelopeProdutos
-  {
-    public required string ConsultaInterpretada { get; init; }
 
-    public required string? MotivoSemResultado { get; init; }
-
-    public required JsonElement[] Produtos { get; init; }
-  }
 
   private static void ValidarCandidato(ProdutoCandidatoIa? produto, IReadOnlyList<FonteIa> fontes)
   {

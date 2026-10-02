@@ -8,6 +8,7 @@ using Verum.CrossCutting.InteligenciaArtificial;
 using Verum.CrossCutting.Pipelines;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 using Xunit;
+using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
 
 namespace Verum.Tests.Integracao;
 

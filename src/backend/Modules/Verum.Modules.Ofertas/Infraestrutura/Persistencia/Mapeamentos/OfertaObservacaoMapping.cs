@@ -108,4 +108,3 @@ internal sealed class OfertaObservacaoMapping : IEntityTypeConfiguration<Entidad
            .OnDelete(DeleteBehavior.Restrict);
   }
 }
-

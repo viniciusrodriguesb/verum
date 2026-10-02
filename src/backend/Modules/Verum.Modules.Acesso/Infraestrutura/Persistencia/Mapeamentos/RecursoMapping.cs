@@ -71,4 +71,3 @@ internal sealed class RecursoMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

@@ -1,4 +1,4 @@
-namespace Verum.CrossCutting.Cache;
+namespace Verum.CrossCutting.Cache.Configuracoes;
 
 public sealed class RedisOptions
 {

@@ -8,6 +8,8 @@ using Verum.Modules.Busca.Contratos.Cache;
 using Verum.Modules.Busca.Dominio;
 using Verum.Modules.Busca.Infraestrutura.Persistencia;
 using BuscaEntidade = Verum.Modules.Busca.Dominio.Busca;
+using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
+using Verum.Modules.Busca.Contratos.DTOs;
 
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 

@@ -10,6 +10,7 @@ using Verum.Modules.Ofertas;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright;
 using Xunit;
+using Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 

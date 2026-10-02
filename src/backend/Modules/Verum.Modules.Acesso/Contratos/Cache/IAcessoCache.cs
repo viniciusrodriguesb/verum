@@ -1,3 +1,5 @@
+using Verum.Modules.Acesso.Contratos.Cache.DTOs;
+
 namespace Verum.Modules.Acesso.Contratos.Cache;
 
 public interface IAcessoCache

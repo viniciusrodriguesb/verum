@@ -101,4 +101,3 @@ internal sealed class PlanoMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

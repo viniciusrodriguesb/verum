@@ -9,6 +9,7 @@ using Verum.Worker.Descoberta.Consumidores;
 using Verum.Worker.Radar.Configuracoes;
 using Verum.Worker.Radar.Consumidores;
 using Xunit;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 

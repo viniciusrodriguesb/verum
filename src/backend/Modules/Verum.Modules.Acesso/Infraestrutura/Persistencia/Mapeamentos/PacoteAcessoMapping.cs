@@ -64,4 +64,3 @@ internal sealed class PacoteAcessoMapping : IEntityTypeConfiguration<Entidade>
            .IsUnique();
   }
 }
-

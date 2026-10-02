@@ -8,6 +8,9 @@ using Verum.Modules.Busca.Dominio;
 using Verum.Modules.Busca.Infraestrutura.Persistencia;
 using Verum.Modules.Catalogo.Contratos;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
+using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
+using Verum.Modules.Busca.Contratos.DTOs;
+using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
@@ -58,7 +61,7 @@ internal sealed class ProcessamentoBuscaService(
       foreach (var diagnostico in diagnosticos)
         await ofertas.RegistrarExecucaoAsync(buscaId, diagnostico, cancellationToken);
 
-      var ranking = RankingOfertas.Classificar(ofertasAtuais, options.Value.MaximoResultados);
+      var ranking = RankingOfertas.Classificar(ofertasAtuais, options.Value.MaximoResultados, busca.ConsultaOriginal);
 
       await SalvarResultadoAsync(busca, ofertasAtuais.Count, ranking, diagnosticos, expirada, consultaEspecifica, cancellationToken);
 

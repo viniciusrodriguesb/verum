@@ -6,11 +6,26 @@ using Verum.Modules.Busca.Aplicacao.Descoberta;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Xunit;
+using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
+using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
+using Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
+using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 
 namespace Verum.Tests.Integracao;
 
 public sealed class FluxoFontesTests
 {
+  [Fact]
+  public async Task BloqueioDeLojaEhDiagnosticadoEPreservaOutrasFontes()
+  {
+    var resultado = await Service(new LojaFake(), new IaFake(), minimo: 1, lojas: ["bloqueada", "kabum"])
+      .ConsultarAsync("ssd kingston", 0, CancellationToken.None);
+
+    Assert.Single(resultado.Ofertas);
+
+    Assert.Contains(resultado.Fontes, x => x.Fonte == "bloqueada" && x.Codigo == "FONTE_BLOQUEADA");
+  }
+
   [Fact]
   public async Task IaSemConfiguracaoNaoEhChamadaEPreservaLoja()
   {
@@ -188,6 +203,8 @@ public sealed class FluxoFontesTests
       Interlocked.Increment(ref Chamadas);
 
       if (Falha || loja == "falha") throw new HttpRequestException("Simulação");
+
+      if (loja == "bloqueada") throw new HttpRequestException("Bloqueio simulado", null, System.Net.HttpStatusCode.Forbidden);
 
       if (loja == "lenta") await Task.Delay(Timeout.Infinite, cancellationToken);
 
