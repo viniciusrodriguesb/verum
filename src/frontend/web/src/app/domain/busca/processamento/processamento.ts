@@ -31,8 +31,8 @@ import { BuscasService } from '../services/buscas.service';
 
 import { ParamMap } from '@angular/router';
 
-import { Header } from '@shared/components/header/header';
-import { NavegacaoMobileComponent } from '@shared/components/navegacao-mobile/navegacao-mobile';
+import { Header } from '@core/components/header/header';
+import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
 
 import { normalizarTermoBusca, validarTermoBusca } from '../validators/termo-busca.validator';
 

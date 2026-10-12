@@ -18,9 +18,9 @@ import {
   LucideStar,
   LucideTag,
 } from '@lucide/angular';
-import { NavegacaoMobileComponent } from '@shared/components/navegacao-mobile/navegacao-mobile';
+import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
 import { GraficoPrecoComponent } from '../components/grafico-preco/grafico-preco';
-import { Header } from '@shared/components/header/header';
+import { Header } from '@core/components/header/header';
 
 type EstadoRadar = 'preco-atingido' | 'monitorando' | 'sem-estoque' | 'pausado';
 
@@ -52,8 +52,6 @@ interface RadarMonitorado {
   readonly corGrafico: CorGrafico;
   readonly pontosGrafico: string;
 }
-
-const RADARES_INICIAIS: readonly RadarMonitorado[] = [];
 
 const FILTROS: readonly OpcaoFiltro[] = [
   {
@@ -107,7 +105,7 @@ const FILTROS: readonly OpcaoFiltro[] = [
 export class MeusRadaresComponent {
   private readonly roteador = inject(Router);
 
-  private readonly radares = signal<readonly RadarMonitorado[]>(RADARES_INICIAIS);
+  private readonly radares = signal<readonly RadarMonitorado[]>([]);
 
   protected readonly filtros = FILTROS;
   protected readonly filtroSelecionado = signal<FiltroRadar>('todos');

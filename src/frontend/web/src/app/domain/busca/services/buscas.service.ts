@@ -9,8 +9,14 @@ import { SolicitarBusca } from '../dtos/solicitar-busca.dto';
 export class BuscasService {
   private readonly http = inject(HttpClient);
 
+  prepararVisitante() {
+    return this.http
+      .get<void>('/api/v1/buscas/visitante', { withCredentials: true })
+      .pipe(timeout(15000));
+  }
+
   solicitar(pedido: SolicitarBusca) {
-    // Não repetir POST automaticamente: o chamador preserva a chave ao retomar.
+    // Não repetir POST automaticamente: a solicitação pendente preserva a chave para nova tentativa explícita.
     return this.http
       .post<BuscaAceita>('/api/v1/buscas', pedido, { withCredentials: true })
       .pipe(timeout(15000));

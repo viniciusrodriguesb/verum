@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { autenticadoGuard } from './core/autenticacao/guards/autenticado.guard';
 
 export const routes: Routes = [
   {
@@ -24,6 +25,7 @@ export const routes: Routes = [
   },
   {
     path: 'radar',
+    canActivate: [autenticadoGuard],
     loadChildren: () => import('@domain/radar/radar.routes').then((rotas) => rotas.ROTAS_RADAR),
   },
   { path: 'busca', pathMatch: 'full', redirectTo: '' },

@@ -161,13 +161,21 @@
       <span class="inline-flex items-center gap-1.5">
         <svg
           lucideBadgeCheck
-          class="text-emerald-600"
+          [ngClass]="oferta().vencida ? 'text-amber-600' : 'text-emerald-600'"
           [size]="17"
           [strokeWidth]="2"
           aria-hidden="true"
         ></svg>
 
-        Observado há {{ oferta().verificadaHaMinutos }} min
+        @if (oferta().vencida) {
+          <span
+            class="font-medium text-amber-800"
+            title="O preço foi registrado na busca e pode ter mudado na loja."
+            >Validade vencida · preço histórico</span
+          >
+        } @else {
+          Observado há {{ oferta().verificadaHaMinutos }} min
+        }
       </span>
     </div>
 
@@ -178,7 +186,7 @@
         rel="noopener noreferrer sponsored"
         class="bg-verum-blue inline-flex min-h-11 items-center justify-center rounded-lg px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
       >
-        Ver oferta
+        {{ oferta().vencida ? 'Consultar loja' : 'Ver oferta' }}
       </a>
 
       <a

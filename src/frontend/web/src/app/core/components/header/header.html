@@ -24,23 +24,36 @@
     </nav>
 
     <div class="cabecalho__acoes">
-      <a
-        aria-disabled="true"
-        tabindex="-1"
-        title="Login ainda indisponível"
-        class="cabecalho__entrar"
-      >
-        Entrar
-      </a>
+      @if (autenticacao.autenticado()) {
+        <a
+          href="#"
+          (click)="$event.preventDefault(); autenticacao.gerenciarConta()"
+          class="cabecalho__entrar"
+          >{{ autenticacao.nome() }}</a
+        >
+        <a
+          href="#"
+          (click)="$event.preventDefault(); autenticacao.sair()"
+          class="cabecalho__criar-conta"
+          >Sair</a
+        >
+      } @else {
+        <a
+          href="#"
+          (click)="$event.preventDefault(); autenticacao.entrar()"
+          class="cabecalho__entrar"
+        >
+          Entrar
+        </a>
 
-      <a
-        aria-disabled="true"
-        tabindex="-1"
-        title="Cadastro ainda indisponível"
-        class="cabecalho__criar-conta"
-      >
-        Criar conta
-      </a>
+        <a
+          href="#"
+          (click)="$event.preventDefault(); autenticacao.cadastrar()"
+          class="cabecalho__criar-conta"
+        >
+          Criar conta
+        </a>
+      }
     </div>
   </div>
 </header>

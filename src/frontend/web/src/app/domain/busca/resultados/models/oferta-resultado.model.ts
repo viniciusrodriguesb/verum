@@ -22,6 +22,7 @@ export interface OfertaResultado {
   readonly fabricante: string;
   readonly preco: number;
   readonly condicaoPreco: string;
+  readonly vencida: boolean;
   readonly quantidadeParcelas: number | null;
   readonly valorParcela: number | null;
   readonly freteGratis: boolean | null;

@@ -12,11 +12,11 @@ internal static class AmazonProvider
 
     HostsPermitidos = ["www.amazon.com.br", "amazon.com.br", "m.media-amazon.com", "images-na.ssl-images-amazon.com"],
 
-    ResultadosProntos = "[data-component-type='s-search-result']:visible, .s-no-results:visible",
+    ResultadosProntos = "[data-component-type='s-search-result']:visible, .s-no-results:visible, [data-component-type='s-search-results'] :text-is('Nenhum resultado para sua consulta de pesquisa.'):visible",
 
     Itens = "[data-component-type='s-search-result'][data-asin]:not([data-asin=''])",
 
-    SemResultados = ".s-no-results",
+    SemResultados = ".s-no-results, [data-component-type='s-search-results'] :text-is('Nenhum resultado para sua consulta de pesquisa.')",
 
     Bloqueio = "#captchacharacters, form[action*='validateCaptcha'], #challenge-container",
 

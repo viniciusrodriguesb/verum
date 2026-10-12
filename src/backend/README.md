@@ -2,7 +2,11 @@
 
 O Verum usa um monólito modular em .NET 10, com API e workers separados. Cada módulo mantém domínio, aplicação, contratos e infraestrutura próprios. A organização preserva limites de negócio sem exigir uma interface para cada operação.
 
-O primeiro fluxo de busca para visitante está implementado. Contas, planos, concessões de acesso e processamento do Radar permanecem para as próximas entregas.
+O primeiro fluxo de busca para visitante e a integração de identidade com Keycloak estão implementados. Contas são vinculadas à identidade real; planos, concessões de acesso, busca por conta e processamento do Radar permanecem para as próximas entregas.
+
+Os controllers herdam de `AppController`, que define `api/v1/[controller]`, proteção por padrão e métodos protected para obter sujeito (`sub`), e-mail, username, nome e confirmação de e-mail. Rotas geradas usam minúsculas. `BuscasController` permite visitante explicitamente. CPF não faz parte do token atual.
+
+`POST /api/v1/contas/me` exige JWT com issuer, assinatura, audience e validade corretos, além de e-mail confirmado. Não recebe dados de perfil no corpo: usa as claims validadas, cria uma conta no primeiro acesso e atualiza o perfil nos seguintes. O índice único de `SUJEITO_IDENTIDADE` impede duplicação entre abas. Contas bloqueadas ou excluídas são rejeitadas. Não concede planos nem transforma uma busca de visitante em busca autenticada.
 
 ## Organização
 
@@ -51,6 +55,8 @@ O cookie `verum.visitante` é protegido, HttpOnly e válido por 30 dias. A cota 
 | `LimiteVisitanteDiario` | 1 |
 
 Mantenha fila e políticas de busca alinhadas na API e no worker. Ofertas observadas neste fluxo têm validade de 15 minutos.
+
+A interface prepara o cookie de visitante com `GET /api/v1/buscas/visitante` antes de enviar o POST. A rota retorna 204, não cria busca nem consome cota e impede cache da resposta. Isso permite recuperar uma solicitação com a mesma chave mesmo se a resposta do primeiro POST se perder. O snapshot histórico não é alterado quando as ofertas vencem; a interface sinaliza a validade usando `ValidaAte`.
 
 ## Mensageria e concorrência
 
@@ -125,7 +131,7 @@ Use o SDK de `global.json`: .NET 10.0.401, com atualização de patch permitida.
 | PostgreSQL | `localhost:5432`, banco `verum`, usuário/senha `postgres` |
 | RabbitMQ | `localhost:5672`, usuário `admin`, senha `admin123`, vhost `/` |
 | Redis 6.2+ | `localhost:6379`, sem senha ou TLS |
-| Keycloak | `http://localhost:8080/realms/verum`, audience `verum-api`; necessário nos futuros endpoints protegidos |
+| Keycloak | `http://localhost:8081/realms/verum`, audience `verum-api`; ambiente próprio em `src/keycloak`, necessário no endpoint protegido de conta |
 | Collector OTLP | Opcional, quando exportação estiver habilitada |
 
 Publique as portas Docker para executar .NET na máquina. Se os hosts também estiverem em containers, substitua `localhost` pelos nomes dos serviços da rede. Use volumes para PostgreSQL, RabbitMQ e chaves Data Protection. MassTransit declara a topologia; Redis não exige criação manual de chaves.
@@ -148,7 +154,7 @@ dotnet run --project Apps/Verum.Api --launch-profile http
 dotnet run --project Apps/Verum.Worker.Descoberta --launch-profile Verum.Worker.Descoberta
 ```
 
-A API fica em `http://localhost:5099`. `/openapi/v1.json` está disponível em Development. Envie a busca e acompanhe o endereço retornado mantendo o cookie. `/health/live` verifica o processo; `/health/ready` inclui MassTransit quando habilitado, mas não comprova PostgreSQL, Redis, Keycloak ou providers.
+A API fica em `http://localhost:5099`. `/openapi/v1.json` está disponível em Development. Envie a busca e acompanhe o endereço retornado mantendo o cookie. A API apenas aceita e enfileira; mantenha também o worker Descoberta executando. Sem consumidor, a busca permanece recebida na fila e pode exceder seu prazo antes de ser processada. `/health/live` verifica o processo; `/health/ready` inclui MassTransit quando habilitado, mas não comprova a presença do worker, PostgreSQL, Redis, Keycloak ou providers.
 
 ## Validação
 
@@ -162,9 +168,10 @@ A API fica em `http://localhost:5099`. `/openapi/v1.json` está disponível em D
 | `VERUM_TEST_NOVAS_LOJAS=1` | Três consultas reais na KaBuM e Amazon, com normalização e seleção de até 12 ofertas |
 | `VERUM_TEST_RABBITMQ=1` | Broker local e management em 15672, junto de PostgreSQL |
 | `VERUM_TEST_KABUM=1` | Verificação opcional do site real |
+| `VERUM_TEST_PRODUTOS_ESPECIFICOS=1` | Livros, cabo SCSI, SSD com modelo e consulta inexistente nas duas lojas reais |
 
 Sem habilitação, os testes correspondentes são ignorados; serviços habilitados indisponíveis causam falha. Os testes do fluxo criam bancos temporários próprios, aplicam migrations e os removem; precisam de permissão para criar bancos. Outros testes usam schemas transacionais. Redis e RabbitMQ usam recursos exclusivos dos testes, removidos ao terminar. O teste RabbitMQ confirma entrega durável antes da inicialização do worker.
 
-A validação cobre API/cookie/cota, idempotência, persistência, reutilização de ofertas, mensagens, concorrência, fontes parciais, IA simulada, timeout e erros. A verificação KaBuM real consulta produtos, paginação e ausência de resultados sem gravar ofertas. IA real e autenticação Keycloak não são comprovadas pelas simulações.
+A validação cobre API/cookie/cota, idempotência, persistência, reutilização de ofertas, mensagens, concorrência, fontes parciais, IA simulada, timeout e erros. O teste de Contas usa PostgreSQL temporário para verificar sincronização concorrente, atualização de perfil e bloqueio. A verificação KaBuM real consulta produtos, paginação e ausência de resultados sem gravar ofertas. O teste JWT real é optativo e exige tokens de acesso e identidade obtidos com PKCE nas variáveis `VERUM_TEST_KEYCLOAK_ACCESS_TOKEN` e `VERUM_TEST_KEYCLOAK_ID_TOKEN`; tokens não devem ser salvos no repositório. IA real não é comprovada pelas simulações.
 
-Validação desta entrega: build sem avisos ou erros, 148 testes aprovados com serviços locais e teste adicional da KaBuM real aprovado. Os modelos de Busca e Ofertas não apresentam alterações pendentes em relação às migrations.
+Validação local: 171 testes aprovados com serviços locais e um teste JWT optativo ignorado na execução geral. O teste adicional pelo navegador validou login PKCE do Angular, JWT real na API, sincronização de conta, restauração SSO, logout e proteção da rota Radar. Buscas reais de livros e itens específicos foram verificadas como visitante, com login e após logout, incluindo idempotência, isolamento entre navegadores e cota. Códigos de modelo permanecem inteiros na comparação; capacidades como `1TB` e `1 TB` são equivalentes. Ausência de resultados usa o marcador explícito da loja; layout desconhecido continua sendo falha técnica. Não foi necessária nova migration.

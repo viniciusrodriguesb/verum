@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AutenticacaoService } from '@core/autenticacao/services/autenticacao.service';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   LucideCircleUserRound,
@@ -34,6 +35,8 @@ interface ItemNavegacao {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavegacaoMobileComponent {
+  protected readonly autenticacao = inject(AutenticacaoService);
+
   protected readonly itensNavegacao: readonly ItemNavegacao[] = [
     {
       icone: 'inicio',

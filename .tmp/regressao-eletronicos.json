@@ -1,0 +1,338 @@
+[
+  {
+    "consulta": "televis\u00E3o 4k",
+    "fontes": [
+      {
+        "Fonte": "kabum",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 100,
+        "Aceitos": 100,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:34:15.2065836+00:00",
+        "FinalizadaEm": "2026-10-12T18:34:47.0638613+00:00"
+      },
+      {
+        "Fonte": "amazon",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 96,
+        "Aceitos": 71,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:34:15.2496496+00:00",
+        "FinalizadaEm": "2026-10-12T18:34:20.3933705+00:00"
+      }
+    ],
+    "encontrados": 171,
+    "selecionados": [
+      {
+        "Nome": "Smart TV 43\u0027 LG 43AU801C0SA 4K",
+        "Fonte": "amazon",
+        "Preco": 1832.55,
+        "Url": "https://www.amazon.com.br/dp/B0FRJV1B75",
+        "Pontuacao": 91.16
+      },
+      {
+        "Nome": "Hisense Smart TV 4K 55\u0022 Polegadas 55A6NV",
+        "Fonte": "amazon",
+        "Preco": 2249.99,
+        "Url": "https://www.amazon.com.br/dp/B0FNXZZTDW",
+        "Pontuacao": 90.46
+      },
+      {
+        "Nome": "Hisense Smart TV 4K 50\u0022 Polegadas 50A6NV",
+        "Fonte": "amazon",
+        "Preco": 2199.00,
+        "Url": "https://www.amazon.com.br/dp/B0FNY27T2T",
+        "Pontuacao": 90.46
+      },
+      {
+        "Nome": "Smart Tv Hq QLED 55 \u0022 Hq-qLED55sm 4k",
+        "Fonte": "kabum",
+        "Preco": 2510.00,
+        "Url": "https://www.kabum.com.br/produto/1034084/smart-tv-hq-qled-55-hq-qled55sm-4k-wi-fi-bluetooth-apps-netflix-youtube-e-prime-video",
+        "Pontuacao": 89.80
+      },
+      {
+        "Nome": "Smart TV 50\u0022 LG 50AU801C0SA 4K HDR10 UHD",
+        "Fonte": "amazon",
+        "Preco": 2154.90,
+        "Url": "https://www.amazon.com.br/dp/B0FRHV3HCG",
+        "Pontuacao": 89.76
+      },
+      {
+        "Nome": "SMART TV 55\u0022 SAMSUNG CRYSTAL PROCESSOR 4K LH55BEFH4GGXZD",
+        "Fonte": "amazon",
+        "Preco": 2514.05,
+        "Url": "https://www.amazon.com.br/dp/B0G7MJPFCD",
+        "Pontuacao": 89.76
+      },
+      {
+        "Nome": "SMART TV 50\u0022 SAMSUNG CRYSTAL PROCESSOR 4K LH50BEFH4GGXZD",
+        "Fonte": "amazon",
+        "Preco": 2129.00,
+        "Url": "https://www.amazon.com.br/dp/B0GMR9YD3C",
+        "Pontuacao": 89.76
+      },
+      {
+        "Nome": "Smart Tv Samsung Crystal Business 55\u0022 4k HDMI - Lh55befh4ggxzd",
+        "Fonte": "kabum",
+        "Preco": 3599.00,
+        "Url": "https://www.kabum.com.br/produto/987358/smart-tv-samsung-business-4k-55-lh55befh4ggxzd",
+        "Pontuacao": 89.10
+      },
+      {
+        "Nome": "Smart Tv Samsung 65\u0022 4k Crystal Business HDMI - Lh65befh4ggxzd",
+        "Fonte": "kabum",
+        "Preco": 5271.29,
+        "Url": "https://www.kabum.com.br/produto/991766/smart-tv-samsung-crystal-65-ultra-hd-4k-tizen-wi-fi-hdmi-usb-lh65befh4ggxzd",
+        "Pontuacao": 89.10
+      },
+      {
+        "Nome": "Smart TV 49\u0022 Philco UHD 4K DLED Roku P49CRA",
+        "Fonte": "amazon",
+        "Preco": 2249.90,
+        "Url": "https://www.amazon.com.br/dp/B07YQGD9MG",
+        "Pontuacao": 89.06
+      },
+      {
+        "Nome": "Samsung Smart TV 50\u0022 Crystal UHD 4K U8600F 2025",
+        "Fonte": "amazon",
+        "Preco": 2421.55,
+        "Url": "https://www.amazon.com.br/dp/B0F5X4LL89",
+        "Pontuacao": 89.06
+      },
+      {
+        "Nome": "Samsung Smart TV 75\u0022 Crystal UHD 4K U8100F 2025",
+        "Fonte": "amazon",
+        "Preco": 4669.35,
+        "Url": "https://www.amazon.com.br/dp/B0F5X4NPK2",
+        "Pontuacao": 89.06
+      }
+    ]
+  },
+  {
+    "consulta": "iphone 17",
+    "fontes": [
+      {
+        "Fonte": "kabum",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 68,
+        "Aceitos": 49,
+        "Codigo": "CANDIDATOS_DESCARTADOS",
+        "IniciadaEm": "2026-10-12T18:34:47.0863489+00:00",
+        "FinalizadaEm": "2026-10-12T18:35:07.2350855+00:00"
+      },
+      {
+        "Fonte": "amazon",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 120,
+        "Aceitos": 77,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:34:47.0867149+00:00",
+        "FinalizadaEm": "2026-10-12T18:34:53.1619984+00:00"
+      }
+    ],
+    "encontrados": 126,
+    "selecionados": [
+      {
+        "Nome": "Iphone 17 256gb Preto",
+        "Fonte": "kabum",
+        "Preco": 5599.00,
+        "Url": "https://www.kabum.com.br/produto/1016330/iphone-17-256gb-preto",
+        "Pontuacao": 92.60
+      },
+      {
+        "Nome": "Iphone 17 256gb S\u00E1lvia",
+        "Fonte": "kabum",
+        "Preco": 5599.00,
+        "Url": "https://www.kabum.com.br/produto/1016331/iphone-17-256gb-salvia",
+        "Pontuacao": 92.60
+      },
+      {
+        "Nome": "Iphone 17 512gb Preto",
+        "Fonte": "kabum",
+        "Preco": 6498.90,
+        "Url": "https://www.kabum.com.br/produto/1016332/iphone-17-512gb-preto",
+        "Pontuacao": 92.60
+      },
+      {
+        "Nome": "Iphone 17 256gb Branco",
+        "Fonte": "kabum",
+        "Preco": 5599.00,
+        "Url": "https://www.kabum.com.br/produto/1016333/iphone-17-256gb-branco",
+        "Pontuacao": 92.60
+      },
+      {
+        "Nome": "Iphone 17 512gb S\u00E1lvia",
+        "Fonte": "kabum",
+        "Preco": 6599.00,
+        "Url": "https://www.kabum.com.br/produto/1016335/iphone-17-512gb-salvia",
+        "Pontuacao": 92.60
+      },
+      {
+        "Nome": "Iphone 17 512gb Lavanda",
+        "Fonte": "kabum",
+        "Preco": 8649.00,
+        "Url": "https://www.kabum.com.br/produto/1016339/iphone-17-512gb-lavanda",
+        "Pontuacao": 92.60
+      },
+      {
+        "Nome": "Iphone 17 256gb Lavanda",
+        "Fonte": "kabum",
+        "Preco": 5599.00,
+        "Url": "https://www.kabum.com.br/produto/1016341/iphone-17-256gb-lavanda",
+        "Pontuacao": 92.60
+      },
+      {
+        "Nome": "Iphone 17 512gb Branco",
+        "Fonte": "kabum",
+        "Preco": 6498.90,
+        "Url": "https://www.kabum.com.br/produto/1016343/iphone-17-512gb-branco",
+        "Pontuacao": 92.60
+      },
+      {
+        "Nome": "Iphone 17 256gb Azul-n\u00E9voa",
+        "Fonte": "kabum",
+        "Preco": 5599.00,
+        "Url": "https://www.kabum.com.br/produto/1016342/iphone-17-256gb-azul-nevoa",
+        "Pontuacao": 91.90
+      },
+      {
+        "Nome": "Iphone 17 512gb Azul-n\u00E9voa",
+        "Fonte": "kabum",
+        "Preco": 6498.90,
+        "Url": "https://www.kabum.com.br/produto/1016344/iphone-17-512gb-azul-nevoa",
+        "Pontuacao": 91.90
+      },
+      {
+        "Nome": "Apple Iphone 17 512gb Lavanda",
+        "Fonte": "kabum",
+        "Preco": 6498.90,
+        "Url": "https://www.kabum.com.br/produto/928972/apple-iphone-17-512gb-lavanda",
+        "Pontuacao": 91.90
+      },
+      {
+        "Nome": "Apple Iphone 17 512gb Preto",
+        "Fonte": "kabum",
+        "Preco": 6498.90,
+        "Url": "https://www.kabum.com.br/produto/928985/apple-iphone-17-512gb-preto",
+        "Pontuacao": 91.90
+      }
+    ]
+  },
+  {
+    "consulta": "samsung s25",
+    "fontes": [
+      {
+        "Fonte": "kabum",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 15,
+        "Aceitos": 15,
+        "Codigo": null,
+        "IniciadaEm": "2026-10-12T18:35:07.2374405+00:00",
+        "FinalizadaEm": "2026-10-12T18:35:09.8164121+00:00"
+      },
+      {
+        "Fonte": "amazon",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 96,
+        "Aceitos": 68,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:35:07.2376996+00:00",
+        "FinalizadaEm": "2026-10-12T18:35:11.8999077+00:00"
+      }
+    ],
+    "encontrados": 83,
+    "selecionados": [
+      {
+        "Nome": "Usado - Samsung Galaxy S25 256gb - Azul Claro - Aceit\u00E1vel",
+        "Fonte": "kabum",
+        "Preco": 3163.13,
+        "Url": "https://www.kabum.com.br/produto/947644/usado-samsung-galaxy-s25-256gb-azul-claro-aceitavel",
+        "Pontuacao": 89.80
+      },
+      {
+        "Nome": "Usado - Samsung Galaxy S25 256gb - Azul Marinho - Aceit\u00E1vel",
+        "Fonte": "kabum",
+        "Preco": 3163.13,
+        "Url": "https://www.kabum.com.br/produto/947650/usado-samsung-galaxy-s25-256gb-azul-marinho-aceitavel",
+        "Pontuacao": 89.80
+      },
+      {
+        "Nome": "Usado - Samsung Galaxy S25 256gb - Azul Marinho - Bom",
+        "Fonte": "kabum",
+        "Preco": 3294.97,
+        "Url": "https://www.kabum.com.br/produto/947651/usado-samsung-galaxy-s25-256gb-azul-marinho-bom",
+        "Pontuacao": 89.80
+      },
+      {
+        "Nome": "Usado - Samsung Galaxy S25 256gb - Azul Claro - Bom",
+        "Fonte": "kabum",
+        "Preco": 3294.97,
+        "Url": "https://www.kabum.com.br/produto/947653/usado-samsung-galaxy-s25-256gb-azul-claro-bom",
+        "Pontuacao": 89.80
+      },
+      {
+        "Nome": "Samsung Galaxy S25 Edge 5G, 512GB, 12GB, C\u00E2mera 200MP",
+        "Fonte": "amazon",
+        "Preco": 4061.55,
+        "Url": "https://www.amazon.com.br/dp/B0F8PP7VMS",
+        "Pontuacao": 89.10
+      },
+      {
+        "Nome": "Smartphone Samsung Galaxy S25 Edge 5G 512GB Desbloqueado, Titanio Prata",
+        "Fonte": "amazon",
+        "Preco": 4061.55,
+        "Url": "https://www.amazon.com.br/dp/B0F8PHM63K",
+        "Pontuacao": 88.40
+      },
+      {
+        "Nome": "Samsung Combo Galaxy S25\u002B 512GB Azul Marinho \u002B Galaxy Buds4 Pro Branco",
+        "Fonte": "amazon",
+        "Preco": 11098.00,
+        "Url": "https://www.amazon.com.br/dp/B0HK8WZLS3",
+        "Pontuacao": 87.70
+      },
+      {
+        "Nome": "Celular Samsung Galaxy S25 FE 5G, 256GB, 8GB, C\u00E2mera Tripla - Jet Black",
+        "Fonte": "amazon",
+        "Preco": 3523.50,
+        "Url": "https://www.amazon.com.br/dp/B0FS9HYYXZ",
+        "Pontuacao": 87.00
+      },
+      {
+        "Nome": "Celular Samsung Galaxy S25 FE 5G, 128GB, 8GB, C\u00E2mera Tripla - Jet Black",
+        "Fonte": "amazon",
+        "Preco": 2969.10,
+        "Url": "https://www.amazon.com.br/dp/B0FTC96JJ5",
+        "Pontuacao": 87.00
+      },
+      {
+        "Nome": "Celular Samsung Galaxy S25 FE 5G, 128GB, 8GB, C\u00E2mera Tripla - Azul Marinho",
+        "Fonte": "amazon",
+        "Preco": 2789.00,
+        "Url": "https://www.amazon.com.br/dp/B0FTCYVMVC",
+        "Pontuacao": 87.00
+      },
+      {
+        "Nome": "Smartphone Samsung Galaxy S25 Fe 5g 256gb Jetblack, Ram 8GB, C\u00E2mera 50mp, Selfie De 12mp, Tela 6.7\u0022",
+        "Fonte": "kabum",
+        "Preco": 3599.10,
+        "Url": "https://www.kabum.com.br/produto/927090/smartphone-samsung-galaxy-s25-fe-5g-256gb-jetblack-ram-8gb-camera-50mp-selfie-de-12mp-tela-6-7-",
+        "Pontuacao": 82.80
+      },
+      {
+        "Nome": "Smartphone Samsung Galaxy S25 Fe 5g 128GB Jetblack, Ram 8GB, C\u00E2mera 50mp, Selfie De 12mp, Tela 6.7\u0022",
+        "Fonte": "kabum",
+        "Preco": 2999.00,
+        "Url": "https://www.kabum.com.br/produto/927091/smartphone-samsung-galaxy-s25-fe-5g-128gb-jetblack-ram-8gb-camera-50mp-selfie-de-12mp-tela-6-7-",
+        "Pontuacao": 82.80
+      }
+    ]
+  }
+]

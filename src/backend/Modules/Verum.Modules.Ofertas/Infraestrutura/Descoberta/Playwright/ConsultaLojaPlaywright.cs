@@ -178,7 +178,7 @@ internal sealed class ConsultaLojaPlaywright(NavegadorPlaywright navegador, IOpt
 
     // A hidratação de páginas SPA pode substituir os cards logo após o marcador ficar visível.
     // Aguarda novamente dentro do prazo da ação, sem interpretar a troca temporária como lista vazia.
-    while (quantidade == 0 && (config.SemResultados is null || !await page.Locator(config.SemResultados).IsVisibleAsync()))
+    while (quantidade == 0 && (config.SemResultados is null || !await page.Locator(config.SemResultados).First.IsVisibleAsync()))
     {
       if (espera.Elapsed >= TimeSpan.FromSeconds(options.Value.TimeoutAcaoSegundos))
         throw new InvalidOperationException("Layout da loja não corresponde aos seletores configurados.");

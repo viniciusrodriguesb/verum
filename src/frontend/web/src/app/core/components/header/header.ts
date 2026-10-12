@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AutenticacaoService } from '@core/autenticacao/services/autenticacao.service';
 import { RouterLink } from '@angular/router';
 
 interface ItemMenu {
@@ -16,6 +17,8 @@ interface ItemMenu {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Header {
+  protected readonly autenticacao = inject(AutenticacaoService);
+
   protected readonly itensMenu: readonly ItemMenu[] = [
     {
       rotulo: 'Buscar preços',

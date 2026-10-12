@@ -196,6 +196,31 @@ public sealed class ConsultaLojaPlaywrightTests
       new LojaPlaywrightOptions { HostsPermitidos = ["loja.example"] }));
   }
 
+  [PlaywrightFact]
+  public async Task AmazonReconheceMarcadorRealDeAusenciaSemEsperarTimeout()
+  {
+    await using var site = await SiteLocal.CriarAsync();
+
+    foreach (var elemento in new[] { "h2", "span" })
+    {
+      await using var provider = Provider(site.Url, new()
+      {
+        ["Playwright:Lojas:amazon:UrlBusca"] = site.Url + "/amazon-vazio?elemento=" + elemento + "&q={consulta}",
+
+        ["Playwright:Lojas:amazon:HostsPermitidos:0"] = "127.0.0.1"
+      });
+
+      using var prazo = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+      var resultado = await provider.GetRequiredService<IConsultaLoja>()
+        .ConsultarAsync("amazon", "produto inexistente", prazo.Token);
+
+      Assert.Empty(resultado.Itens);
+
+      Assert.Empty(resultado.Descartados);
+    }
+  }
+
   private static ServiceProvider Provider(string url, Dictionary<string, string?>? overrides = null)
   {
     var values = new Dictionary<string, string?>
@@ -244,6 +269,13 @@ public sealed class ConsultaLojaPlaywrightTests
       app.MapGet("/form", () => Results.Content("<form action='/busca'><input id='consulta' name='q'><button>Buscar</button></form>", "text/html"));
 
       app.MapGet("/vazio", () => Results.Content("<div id='vazio'>Sem resultados</div>", "text/html"));
+
+      app.MapGet("/amazon-vazio", (HttpContext context) =>
+      {
+        var elemento = context.Request.Query["elemento"] == "span" ? "span" : "h2";
+
+        return Results.Content($"<div data-component-type='s-search-results'><{elemento}>Nenhum resultado para sua consulta de pesquisa.</{elemento}></div>", "text/html");
+      });
 
       app.MapGet("/busca", async (HttpContext context) =>
       {

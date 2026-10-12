@@ -64,11 +64,13 @@ nvm use
 
 ## Integração do primeiro fluxo
 
-A aplicação usa os endpoints reais de visitante: POST `/api/v1/buscas` e GET `/api/v1/buscas/{id}`. Os DTOs ficam em `domain/busca/dtos`, o cliente HTTP em `services` e os componentes exibem somente informações devolvidas pela API. A chave de idempotência e o ID são preservados na URL para retomar uma consulta sem criar outra. O acompanhamento consulta o servidor a cada dois segundos, sem requisições simultâneas; para ao receber estado final, sair da tela ou atingir quatro minutos. Retomar consulta usa o mesmo ID/chave.
+A aplicação usa os endpoints reais de visitante: GET `/api/v1/buscas/visitante` prepara o cookie antes do POST `/api/v1/buscas`; GET `/api/v1/buscas/{id}` acompanha o resultado. Os DTOs ficam em `domain/busca/dtos` e o cliente HTTP em `services`. Solicitações pendentes preservam a chave de idempotência por consulta no `sessionStorage` da aba, inclusive após recarregar a aplicação. Se o POST tiver timeout ou a resposta se perder, tentar novamente a mesma consulta reutiliza a chave para recuperar o pedido aceito sem consumir outra cota. Não há repetição automática do POST; a chave pendente é removida após a confirmação. O ID confirmado fica na URL. O acompanhamento consulta o servidor a cada dois segundos, sem requisições simultâneas; para ao receber estado final, sair da tela ou atingir quatro minutos.
+
+Os resultados preservam o snapshot da busca. A interface usa `validaAte` para sinalizar preços históricos, na listagem e nos cards, e reavalia a validade a cada dez segundos sem consultar a API. Ofertas vencidas continuam acessíveis para conferir as condições atuais na loja. Vencimento da oferta é diferente do status `Expirada`, que representa o prazo de processamento da busca; não altera o snapshot nem dispara outra solicitação.
 
 Para testar localmente, inicie PostgreSQL, RabbitMQ, Redis e Chromium, aplique as migrations e execute API (perfil `http`, porta 5099) e worker Descoberta conforme o README do backend. Execute `npm start` aqui e abra `http://localhost:4200`. `proxy.conf.json` encaminha `/api/**` à API; os pedidos enviam credenciais e preservam o cookie HttpOnly. Use sempre o mesmo hostname: alternar localhost e 127.0.0.1 muda a identificação do visitante. A cota padrão é uma busca diária; 429 será exibido na tela.
 
-Pesquise um produto específico, como `ssd kingston`, e aguarde o resultado. IA sem chave é ignorada pelo backend. Os estados vazio, falha, expiração, resultado parcial e indisponibilidade HTTP têm apresentação própria. Radar, contas, favoritos, histórico, frete e parcelamento não possuem endpoints disponíveis nesta entrega; não são simulados. A classificação não presume equivalência entre variantes.
+Pesquise um produto específico, como `ssd kingston`, e aguarde o resultado. IA sem chave é ignorada pelo backend. Os estados vazio, falha, expiração, resultado parcial e indisponibilidade HTTP têm apresentação própria. Radar, favoritos, histórico, frete e parcelamento não possuem endpoints disponíveis nesta entrega; não são simulados. A classificação não presume equivalência entre variantes.
 
 Em produção, encaminhe `/api` ao backend no mesmo domínio pelo reverse proxy e configure o fallback de rotas do Angular. O proxy do Angular serve somente para desenvolvimento. Nenhuma credencial de PostgreSQL, RabbitMQ ou OpenAI pertence ao frontend.
 
@@ -169,12 +171,12 @@ Reúne elementos reutilizáveis sem regra de negócio específica:
 
 ## Regras de dependência
 
-| Origem             | Pode importar                               | Não pode importar                  |
-| ------------------ | ------------------------------------------- | ---------------------------------- |
-| Shell da aplicação | `core`, `domain`, `shared`                  | Detalhes privados de uma feature   |
-| `core`             | Angular e bibliotecas de infraestrutura     | `domain` e `shared`                |
-| `domain`           | APIs públicas de `core` e `shared`          | Detalhes internos de outro domínio |
-| `shared`           | Angular, Material/CDK e utilitários neutros | `core` e `domain`                  |
+| Origem             | Pode importar                                             | Não pode importar                  |
+| ------------------ | --------------------------------------------------------- | ---------------------------------- |
+| Shell da aplicação | `core`, `domain`, `shared`                                | Detalhes privados de uma feature   |
+| `core`             | Angular, infraestrutura e utilitários neutros de `shared` | `domain`                           |
+| `domain`           | APIs públicas de `core` e `shared`                        | Detalhes internos de outro domínio |
+| `shared`           | Angular, Material/CDK e utilitários neutros               | `core` e `domain`                  |
 
 As restrições estruturais mais importantes devem ser verificadas pelo ESLint. Os aliases disponíveis são:
 
@@ -266,14 +268,18 @@ Os arquivos de marca ficam em `public/images/marca`. Prefira SVG para logotipos 
 
 ## Autenticação
 
-O `keycloak-js` será responsável pela integração do frontend com o Keycloak, que também fará o broker do login com Google.
+O `keycloak-js` integra login, cadastro, logout e gerenciamento da identidade com os fluxos nativos. Google permanece para a próxima entrega. Inicie o ambiente de `src/keycloak` e configure URL, realm e client ID em `public/configuracao.json`. O arquivo público é carregado em runtime antes do bootstrap, permitindo ajuste por implantação sem recompilar. A API continua acessível pelo proxy `/api/**` da mesma origem.
 
-A configuração depende de URL, realm e client ID de cada ambiente. Quando implementada, deverá respeitar as seguintes regras:
+`AutenticacaoService`, em `core/autenticacao/services`, expõe signals de usuário, nome e estado autenticado, além dos métodos de login e renovação de token. Os dados disponíveis são `sub`, e-mail, username, nome e confirmação de e-mail; CPF não está configurado. O cabeçalho e a navegação ficam em `core/components` e usam esse serviço sem alterar o estilo da tela.
+
+A inicialização verifica a sessão SSO antes de iniciar a navegação e depois sincroniza a conta real por `POST /api/v1/contas/me`. `ContaService` expõe a conta comercial separadamente da identidade. A falha da API é apresentada pelo aviso padrão sem bloquear as páginas públicas. O interceptor renova o access token antes dos pedidos e o envia somente a `/api/` na mesma origem. Uma renovação rejeitada limpa a sessão e exige novo login. O Radar exige autenticação na navegação, mas seu processamento e endpoints ainda não estão implementados; a lista permanece vazia. Buscas ainda seguem a cota de visitante, inclusive com sessão autenticada, até a implementação das concessões de acesso.
+
+Regras da integração:
 
 - o cliente Angular é público e não possui client secret;
 - o login utiliza Authorization Code Flow com PKCE;
 - redirect URIs e web origins são restritos por ambiente;
-- tokens não são persistidos em `localStorage`;
+- access token e refresh token permanecem apenas na memória do adaptador;
 - autenticação no frontend não substitui autorização na API;
 - nenhuma variável entregue ao navegador é tratada como segredo.
 

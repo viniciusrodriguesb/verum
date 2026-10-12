@@ -29,6 +29,17 @@ public static class AutenticacaoPipeline
       options.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(30);
 
       options.TokenValidationParameters.NameClaimType = "preferred_username";
+
+      options.Events = new JwtBearerEvents
+      {
+        OnTokenValidated = context =>
+        {
+          if (string.IsNullOrWhiteSpace(context.Principal?.FindFirst("sub")?.Value))
+            context.Fail("Token sem identificador de usuário.");
+
+          return Task.CompletedTask;
+        }
+      };
     });
 
     services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)

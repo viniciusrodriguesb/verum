@@ -1,0 +1,50 @@
+[
+  {
+    "modo": "visitante",
+    "consulta": "verumproduto inexistente928477",
+    "id": "01a13162-a6f3-790d-91bd-a87182388eef",
+    "segundos": 6.7,
+    "status": "ConcluidaSemResultado",
+    "motivo": "ProdutoSemOfertas",
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "logado",
+    "consulta": "verumproduto inexistente928477",
+    "id": "01a13162-cfc7-7f52-87e5-947775db84a8",
+    "segundos": 5.3,
+    "status": "ConcluidaSemResultado",
+    "motivo": "ProdutoSemOfertas",
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": true
+  },
+  {
+    "modo": "deslogado",
+    "consulta": "verumproduto inexistente928477",
+    "id": "01a13162-ebce-750d-b3e0-97bdce08080c",
+    "segundos": 4.7,
+    "status": "ConcluidaSemResultado",
+    "motivo": "ProdutoSemOfertas",
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  }
+]

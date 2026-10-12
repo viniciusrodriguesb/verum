@@ -4,7 +4,12 @@
       <li class="navegacao-mobile__item">
         <a
           [routerLink]="item.rota === '/historico' || item.rota === '/conta' ? null : item.rota"
-          [attr.aria-disabled]="item.rota === '/historico' || item.rota === '/conta' ? true : null"
+          [attr.aria-disabled]="item.rota === '/historico' ? true : null"
+          [attr.href]="item.rota === '/conta' ? '#' : null"
+          (click)="
+            item.rota === '/conta' && $event.preventDefault();
+            item.rota === '/conta' && autenticacao.gerenciarConta()
+          "
           routerLinkActive="navegacao-mobile__link--ativo"
           [routerLinkActiveOptions]="{
             exact: item.correspondenciaExata,

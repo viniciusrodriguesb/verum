@@ -10,6 +10,7 @@ O ecossistema é composto inicialmente pelo **Verum Busca** e pelo **Verum Radar
 | ------------------- | ------------------------------------------------- |
 | `src/frontend/web`  | Aplicação web Angular                             |
 | `src/backend`       | API, módulos e workers .NET                       |
+| `src/keycloak`      | Identidade local isolada: Keycloak, PostgreSQL e Mailpit |
 | `tests`             | Testes de integração e arquitetura                |
 | `deploy`            | Docker, Kubernetes e configurações de implantação |
 | `docs`              | Documentação e decisões arquiteturais             |

@@ -42,6 +42,41 @@ public sealed class RabbitMqFluxoFactAttribute : FactAttribute
 
 public sealed class FluxoBuscaPersistenciaTests
 {
+  [PostgreSqlFact]
+  public async Task VisitantePreparadoAntesDoPostRecuperaPedidoAceitoSemConsumirOutraCota()
+  {
+    await using var ambiente = await Ambiente.CriarAsync(limite: 1);
+
+    await using var factory = ambiente.CriarApi();
+
+    using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
+
+    using var sessao = await client.GetAsync("/api/v1/buscas/visitante");
+
+    Assert.Equal(204, (int)sessao.StatusCode);
+
+    Assert.Contains(sessao.Headers.GetValues("Set-Cookie"), x => x.Contains("verum.visitante") && x.Contains("httponly"));
+
+    Assert.True(sessao.Headers.CacheControl!.NoStore);
+
+    var pedido = new SolicitarBusca("ssd kingston", "resposta-perdida");
+
+    using var original = await client.PostAsJsonAsync("/api/v1/buscas", pedido);
+
+    using var retomada = await client.PostAsJsonAsync("/api/v1/buscas", pedido);
+
+    Assert.Equal(202, (int)original.StatusCode);
+
+    Assert.Equal(202, (int)retomada.StatusCode);
+
+    Assert.Equal((await original.Content.ReadFromJsonAsync<BuscaAceita>())!.Id,
+      (await retomada.Content.ReadFromJsonAsync<BuscaAceita>())!.Id);
+
+    await using var scope = ambiente.Host.Services.CreateAsyncScope();
+
+    Assert.Equal(1, await scope.ServiceProvider.GetRequiredService<BuscaDbContext>().Buscas.CountAsync());
+  }
+
   [RabbitMqFluxoFact]
   public async Task RabbitMqGuardaPrimeiraSolicitacaoAntesDoWorkerExistir()
   {

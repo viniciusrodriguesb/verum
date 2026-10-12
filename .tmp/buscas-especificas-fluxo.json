@@ -1,0 +1,884 @@
+[
+  {
+    "modo": "visitante",
+    "consulta": "O homem mais rico da Babilônia",
+    "id": "01a1315c-9ea9-747b-a338-b9b94d8a4388",
+    "segundos": 13,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "O Homem Mais Rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 29.9,
+        "url": "https://www.amazon.com.br/dp/8522031517"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 19.14,
+        "url": "https://www.amazon.com.br/dp/8595081530"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 1277,
+        "url": "https://www.amazon.com.br/dp/B001G8WTRM"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilonia",
+        "fonte": "amazon",
+        "preco": 12.34,
+        "url": "https://www.amazon.com.br/dp/B0H25XM3G1"
+      },
+      {
+        "nome": "HOMEM MAIS RICO DA BABILONIA, O - ED. ECONOMICA",
+        "fonte": "amazon",
+        "preco": 23,
+        "url": "https://www.amazon.com.br/dp/6555110473"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia (Portuguese Edition)",
+        "fonte": "amazon",
+        "preco": 65.9,
+        "url": "https://www.amazon.com.br/dp/B0FXGGP72S"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia: Uma Recontagem Moderna",
+        "fonte": "amazon",
+        "preco": 117.07,
+        "url": "https://www.amazon.com.br/dp/6501171814"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia: plano de ação",
+        "fonte": "amazon",
+        "preco": 18.44,
+        "url": "https://www.amazon.com.br/dp/6550472199"
+      },
+      {
+        "nome": "O HOMEM MAIS RICO DA BABILÔNIA - GEORGE S. CLASON",
+        "fonte": "amazon",
+        "preco": 19,
+        "url": "https://www.amazon.com.br/dp/6559575527"
+      },
+      {
+        "nome": "O Homem Mais Rico Da Babilônia, A Psicologia Financeira Kit",
+        "fonte": "amazon",
+        "preco": 71.63,
+        "url": "https://www.amazon.com.br/dp/8900006312"
+      },
+      {
+        "nome": "Kit Design: O homem mais rico da Babilônia + 1 livro",
+        "fonte": "amazon",
+        "preco": 70.6,
+        "url": "https://www.amazon.com.br/dp/B0HM9GS2NY"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia: Nova Tradução + Bônus (Portuguese Edition)",
+        "fonte": "amazon",
+        "preco": 86.13,
+        "url": "https://www.amazon.com.br/dp/6500719557"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "visitante",
+    "consulta": "1984 George Orwell",
+    "id": "01a1315c-d548-7b75-9865-a0166df83649",
+    "segundos": 7.9,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "George Orwell - 1984",
+        "fonte": "amazon",
+        "preco": 23.54,
+        "url": "https://www.amazon.com.br/dp/655888061X"
+      },
+      {
+        "nome": "1984 George Orwell - Nineteen Eighty-Four - Paperback",
+        "fonte": "amazon",
+        "preco": 85.51,
+        "url": "https://www.amazon.com.br/dp/605746222X"
+      },
+      {
+        "nome": "1984 - Clássicos da literatura mundial - Autor George Orwell",
+        "fonte": "amazon",
+        "preco": 39.9,
+        "url": "https://www.amazon.com.br/dp/6555793341"
+      },
+      {
+        "nome": "Julia: Uma releitura feminista do clássico 1984 de George Orwell",
+        "fonte": "amazon",
+        "preco": 55.73,
+        "url": "https://www.amazon.com.br/dp/6556220795"
+      },
+      {
+        "nome": "George Orwell: 1984 + A revolução dos bichos: 2 em 1",
+        "fonte": "amazon",
+        "preco": 35.95,
+        "url": "https://www.amazon.com.br/dp/6587885349"
+      },
+      {
+        "nome": "George Orwell 2-Book Boxed Set: 1984 and Animal Farm",
+        "fonte": "amazon",
+        "preco": 114.95,
+        "url": "https://www.amazon.com.br/dp/B0F3C66NFS"
+      },
+      {
+        "nome": "1984 - O CLÁSSICO DISTÓPICO DE GEORGE ORWELL EM UMA EDIÇÃO DARK",
+        "fonte": "amazon",
+        "preco": 72.65,
+        "url": "https://www.amazon.com.br/dp/6555981520"
+      },
+      {
+        "nome": "Kit George Orwell + George Orwell - a Flor + George + George Orwell - 1984",
+        "fonte": "amazon",
+        "preco": 78.61,
+        "url": "https://www.amazon.com.br/dp/B0HJPRRNTL"
+      },
+      {
+        "nome": "Box 3 Livros George Orwell: 1984 + Revolução dos Bichos + Ensaios (Pé da Letra)",
+        "fonte": "amazon",
+        "preco": 39.9,
+        "url": "https://www.amazon.com.br/dp/6558888572"
+      },
+      {
+        "nome": "George Orwell - 1984 + A revolução dos bichos: Kit com 2 livros, postais e marcadores",
+        "fonte": "amazon",
+        "preco": 49.7,
+        "url": "https://www.amazon.com.br/dp/6587034284"
+      },
+      {
+        "nome": "Kit de Livros George Orwell (1984 + a Revolução dos Bichos + Dentro da Baleia e Outros Ensaios)",
+        "fonte": "amazon",
+        "preco": 52.52,
+        "url": "https://www.amazon.com.br/dp/8900002368"
+      },
+      {
+        "nome": "1984 Deluxe Edition: George Orwell's Timeless Dystopian Masterpiece of Big Brother, Thought Control, and Forbidden Love",
+        "fonte": "amazon",
+        "preco": 127.35,
+        "url": "https://www.amazon.com.br/dp/0358375401"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "visitante",
+    "consulta": "cabo SCSI HD68",
+    "id": "01a1315c-f8d5-7c39-ab0a-54a50af45146",
+    "segundos": 7.2,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "IBM Cabo 4,5 M SCSI L3S VHDCI/HD68",
+        "fonte": "amazon",
+        "preco": 1280.11,
+        "url": "https://www.amazon.com.br/dp/B000HAUSJ6"
+      },
+      {
+        "nome": "Iomega Cabo 33162 Rev SCSI 1 metro Vhdci Offset para HD68 Am",
+        "fonte": "amazon",
+        "preco": 637.56,
+        "url": "https://www.amazon.com.br/dp/B0007WY548"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "visitante",
+    "consulta": "ssd kingston nv3 1tb",
+    "id": "01a1315d-19c5-7326-aee0-11c9369d76d4",
+    "segundos": 36.5,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "Hd SSD M.2 1TB Nv3 Gen4 6000-4000 Mb/s Snv3s/1000g Kingston",
+        "fonte": "kabum",
+        "preco": 1305,
+        "url": "https://www.kabum.com.br/produto/753550/ssd-kingston-nv3-1tb-m-2-2280-pcie-4-0-nvme-leitura-6000mb-s-gravacao-4000mb-s"
+      },
+      {
+        "nome": "Kingston NV3 1TB M.2 2230 NVMe SSD | Até 6000MB/s | SNV3SM3/1T0",
+        "fonte": "amazon",
+        "preco": 1519.05,
+        "url": "https://www.amazon.com.br/dp/B0FD2LGBZF"
+      },
+      {
+        "nome": "SSD M.2 1TB Kingston Nv3 Mini 2230 Nvme PCie 4.0 Snv3sm3/1t0 6000/4000 Mb/s",
+        "fonte": "kabum",
+        "preco": 2106.33,
+        "url": "https://www.kabum.com.br/produto/914128/ssd-m-2-1tb-kingston-nv3-mini-2230-nvme-pcie-4-0-snv3sm3-1t0-6000-4000-mb-s"
+      },
+      {
+        "nome": "SSD Kingston Nv3 1TB M.2 2280 Nvme Gen4, Desempenho E Eficiência Para Upgrade De PC – Snv3s/1000g",
+        "fonte": "kabum",
+        "preco": 1139.05,
+        "url": "https://www.kabum.com.br/produto/1021928/ssd-kingston-nv3-1tb-m-2-2280-nvme-gen4-desempenho-e-eficiencia-para-upgrade-de-pc-snv3s-1000g"
+      },
+      {
+        "nome": "SSD Kingston NV3 1TB M.2 2280 NVMe Gen4, Desempenho e Eficiência para Upgrade de PC – SNV3S/1000G",
+        "fonte": "amazon",
+        "preco": 930.05,
+        "url": "https://www.amazon.com.br/dp/B0DBR3DZWG"
+      },
+      {
+        "nome": "SSD Kingston 1TB Nv3 M.2 Nvme PCIe 4, Leitura 6000MB/s, Gravação 4000MB/s, Ultra Rápido - Snv3s/1000g",
+        "fonte": "kabum",
+        "preco": 1032.13,
+        "url": "https://www.kabum.com.br/produto/633107/ssd-kingston-1tb-padrao-nv3-m-2-2280-nvme-4-0-gen-4x4-leitura-6000-e-gravacao-4000mbps-ultra-rapido-snv3s-1000g"
+      },
+      {
+        "nome": "SSD Kingston NV3, 1TB, M.2 2230, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Gravação: 5000 MB/s - SNV3SM3/1T0",
+        "fonte": "kabum",
+        "preco": 1699.99,
+        "url": "https://www.kabum.com.br/produto/885085/ssd-kingston-nv3-1tb-m-2-2230-nvme-pcie-4-0-leitura-6-000-mb-s-gravacao-5-000-mb-s-snv3sm3-1t0"
+      },
+      {
+        "nome": "SSD Kingston NV3, 1TB, M.2 2280, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Gravação: 4000 MB/s, Azul - SNV3S/1000G",
+        "fonte": "kabum",
+        "preco": 1199.99,
+        "url": "https://www.kabum.com.br/produto/621162/ssd-kingston-nv3-1-tb-m-2-2280-pcie-4-0-x4-nvme-leitura-6000-mb-s-gravacao-4000-mb-s-azul-snv3s-1000g"
+      },
+      {
+        "nome": "RLSOCO Estojo rígido para SSD Kingston NV3 / NV2 M.2 2280 NVMe Gen4 500GB/1TB/2TB & para Western Digital SSD interno WD Green SN350 / SN3000 (apenas estojo)",
+        "fonte": "amazon",
+        "preco": 98.03,
+        "url": "https://www.amazon.com.br/dp/B0D1KCQX6S"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "visitante",
+    "consulta": "verumproduto inexistente928477",
+    "id": "01a1315d-ad06-739d-9b0f-85335a709fd1",
+    "segundos": 32.6,
+    "status": "ConcluidaSemResultado",
+    "motivo": "ProdutoSemOfertas",
+    "parcial": true,
+    "fontesSucesso": 1,
+    "fontesFalha": 1,
+    "ofertas": [],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "logado",
+    "consulta": "O homem mais rico da Babilônia",
+    "id": "01a1315e-3c4c-7600-9462-3ffe9fd0880d",
+    "segundos": 5.3,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": false,
+    "fontesSucesso": 0,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "O Homem Mais Rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 29.9,
+        "url": "https://www.amazon.com.br/dp/8522031517"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 19.14,
+        "url": "https://www.amazon.com.br/dp/8595081530"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 1277,
+        "url": "https://www.amazon.com.br/dp/B001G8WTRM"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilonia",
+        "fonte": "amazon",
+        "preco": 12.34,
+        "url": "https://www.amazon.com.br/dp/B0H25XM3G1"
+      },
+      {
+        "nome": "HOMEM MAIS RICO DA BABILONIA, O - ED. ECONOMICA",
+        "fonte": "amazon",
+        "preco": 23,
+        "url": "https://www.amazon.com.br/dp/6555110473"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia (Portuguese Edition)",
+        "fonte": "amazon",
+        "preco": 65.9,
+        "url": "https://www.amazon.com.br/dp/B0FXGGP72S"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia: Uma Recontagem Moderna",
+        "fonte": "amazon",
+        "preco": 117.07,
+        "url": "https://www.amazon.com.br/dp/6501171814"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia: plano de ação",
+        "fonte": "amazon",
+        "preco": 18.44,
+        "url": "https://www.amazon.com.br/dp/6550472199"
+      },
+      {
+        "nome": "O HOMEM MAIS RICO DA BABILÔNIA - GEORGE S. CLASON",
+        "fonte": "amazon",
+        "preco": 19,
+        "url": "https://www.amazon.com.br/dp/6559575527"
+      },
+      {
+        "nome": "O Homem Mais Rico Da Babilônia, A Psicologia Financeira Kit",
+        "fonte": "amazon",
+        "preco": 71.63,
+        "url": "https://www.amazon.com.br/dp/8900006312"
+      },
+      {
+        "nome": "Kit Design: O homem mais rico da Babilônia + 1 livro",
+        "fonte": "amazon",
+        "preco": 70.6,
+        "url": "https://www.amazon.com.br/dp/B0HM9GS2NY"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia: Nova Tradução + Bônus (Portuguese Edition)",
+        "fonte": "amazon",
+        "preco": 86.13,
+        "url": "https://www.amazon.com.br/dp/6500719557"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": true
+  },
+  {
+    "modo": "logado",
+    "consulta": "1984 George Orwell",
+    "id": "01a1315e-576e-77c7-b120-b189838c5291",
+    "segundos": 4.6,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": false,
+    "fontesSucesso": 0,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "George Orwell - 1984",
+        "fonte": "amazon",
+        "preco": 23.54,
+        "url": "https://www.amazon.com.br/dp/655888061X"
+      },
+      {
+        "nome": "1984 George Orwell - Nineteen Eighty-Four - Paperback",
+        "fonte": "amazon",
+        "preco": 85.51,
+        "url": "https://www.amazon.com.br/dp/605746222X"
+      },
+      {
+        "nome": "1984 - Clássicos da literatura mundial - Autor George Orwell",
+        "fonte": "amazon",
+        "preco": 39.9,
+        "url": "https://www.amazon.com.br/dp/6555793341"
+      },
+      {
+        "nome": "Julia: Uma releitura feminista do clássico 1984 de George Orwell",
+        "fonte": "amazon",
+        "preco": 55.73,
+        "url": "https://www.amazon.com.br/dp/6556220795"
+      },
+      {
+        "nome": "George Orwell: 1984 + A revolução dos bichos: 2 em 1",
+        "fonte": "amazon",
+        "preco": 35.95,
+        "url": "https://www.amazon.com.br/dp/6587885349"
+      },
+      {
+        "nome": "George Orwell 2-Book Boxed Set: 1984 and Animal Farm",
+        "fonte": "amazon",
+        "preco": 114.95,
+        "url": "https://www.amazon.com.br/dp/B0F3C66NFS"
+      },
+      {
+        "nome": "1984 - O CLÁSSICO DISTÓPICO DE GEORGE ORWELL EM UMA EDIÇÃO DARK",
+        "fonte": "amazon",
+        "preco": 72.65,
+        "url": "https://www.amazon.com.br/dp/6555981520"
+      },
+      {
+        "nome": "Kit George Orwell + George Orwell - a Flor + George + George Orwell - 1984",
+        "fonte": "amazon",
+        "preco": 78.61,
+        "url": "https://www.amazon.com.br/dp/B0HJPRRNTL"
+      },
+      {
+        "nome": "Box 3 Livros George Orwell: 1984 + Revolução dos Bichos + Ensaios (Pé da Letra)",
+        "fonte": "amazon",
+        "preco": 39.9,
+        "url": "https://www.amazon.com.br/dp/6558888572"
+      },
+      {
+        "nome": "George Orwell - 1984 + A revolução dos bichos: Kit com 2 livros, postais e marcadores",
+        "fonte": "amazon",
+        "preco": 49.7,
+        "url": "https://www.amazon.com.br/dp/6587034284"
+      },
+      {
+        "nome": "Kit de Livros George Orwell (1984 + a Revolução dos Bichos + Dentro da Baleia e Outros Ensaios)",
+        "fonte": "amazon",
+        "preco": 52.52,
+        "url": "https://www.amazon.com.br/dp/8900002368"
+      },
+      {
+        "nome": "1984 Deluxe Edition: George Orwell's Timeless Dystopian Masterpiece of Big Brother, Thought Control, and Forbidden Love",
+        "fonte": "amazon",
+        "preco": 127.35,
+        "url": "https://www.amazon.com.br/dp/0358375401"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": true
+  },
+  {
+    "modo": "logado",
+    "consulta": "cabo SCSI HD68",
+    "id": "01a1315e-701c-7266-adf3-691ce937c98f",
+    "segundos": 7.2,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "IBM Cabo 4,5 M SCSI L3S VHDCI/HD68",
+        "fonte": "amazon",
+        "preco": 1280.11,
+        "url": "https://www.amazon.com.br/dp/B000HAUSJ6"
+      },
+      {
+        "nome": "Iomega Cabo 33162 Rev SCSI 1 metro Vhdci Offset para HD68 Am",
+        "fonte": "amazon",
+        "preco": 637.56,
+        "url": "https://www.amazon.com.br/dp/B0007WY548"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": true
+  },
+  {
+    "modo": "logado",
+    "consulta": "ssd kingston nv3 1tb",
+    "id": "01a1315e-92cd-750d-b3fb-99a567e9726f",
+    "segundos": 4.6,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": false,
+    "fontesSucesso": 0,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "Hd SSD M.2 1TB Nv3 Gen4 6000-4000 Mb/s Snv3s/1000g Kingston",
+        "fonte": "kabum",
+        "preco": 1305,
+        "url": "https://www.kabum.com.br/produto/753550/ssd-kingston-nv3-1tb-m-2-2280-pcie-4-0-nvme-leitura-6000mb-s-gravacao-4000mb-s"
+      },
+      {
+        "nome": "Kingston NV3 1TB M.2 2230 NVMe SSD | Até 6000MB/s | SNV3SM3/1T0",
+        "fonte": "amazon",
+        "preco": 1519.05,
+        "url": "https://www.amazon.com.br/dp/B0FD2LGBZF"
+      },
+      {
+        "nome": "SSD M.2 1TB Kingston Nv3 Mini 2230 Nvme PCie 4.0 Snv3sm3/1t0 6000/4000 Mb/s",
+        "fonte": "kabum",
+        "preco": 2106.33,
+        "url": "https://www.kabum.com.br/produto/914128/ssd-m-2-1tb-kingston-nv3-mini-2230-nvme-pcie-4-0-snv3sm3-1t0-6000-4000-mb-s"
+      },
+      {
+        "nome": "SSD Kingston Nv3 1TB M.2 2280 Nvme Gen4, Desempenho E Eficiência Para Upgrade De PC – Snv3s/1000g",
+        "fonte": "kabum",
+        "preco": 1139.05,
+        "url": "https://www.kabum.com.br/produto/1021928/ssd-kingston-nv3-1tb-m-2-2280-nvme-gen4-desempenho-e-eficiencia-para-upgrade-de-pc-snv3s-1000g"
+      },
+      {
+        "nome": "SSD Kingston NV3 1TB M.2 2280 NVMe Gen4, Desempenho e Eficiência para Upgrade de PC – SNV3S/1000G",
+        "fonte": "amazon",
+        "preco": 930.05,
+        "url": "https://www.amazon.com.br/dp/B0DBR3DZWG"
+      },
+      {
+        "nome": "SSD Kingston 1TB Nv3 M.2 Nvme PCIe 4, Leitura 6000MB/s, Gravação 4000MB/s, Ultra Rápido - Snv3s/1000g",
+        "fonte": "kabum",
+        "preco": 1032.13,
+        "url": "https://www.kabum.com.br/produto/633107/ssd-kingston-1tb-padrao-nv3-m-2-2280-nvme-4-0-gen-4x4-leitura-6000-e-gravacao-4000mbps-ultra-rapido-snv3s-1000g"
+      },
+      {
+        "nome": "SSD Kingston NV3, 1TB, M.2 2230, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Gravação: 5000 MB/s - SNV3SM3/1T0",
+        "fonte": "kabum",
+        "preco": 1699.99,
+        "url": "https://www.kabum.com.br/produto/885085/ssd-kingston-nv3-1tb-m-2-2230-nvme-pcie-4-0-leitura-6-000-mb-s-gravacao-5-000-mb-s-snv3sm3-1t0"
+      },
+      {
+        "nome": "SSD Kingston NV3, 1TB, M.2 2280, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Gravação: 4000 MB/s, Azul - SNV3S/1000G",
+        "fonte": "kabum",
+        "preco": 1199.99,
+        "url": "https://www.kabum.com.br/produto/621162/ssd-kingston-nv3-1-tb-m-2-2280-pcie-4-0-x4-nvme-leitura-6000-mb-s-gravacao-4000-mb-s-azul-snv3s-1000g"
+      },
+      {
+        "nome": "RLSOCO Estojo rígido para SSD Kingston NV3 / NV2 M.2 2280 NVMe Gen4 500GB/1TB/2TB & para Western Digital SSD interno WD Green SN350 / SN3000 (apenas estojo)",
+        "fonte": "amazon",
+        "preco": 98.03,
+        "url": "https://www.amazon.com.br/dp/B0D1KCQX6S"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": true
+  },
+  {
+    "modo": "logado",
+    "consulta": "verumproduto inexistente928477",
+    "id": "01a1315e-ab55-73d8-865c-4724e2b5d435",
+    "segundos": 32.6,
+    "status": "ConcluidaSemResultado",
+    "motivo": "ProdutoSemOfertas",
+    "parcial": true,
+    "fontesSucesso": 1,
+    "fontesFalha": 1,
+    "ofertas": [],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": true
+  },
+  {
+    "modo": "deslogado",
+    "consulta": "O homem mais rico da Babilônia",
+    "id": "01a1315f-318d-756b-9fc0-825c7cdd1e98",
+    "segundos": 5.3,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": false,
+    "fontesSucesso": 0,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "O Homem Mais Rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 29.9,
+        "url": "https://www.amazon.com.br/dp/8522031517"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 19.14,
+        "url": "https://www.amazon.com.br/dp/8595081530"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia",
+        "fonte": "amazon",
+        "preco": 1277,
+        "url": "https://www.amazon.com.br/dp/B001G8WTRM"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilonia",
+        "fonte": "amazon",
+        "preco": 12.34,
+        "url": "https://www.amazon.com.br/dp/B0H25XM3G1"
+      },
+      {
+        "nome": "HOMEM MAIS RICO DA BABILONIA, O - ED. ECONOMICA",
+        "fonte": "amazon",
+        "preco": 23,
+        "url": "https://www.amazon.com.br/dp/6555110473"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia (Portuguese Edition)",
+        "fonte": "amazon",
+        "preco": 65.9,
+        "url": "https://www.amazon.com.br/dp/B0FXGGP72S"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia: Uma Recontagem Moderna",
+        "fonte": "amazon",
+        "preco": 117.07,
+        "url": "https://www.amazon.com.br/dp/6501171814"
+      },
+      {
+        "nome": "O homem mais rico da Babilônia: plano de ação",
+        "fonte": "amazon",
+        "preco": 18.44,
+        "url": "https://www.amazon.com.br/dp/6550472199"
+      },
+      {
+        "nome": "O HOMEM MAIS RICO DA BABILÔNIA - GEORGE S. CLASON",
+        "fonte": "amazon",
+        "preco": 19,
+        "url": "https://www.amazon.com.br/dp/6559575527"
+      },
+      {
+        "nome": "O Homem Mais Rico Da Babilônia, A Psicologia Financeira Kit",
+        "fonte": "amazon",
+        "preco": 71.63,
+        "url": "https://www.amazon.com.br/dp/8900006312"
+      },
+      {
+        "nome": "Kit Design: O homem mais rico da Babilônia + 1 livro",
+        "fonte": "amazon",
+        "preco": 70.6,
+        "url": "https://www.amazon.com.br/dp/B0HM9GS2NY"
+      },
+      {
+        "nome": "O Homem Mais Rico da Babilônia: Nova Tradução + Bônus (Portuguese Edition)",
+        "fonte": "amazon",
+        "preco": 86.13,
+        "url": "https://www.amazon.com.br/dp/6500719557"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "deslogado",
+    "consulta": "1984 George Orwell",
+    "id": "01a1315f-4d40-7fee-84e8-8ec1bf2aea51",
+    "segundos": 5.3,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": false,
+    "fontesSucesso": 0,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "George Orwell - 1984",
+        "fonte": "amazon",
+        "preco": 23.54,
+        "url": "https://www.amazon.com.br/dp/655888061X"
+      },
+      {
+        "nome": "1984 George Orwell - Nineteen Eighty-Four - Paperback",
+        "fonte": "amazon",
+        "preco": 85.51,
+        "url": "https://www.amazon.com.br/dp/605746222X"
+      },
+      {
+        "nome": "1984 - Clássicos da literatura mundial - Autor George Orwell",
+        "fonte": "amazon",
+        "preco": 39.9,
+        "url": "https://www.amazon.com.br/dp/6555793341"
+      },
+      {
+        "nome": "Julia: Uma releitura feminista do clássico 1984 de George Orwell",
+        "fonte": "amazon",
+        "preco": 55.73,
+        "url": "https://www.amazon.com.br/dp/6556220795"
+      },
+      {
+        "nome": "George Orwell: 1984 + A revolução dos bichos: 2 em 1",
+        "fonte": "amazon",
+        "preco": 35.95,
+        "url": "https://www.amazon.com.br/dp/6587885349"
+      },
+      {
+        "nome": "George Orwell 2-Book Boxed Set: 1984 and Animal Farm",
+        "fonte": "amazon",
+        "preco": 114.95,
+        "url": "https://www.amazon.com.br/dp/B0F3C66NFS"
+      },
+      {
+        "nome": "1984 - O CLÁSSICO DISTÓPICO DE GEORGE ORWELL EM UMA EDIÇÃO DARK",
+        "fonte": "amazon",
+        "preco": 72.65,
+        "url": "https://www.amazon.com.br/dp/6555981520"
+      },
+      {
+        "nome": "Kit George Orwell + George Orwell - a Flor + George + George Orwell - 1984",
+        "fonte": "amazon",
+        "preco": 78.61,
+        "url": "https://www.amazon.com.br/dp/B0HJPRRNTL"
+      },
+      {
+        "nome": "Box 3 Livros George Orwell: 1984 + Revolução dos Bichos + Ensaios (Pé da Letra)",
+        "fonte": "amazon",
+        "preco": 39.9,
+        "url": "https://www.amazon.com.br/dp/6558888572"
+      },
+      {
+        "nome": "George Orwell - 1984 + A revolução dos bichos: Kit com 2 livros, postais e marcadores",
+        "fonte": "amazon",
+        "preco": 49.7,
+        "url": "https://www.amazon.com.br/dp/6587034284"
+      },
+      {
+        "nome": "Kit de Livros George Orwell (1984 + a Revolução dos Bichos + Dentro da Baleia e Outros Ensaios)",
+        "fonte": "amazon",
+        "preco": 52.52,
+        "url": "https://www.amazon.com.br/dp/8900002368"
+      },
+      {
+        "nome": "1984 Deluxe Edition: George Orwell's Timeless Dystopian Masterpiece of Big Brother, Thought Control, and Forbidden Love",
+        "fonte": "amazon",
+        "preco": 127.35,
+        "url": "https://www.amazon.com.br/dp/0358375401"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "deslogado",
+    "consulta": "cabo SCSI HD68",
+    "id": "01a1315f-6914-7ce4-8bf4-74c294a578e9",
+    "segundos": 7.9,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": true,
+    "fontesSucesso": 2,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "IBM Cabo 4,5 M SCSI L3S VHDCI/HD68",
+        "fonte": "amazon",
+        "preco": 1280.11,
+        "url": "https://www.amazon.com.br/dp/B000HAUSJ6"
+      },
+      {
+        "nome": "Iomega Cabo 33162 Rev SCSI 1 metro Vhdci Offset para HD68 Am",
+        "fonte": "amazon",
+        "preco": 637.56,
+        "url": "https://www.amazon.com.br/dp/B0007WY548"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "deslogado",
+    "consulta": "ssd kingston nv3 1tb",
+    "id": "01a1315f-8ebd-7d7e-9cc9-427b31603895",
+    "segundos": 5.3,
+    "status": "Concluida",
+    "motivo": null,
+    "parcial": false,
+    "fontesSucesso": 0,
+    "fontesFalha": 0,
+    "ofertas": [
+      {
+        "nome": "Hd SSD M.2 1TB Nv3 Gen4 6000-4000 Mb/s Snv3s/1000g Kingston",
+        "fonte": "kabum",
+        "preco": 1305,
+        "url": "https://www.kabum.com.br/produto/753550/ssd-kingston-nv3-1tb-m-2-2280-pcie-4-0-nvme-leitura-6000mb-s-gravacao-4000mb-s"
+      },
+      {
+        "nome": "Kingston NV3 1TB M.2 2230 NVMe SSD | Até 6000MB/s | SNV3SM3/1T0",
+        "fonte": "amazon",
+        "preco": 1519.05,
+        "url": "https://www.amazon.com.br/dp/B0FD2LGBZF"
+      },
+      {
+        "nome": "SSD M.2 1TB Kingston Nv3 Mini 2230 Nvme PCie 4.0 Snv3sm3/1t0 6000/4000 Mb/s",
+        "fonte": "kabum",
+        "preco": 2106.33,
+        "url": "https://www.kabum.com.br/produto/914128/ssd-m-2-1tb-kingston-nv3-mini-2230-nvme-pcie-4-0-snv3sm3-1t0-6000-4000-mb-s"
+      },
+      {
+        "nome": "SSD Kingston Nv3 1TB M.2 2280 Nvme Gen4, Desempenho E Eficiência Para Upgrade De PC – Snv3s/1000g",
+        "fonte": "kabum",
+        "preco": 1139.05,
+        "url": "https://www.kabum.com.br/produto/1021928/ssd-kingston-nv3-1tb-m-2-2280-nvme-gen4-desempenho-e-eficiencia-para-upgrade-de-pc-snv3s-1000g"
+      },
+      {
+        "nome": "SSD Kingston NV3 1TB M.2 2280 NVMe Gen4, Desempenho e Eficiência para Upgrade de PC – SNV3S/1000G",
+        "fonte": "amazon",
+        "preco": 930.05,
+        "url": "https://www.amazon.com.br/dp/B0DBR3DZWG"
+      },
+      {
+        "nome": "SSD Kingston 1TB Nv3 M.2 Nvme PCIe 4, Leitura 6000MB/s, Gravação 4000MB/s, Ultra Rápido - Snv3s/1000g",
+        "fonte": "kabum",
+        "preco": 1032.13,
+        "url": "https://www.kabum.com.br/produto/633107/ssd-kingston-1tb-padrao-nv3-m-2-2280-nvme-4-0-gen-4x4-leitura-6000-e-gravacao-4000mbps-ultra-rapido-snv3s-1000g"
+      },
+      {
+        "nome": "SSD Kingston NV3, 1TB, M.2 2230, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Gravação: 5000 MB/s - SNV3SM3/1T0",
+        "fonte": "kabum",
+        "preco": 1699.99,
+        "url": "https://www.kabum.com.br/produto/885085/ssd-kingston-nv3-1tb-m-2-2230-nvme-pcie-4-0-leitura-6-000-mb-s-gravacao-5-000-mb-s-snv3sm3-1t0"
+      },
+      {
+        "nome": "SSD Kingston NV3, 1TB, M.2 2280, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Gravação: 4000 MB/s, Azul - SNV3S/1000G",
+        "fonte": "kabum",
+        "preco": 1199.99,
+        "url": "https://www.kabum.com.br/produto/621162/ssd-kingston-nv3-1-tb-m-2-2280-pcie-4-0-x4-nvme-leitura-6000-mb-s-gravacao-4000-mb-s-azul-snv3s-1000g"
+      },
+      {
+        "nome": "RLSOCO Estojo rígido para SSD Kingston NV3 / NV2 M.2 2280 NVMe Gen4 500GB/1TB/2TB & para Western Digital SSD interno WD Green SN350 / SN3000 (apenas estojo)",
+        "fonte": "amazon",
+        "preco": 98.03,
+        "url": "https://www.amazon.com.br/dp/B0D1KCQX6S"
+      }
+    ],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  },
+  {
+    "modo": "deslogado",
+    "consulta": "verumproduto inexistente928477",
+    "id": "01a1315f-aa4e-79a5-869b-52e437135d8c",
+    "segundos": 32.6,
+    "status": "ConcluidaSemResultado",
+    "motivo": "ProdutoSemOfertas",
+    "parcial": true,
+    "fontesSucesso": 1,
+    "fontesFalha": 1,
+    "ofertas": [],
+    "idempotencia": true,
+    "propriedade": true,
+    "cota": true,
+    "bearer": false
+  }
+]

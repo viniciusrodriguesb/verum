@@ -23,7 +23,7 @@ import {
   LucideStar,
   LucideTag,
 } from '@lucide/angular';
-import { startWith } from 'rxjs';
+import { map, startWith, timer } from 'rxjs';
 
 import { BuscaConsulta } from '../dtos/busca-consulta.dto';
 import { BuscasService } from '../services/buscas.service';
@@ -31,8 +31,8 @@ import { mensagemErroBusca } from '../utils/mensagem-erro-busca';
 import { apresentarOferta } from './mappers/oferta-apresentacao.mapper';
 import { EMPTY, switchMap } from 'rxjs';
 
-import { Header } from '@shared/components/header/header';
-import { NavegacaoMobileComponent } from '@shared/components/navegacao-mobile/navegacao-mobile';
+import { Header } from '@core/components/header/header';
+import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
 
 import { OfertaResultado } from './models/oferta-resultado.model';
 import { normalizarTermoBusca, validarTermoBusca } from '../validators/termo-busca.validator';
@@ -135,8 +135,16 @@ export class ResultadosComponent {
     },
   ];
 
+  private readonly agora = toSignal(timer(0, 10000).pipe(map(() => Date.now())), {
+    initialValue: Date.now(),
+  });
+
   private readonly ofertas = computed(() =>
-    (this.resultado()?.ofertas ?? []).map(apresentarOferta),
+    (this.resultado()?.ofertas ?? []).map((oferta) => apresentarOferta(oferta, this.agora())),
+  );
+
+  protected readonly quantidadeOfertasVencidas = computed(
+    () => this.ofertas().filter((oferta) => oferta.vencida).length,
   );
 
   protected readonly ofertasExibidas = computed(() => {

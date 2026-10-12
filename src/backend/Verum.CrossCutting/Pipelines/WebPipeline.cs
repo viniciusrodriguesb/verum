@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Routing;
 
 namespace Verum.CrossCutting.Pipelines;
 
@@ -10,6 +11,8 @@ public static class WebPipeline
   public static IServiceCollection AddVerumWeb(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddControllers();
+
+    services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
     services.AddOpenApi();
 

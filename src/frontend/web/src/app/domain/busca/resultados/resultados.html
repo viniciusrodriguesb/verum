@@ -126,6 +126,13 @@
       O prazo terminou. As ofertas encontradas foram preservadas.
     </p>
   }
+  @if (quantidadeOfertasVencidas() > 0) {
+    <p role="status" class="mx-auto max-w-7xl px-5 py-3 text-sm text-amber-800">
+      {{ quantidadeOfertasVencidas() }} oferta(s) com validade vencida. Os preços foram preservados
+      como registro da busca e podem ter mudado. Consulte a loja ou faça uma nova busca para obter
+      ofertas atualizadas.
+    </p>
+  }
   <section class="bg-slate-50/40">
     <div
       class="mx-auto grid max-w-7xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[272px_minmax(0,1fr)] lg:px-8 lg:py-5"

@@ -22,7 +22,7 @@ import {
 
 import { IlustracaoRadarComponent } from '@shared/components/ilustracao-radar/ilustracao-radar';
 
-import { Header } from '@shared/components/header/header';
+import { Header } from '@core/components/header/header';
 
 import { normalizarTermoBusca, validarTermoBusca } from '../validators/termo-busca.validator';
 

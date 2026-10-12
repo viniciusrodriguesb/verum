@@ -1,0 +1,679 @@
+[
+  {
+    "consulta": "O homem mais rico da Babil\u00F4nia",
+    "segundos": 9.02,
+    "fontes": [
+      {
+        "Fonte": "kabum",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 0,
+        "Aceitos": 0,
+        "Codigo": null,
+        "IniciadaEm": "2026-10-12T18:17:20.5203995+00:00",
+        "FinalizadaEm": "2026-10-12T18:17:24.571236+00:00"
+      },
+      {
+        "Fonte": "amazon",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 96,
+        "Aceitos": 60,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:17:20.5646991+00:00",
+        "FinalizadaEm": "2026-10-12T18:17:29.5384978+00:00"
+      }
+    ],
+    "ofertas": [
+      {
+        "Nome": "O homem mais rico da Babil\u00F4nia",
+        "Fonte": "amazon",
+        "Preco": 19.14,
+        "Url": "https://www.amazon.com.br/dp/8595081530"
+      },
+      {
+        "Nome": "As pr\u00E1ticas para a prosperidade de o homem mais rico da Babil\u00F4nia de George S. Clason",
+        "Fonte": "amazon",
+        "Preco": 12.32,
+        "Url": "https://www.amazon.com.br/dp/6559573656"
+      },
+      {
+        "Nome": "O homem mais rico da Babil\u00F4nia: com pref\u00E1cio de Thiago Nigro",
+        "Fonte": "amazon",
+        "Preco": 33.77,
+        "Url": "https://www.amazon.com.br/dp/6555111542"
+      },
+      {
+        "Nome": "HOMEM MAIS RICO DA BABILONIA, O - ED. ECONOMICA",
+        "Fonte": "amazon",
+        "Preco": 23.00,
+        "Url": "https://www.amazon.com.br/dp/6555110473"
+      },
+      {
+        "Nome": "Kit a Arte da Guerra \u002B o Homem Mais Rico da Babil\u00F4nia \u002B a Arte de Argumentar - 3 Livros [Paperback] EQUIPE EDITORIAL",
+        "Fonte": "amazon",
+        "Preco": 37.90,
+        "Url": "https://www.amazon.com.br/dp/B0H9VK7LG5"
+      },
+      {
+        "Nome": "As pr\u00E1ticas para a prosperidade de O homem mais rico da Babil\u00F4nia de George S. Clason - capa dura",
+        "Fonte": "amazon",
+        "Preco": 19.00,
+        "Url": "https://www.amazon.com.br/dp/6559577627"
+      },
+      {
+        "Nome": "Kit 2 Livros - o Homem Mais Rico da Babilonia e as Praticas para a Prosperidade",
+        "Fonte": "amazon",
+        "Preco": 39.90,
+        "Url": "https://www.amazon.com.br/dp/B0HLPMQ1RW"
+      },
+      {
+        "Nome": "O homem mais rico da Babil\u00F4nia: plano de a\u00E7\u00E3o",
+        "Fonte": "amazon",
+        "Preco": 18.44,
+        "Url": "https://www.amazon.com.br/dp/6550472199"
+      },
+      {
+        "Nome": "O Homem Mais Rico Da Babil\u00F4nia Os Segredos Da Mente Milion\u00E1ria A Psicologia Financeira",
+        "Fonte": "amazon",
+        "Preco": 118.22,
+        "Url": "https://www.amazon.com.br/dp/8900006894"
+      },
+      {
+        "Nome": "O Homem Mais Rico Da Babil\u00F4nia, A Psicologia Financeira Kit",
+        "Fonte": "amazon",
+        "Preco": 71.63,
+        "Url": "https://www.amazon.com.br/dp/8900006312"
+      },
+      {
+        "Nome": "O Homem Mais Rico da Babil\u00F4nia",
+        "Fonte": "amazon",
+        "Preco": 29.90,
+        "Url": "https://www.amazon.com.br/dp/8522031517"
+      },
+      {
+        "Nome": "2 Livros - O homem mais rico da Babil\u00F4nia \u002B Mais esperto que o Diabo: O mist\u00E9rio revelado da liberdade e do sucesso",
+        "Fonte": "amazon",
+        "Preco": 47.40,
+        "Url": "https://www.amazon.com.br/dp/B0B48G5VW8"
+      },
+      {
+        "Nome": "O Homem Mais Rico da Babil\u00F4nia: Nova Tradu\u00E7\u00E3o \u002B B\u00F4nus (Portuguese Edition)",
+        "Fonte": "amazon",
+        "Preco": 86.13,
+        "Url": "https://www.amazon.com.br/dp/6500719557"
+      },
+      {
+        "Nome": "O Homem Mais Rico da Babilonia",
+        "Fonte": "amazon",
+        "Preco": 12.34,
+        "Url": "https://www.amazon.com.br/dp/B0H25XM3G1"
+      },
+      {
+        "Nome": "O HOMEM MAIS RICO DA BABIL\u00D4NIA - GEORGE S. CLASON",
+        "Fonte": "amazon",
+        "Preco": 19.00,
+        "Url": "https://www.amazon.com.br/dp/6559575527"
+      },
+      {
+        "Nome": "Kit o Homem Mais Rico da Babil\u00F4nia \u002B o Pr\u00EDncipe \u002B a Arte da Sabedoria 3 Livros Estrat\u00E9gia, Riqueza e Reflex\u00E3o",
+        "Fonte": "amazon",
+        "Preco": 39.90,
+        "Url": "https://www.amazon.com.br/dp/B0HLNSW8HZ"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Deixe de ser pobre \u002B A virada de chave",
+        "Fonte": "amazon",
+        "Preco": 98.07,
+        "Url": "https://www.amazon.com.br/dp/8900111841"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Quem pensa enriquece \u002B Mais esperto qu",
+        "Fonte": "amazon",
+        "Preco": 75.91,
+        "Url": "https://www.amazon.com.br/dp/8900240471"
+      },
+      {
+        "Nome": "Kit OS SEGREDOS DA MENTE MILION\u00C1RIA e O HOMEM MAIS RICO DA BABIL\u00D4NIA",
+        "Fonte": "amazon",
+        "Preco": 66.40,
+        "Url": "https://www.amazon.com.br/dp/0001761684"
+      },
+      {
+        "Nome": "Kit O Homem mais rico da Babilonia \u002B Os Segredos da Mente Milionaria \u002B Psicologia Financeira - 3 livros",
+        "Fonte": "amazon",
+        "Preco": 113.88,
+        "Url": "https://www.amazon.com.br/dp/0001891715"
+      },
+      {
+        "Nome": "Kit O HOMEM MAIS RICO DA BABIL\u00D4NIA e Quem pensa enriquece - O legado",
+        "Fonte": "amazon",
+        "Preco": 56.71,
+        "Url": "https://www.amazon.com.br/dp/0001746057"
+      },
+      {
+        "Nome": "Kit 02 Livros | Do Mil ao Milh\u00E3o \u002B O Homem mais Rico da Babil\u00F4nia",
+        "Fonte": "amazon",
+        "Preco": 74.00,
+        "Url": "https://www.amazon.com.br/dp/B0B7CDJCVY"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Mentes Extraordin\u00E1rias \u002B Kit napoleon",
+        "Fonte": "amazon",
+        "Preco": 129.48,
+        "Url": "https://www.amazon.com.br/dp/8900240501"
+      },
+      {
+        "Nome": "Kit o Pr\u00EDncipe \u002B o Homem Mais Rico da Babil\u00F4nia - 2 Livros",
+        "Fonte": "amazon",
+        "Preco": 29.90,
+        "Url": "https://www.amazon.com.br/dp/B0H9V14F4F"
+      },
+      {
+        "Nome": "Kit 365 H\u00E1bitos Simples \u002B O homem mais rico da Babil\u00F4nia \u002B As pr\u00E1ticas",
+        "Fonte": "amazon",
+        "Preco": 78.90,
+        "Url": "https://www.amazon.com.br/dp/8900239805"
+      },
+      {
+        "Nome": "Kit A psicologia financeira \u002B O homem mais rico da Babil\u00F4nia \u002B As pr\u00E1ticas",
+        "Fonte": "amazon",
+        "Preco": 114.43,
+        "Url": "https://www.amazon.com.br/dp/8900099744"
+      },
+      {
+        "Nome": "O Homem Mais Rico da Babil\u00F4nia: Uma Recontagem Moderna",
+        "Fonte": "amazon",
+        "Preco": 117.07,
+        "Url": "https://www.amazon.com.br/dp/6501171814"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Pai Ed. rev. \u002B Pai rico \u002B 1 livros",
+        "Fonte": "amazon",
+        "Preco": 216.64,
+        "Url": "https://www.amazon.com.br/dp/8900889702"
+      },
+      {
+        "Nome": "Kit: O homem mais rico da Babil\u00F4nia \u002B Os segredos da mente milion\u00E1ria",
+        "Fonte": "amazon",
+        "Preco": 64.31,
+        "Url": "https://www.amazon.com.br/dp/0001852442"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico Da Babil\u00F4nia \u002B Deixe De Ser Pobre \u002B A Virada De",
+        "Fonte": "amazon",
+        "Preco": 95.51,
+        "Url": "https://www.amazon.com.br/dp/B0HM965F6D"
+      },
+      {
+        "Nome": "Kit O Homem Mais Rico Da Babil\u00F4nia \u002B Mais Esperto Que O Diabo",
+        "Fonte": "amazon",
+        "Preco": 63.46,
+        "Url": "https://www.amazon.com.br/dp/B0F63KZSS2"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B A arte \u002B Na volta a gente \u002B 1 livros",
+        "Fonte": "amazon",
+        "Preco": 179.82,
+        "Url": "https://www.amazon.com.br/dp/8900889672"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Mais esperto que o diabo \u002B Quem pensa",
+        "Fonte": "amazon",
+        "Preco": 106.67,
+        "Url": "https://www.amazon.com.br/dp/8900240528"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Mais esperto que o diabo \u002B Quem pensa",
+        "Fonte": "amazon",
+        "Preco": 109.63,
+        "Url": "https://www.amazon.com.br/dp/8900240455"
+      },
+      {
+        "Nome": "O homem mais rico da Babil\u00F4nia",
+        "Fonte": "amazon",
+        "Preco": 1277.00,
+        "Url": "https://www.amazon.com.br/dp/B001G8WTRM"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico \u002B As Pr\u00E1ticas \u002B O Homem Mais Rico Da Babil\u00F4nia",
+        "Fonte": "amazon",
+        "Preco": 82.46,
+        "Url": "https://www.amazon.com.br/dp/B0HM9J6RR2"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico Da Babil\u00F4nia \u002B Quem Pensa Enriquece \u002B Mais Esperto",
+        "Fonte": "amazon",
+        "Preco": 75.91,
+        "Url": "https://www.amazon.com.br/dp/B0HM9N9CTN"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B O homem que comprou o tempo \u002B Em nome",
+        "Fonte": "amazon",
+        "Preco": 119.72,
+        "Url": "https://www.amazon.com.br/dp/890024034X"
+      },
+      {
+        "Nome": "Kit A psicologia financeira \u002B O homem mais rico da Babil\u00F4nia \u002B Os segredos",
+        "Fonte": "amazon",
+        "Preco": 122.26,
+        "Url": "https://www.amazon.com.br/dp/890023496X"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Mira na Independ\u00EAncia \u002B Fa\u00E7a as pazes",
+        "Fonte": "amazon",
+        "Preco": 119.25,
+        "Url": "https://www.amazon.com.br/dp/8900111809"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico Da Babil\u00F4nia \u002B O Poder Do Decreto",
+        "Fonte": "amazon",
+        "Preco": 77.16,
+        "Url": "https://www.amazon.com.br/dp/B0HM9SD1WG"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B O homem que comprou o tempo \u002B Recalcul",
+        "Fonte": "amazon",
+        "Preco": 138.94,
+        "Url": "https://www.amazon.com.br/dp/890024048X"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B O monge \u002B De volta \u002B 1 livros",
+        "Fonte": "amazon",
+        "Preco": 158.16,
+        "Url": "https://www.amazon.com.br/dp/8900889664"
+      },
+      {
+        "Nome": "Kit A psicologia financeira \u002B O homem mais rico da Babil\u00F4nia \u002B Deixe de ser",
+        "Fonte": "amazon",
+        "Preco": 105.03,
+        "Url": "https://www.amazon.com.br/dp/8900235036"
+      },
+      {
+        "Nome": "Kit A psicologia financeira \u002B O homem mais rico da Babil\u00F4nia \u002B Os axiomas d",
+        "Fonte": "amazon",
+        "Preco": 125.71,
+        "Url": "https://www.amazon.com.br/dp/8900235052"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Jeff Bezos \u002B Os segredos \u002B 1 livros",
+        "Fonte": "amazon",
+        "Preco": 174.30,
+        "Url": "https://www.amazon.com.br/dp/8900889737"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico Da Babil\u00F4nia \u002B Mais Esperto Que O Diabo \u002B A Arte",
+        "Fonte": "amazon",
+        "Preco": 92.83,
+        "Url": "https://www.amazon.com.br/dp/B0HM9G1KW5"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Chefe de mim \u002B A virada de chave",
+        "Fonte": "amazon",
+        "Preco": 110.87,
+        "Url": "https://www.amazon.com.br/dp/B0HLYF9F1M"
+      },
+      {
+        "Nome": "Kit O homem mais rico \u002B As pr\u00E1ticas \u002B O homem mais rico da Babil\u00F4nia: plano",
+        "Fonte": "amazon",
+        "Preco": 82.46,
+        "Url": "https://www.amazon.com.br/dp/8900111744"
+      },
+      {
+        "Nome": "Kit A psicologia financeira \u002B O homem mais rico da Babil\u00F4nia \u002B Me Poupe!",
+        "Fonte": "amazon",
+        "Preco": 126.32,
+        "Url": "https://www.amazon.com.br/dp/8900235338"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico Da Babil\u00F4nia \u002B A Arte Capa Dura \u002B Capa Dura",
+        "Fonte": "amazon",
+        "Preco": 124.78,
+        "Url": "https://www.amazon.com.br/dp/B0HM966B7L"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico Da Babil\u00F4nia \u002B As Pr\u00E1ticas \u002B Cres\u00E7a E Enrique\u00E7a",
+        "Fonte": "amazon",
+        "Preco": 96.27,
+        "Url": "https://www.amazon.com.br/dp/B0HM991WF8"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B 7\u002B1 passos \u002B Os segredos \u002B 1 livros",
+        "Fonte": "amazon",
+        "Preco": 183.19,
+        "Url": "https://www.amazon.com.br/dp/8900889680"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico Da Babil\u00F4nia \u002B Mais Esperto Que O Diabo \u002B Quem (2)",
+        "Fonte": "amazon",
+        "Preco": 105.19,
+        "Url": "https://www.amazon.com.br/dp/B0HM9XTQML"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Compre bem para vender bem",
+        "Fonte": "amazon",
+        "Preco": 70.60,
+        "Url": "https://www.amazon.com.br/dp/8900111736"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Salom\u00E3o \u002B Jesus, o homem \u002B 2 livros",
+        "Fonte": "amazon",
+        "Preco": 206.12,
+        "Url": "https://www.amazon.com.br/dp/8900889729"
+      },
+      {
+        "Nome": "O Homem Mais Rico da Babil\u00F4nia (Portuguese Edition)",
+        "Fonte": "amazon",
+        "Preco": 65.90,
+        "Url": "https://www.amazon.com.br/dp/B0FXGGP72S"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B O poder do decreto",
+        "Fonte": "amazon",
+        "Preco": 77.16,
+        "Url": "https://www.amazon.com.br/dp/8900111817"
+      },
+      {
+        "Nome": "Combo O Homem Mais Rico Da Babil\u00F4nia \u002B Mais Esperto Que O Diabo \u002B Quem",
+        "Fonte": "amazon",
+        "Preco": 111.84,
+        "Url": "https://www.amazon.com.br/dp/B0HM9FJXLL"
+      },
+      {
+        "Nome": "Kit O homem mais rico da Babil\u00F4nia \u002B Mais esperto que o diabo \u002B A arte da g",
+        "Fonte": "amazon",
+        "Preco": 92.83,
+        "Url": "https://www.amazon.com.br/dp/890024051X"
+      }
+    ]
+  },
+  {
+    "consulta": "1984 George Orwell",
+    "segundos": 4.85,
+    "fontes": [
+      {
+        "Fonte": "kabum",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 0,
+        "Aceitos": 0,
+        "Codigo": null,
+        "IniciadaEm": "2026-10-12T18:17:29.546594+00:00",
+        "FinalizadaEm": "2026-10-12T18:17:30.1389748+00:00"
+      },
+      {
+        "Fonte": "amazon",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 96,
+        "Aceitos": 14,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:17:29.5470058+00:00",
+        "FinalizadaEm": "2026-10-12T18:17:34.3954213+00:00"
+      }
+    ],
+    "ofertas": [
+      {
+        "Nome": "1984 - O CL\u00C1SSICO DIST\u00D3PICO DE GEORGE ORWELL EM UMA EDI\u00C7\u00C3O DARK",
+        "Fonte": "amazon",
+        "Preco": 72.65,
+        "Url": "https://www.amazon.com.br/dp/6555981520"
+      },
+      {
+        "Nome": "1984 - George Orwell | Luxo Capa Dura",
+        "Fonte": "amazon",
+        "Preco": 42.73,
+        "Url": "https://www.amazon.com.br/dp/6583970236"
+      },
+      {
+        "Nome": "Box 3 Livros George Orwell: 1984 \u002B Revolu\u00E7\u00E3o dos Bichos \u002B Ensaios (P\u00E9 da Letra)",
+        "Fonte": "amazon",
+        "Preco": 39.90,
+        "Url": "https://www.amazon.com.br/dp/6558888572"
+      },
+      {
+        "Nome": "George Orwell - 1984",
+        "Fonte": "amazon",
+        "Preco": 23.54,
+        "Url": "https://www.amazon.com.br/dp/655888061X"
+      },
+      {
+        "Nome": "Kit de Livros George Orwell (1984 \u002B a Revolu\u00E7\u00E3o dos Bichos \u002B Dentro da Baleia e Outros Ensaios)",
+        "Fonte": "amazon",
+        "Preco": 52.52,
+        "Url": "https://www.amazon.com.br/dp/8900002368"
+      },
+      {
+        "Nome": "Livro 1984 de George Orwell Capa de Brochura Peperback com Verniz localizado Editora Carvalho",
+        "Fonte": "amazon",
+        "Preco": 15.00,
+        "Url": "https://www.amazon.com.br/dp/6559572005"
+      },
+      {
+        "Nome": "1984 George Orwell - Nineteen Eighty-Four - Paperback",
+        "Fonte": "amazon",
+        "Preco": 85.51,
+        "Url": "https://www.amazon.com.br/dp/605746222X"
+      },
+      {
+        "Nome": "George Orwell: 1984 \u002B A revolu\u00E7\u00E3o dos bichos: 2 em 1",
+        "Fonte": "amazon",
+        "Preco": 35.95,
+        "Url": "https://www.amazon.com.br/dp/6587885349"
+      },
+      {
+        "Nome": "1984 - Cl\u00E1ssicos da literatura mundial - Autor George Orwell",
+        "Fonte": "amazon",
+        "Preco": 39.90,
+        "Url": "https://www.amazon.com.br/dp/6555793341"
+      },
+      {
+        "Nome": "George Orwell - 1984 \u002B A revolu\u00E7\u00E3o dos bichos: Kit com 2 livros, postais e marcadores",
+        "Fonte": "amazon",
+        "Preco": 49.70,
+        "Url": "https://www.amazon.com.br/dp/6587034284"
+      },
+      {
+        "Nome": "Julia: Uma releitura feminista do cl\u00E1ssico 1984 de George Orwell",
+        "Fonte": "amazon",
+        "Preco": 55.73,
+        "Url": "https://www.amazon.com.br/dp/6556220795"
+      },
+      {
+        "Nome": "George Orwell 2-Book Boxed Set: 1984 and Animal Farm",
+        "Fonte": "amazon",
+        "Preco": 114.95,
+        "Url": "https://www.amazon.com.br/dp/B0F3C66NFS"
+      },
+      {
+        "Nome": "1984 Deluxe Edition: George Orwell\u0027s Timeless Dystopian Masterpiece of Big Brother, Thought Control, and Forbidden Love",
+        "Fonte": "amazon",
+        "Preco": 127.35,
+        "Url": "https://www.amazon.com.br/dp/0358375401"
+      },
+      {
+        "Nome": "Kit George Orwell \u002B George Orwell - a Flor \u002B George \u002B George Orwell - 1984",
+        "Fonte": "amazon",
+        "Preco": 78.61,
+        "Url": "https://www.amazon.com.br/dp/B0HJPRRNTL"
+      }
+    ]
+  },
+  {
+    "consulta": "cabo SCSI HD68",
+    "segundos": 4.39,
+    "fontes": [
+      {
+        "Fonte": "kabum",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 0,
+        "Aceitos": 0,
+        "Codigo": null,
+        "IniciadaEm": "2026-10-12T18:17:34.3957617+00:00",
+        "FinalizadaEm": "2026-10-12T18:17:35.2332567+00:00"
+      },
+      {
+        "Fonte": "amazon",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 96,
+        "Aceitos": 4,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:17:34.3968101+00:00",
+        "FinalizadaEm": "2026-10-12T18:17:38.788254+00:00"
+      }
+    ],
+    "ofertas": [
+      {
+        "Nome": "IBM Cabo 4,5 M SCSI L3S VHDCI/HD68",
+        "Fonte": "amazon",
+        "Preco": 1280.11,
+        "Url": "https://www.amazon.com.br/dp/B000HAUSJ6"
+      },
+      {
+        "Nome": "Iomega Cabo 33162 Rev SCSI 1 metro Vhdci Offset para HD68 Am",
+        "Fonte": "amazon",
+        "Preco": 637.56,
+        "Url": "https://www.amazon.com.br/dp/B0007WY548"
+      },
+      {
+        "Nome": "Cabo 2M W2H-2M-T Ultra SCSI Ext HD68M para HD50M com HGH Byt Rohs",
+        "Fonte": "amazon",
+        "Preco": 302.31,
+        "Url": "https://www.amazon.com.br/dp/B000FD9W6U"
+      },
+      {
+        "Nome": "Kit de cabo SCSI U160 LVD de 1,82 m Vhdci68m para Hd68m com termo ativo",
+        "Fonte": "amazon",
+        "Preco": 1396.17,
+        "Url": "https://www.amazon.com.br/dp/B000067VIE"
+      }
+    ]
+  },
+  {
+    "consulta": "ssd kingston nv3 1tb",
+    "segundos": 32.02,
+    "fontes": [
+      {
+        "Fonte": "kabum",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 100,
+        "Aceitos": 7,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:17:38.7884343+00:00",
+        "FinalizadaEm": "2026-10-12T18:18:10.8052869+00:00"
+      },
+      {
+        "Fonte": "amazon",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 108,
+        "Aceitos": 3,
+        "Codigo": "LIMITE_ATINGIDO",
+        "IniciadaEm": "2026-10-12T18:17:38.7888079+00:00",
+        "FinalizadaEm": "2026-10-12T18:17:43.7670821+00:00"
+      }
+    ],
+    "ofertas": [
+      {
+        "Nome": "SSD Kingston NV3, 1TB, M.2 2280, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Grava\u00E7\u00E3o: 4000 MB/s, Azul - SNV3S/1000G",
+        "Fonte": "kabum",
+        "Preco": 1199.99,
+        "Url": "https://www.kabum.com.br/produto/621162/ssd-kingston-nv3-1-tb-m-2-2280-pcie-4-0-x4-nvme-leitura-6000-mb-s-gravacao-4000-mb-s-azul-snv3s-1000g"
+      },
+      {
+        "Nome": "SSD Kingston 1TB Nv3 M.2 Nvme PCIe 4, Leitura 6000MB/s, Grava\u00E7\u00E3o 4000MB/s, Ultra R\u00E1pido - Snv3s/1000g",
+        "Fonte": "kabum",
+        "Preco": 1032.13,
+        "Url": "https://www.kabum.com.br/produto/633107/ssd-kingston-1tb-padrao-nv3-m-2-2280-nvme-4-0-gen-4x4-leitura-6000-e-gravacao-4000mbps-ultra-rapido-snv3s-1000g"
+      },
+      {
+        "Nome": "SSD Kingston Nv3 1TB M.2 2280 Nvme Gen4, Desempenho E Efici\u00EAncia Para Upgrade De PC \u2013 Snv3s/1000g",
+        "Fonte": "kabum",
+        "Preco": 1139.05,
+        "Url": "https://www.kabum.com.br/produto/1021928/ssd-kingston-nv3-1tb-m-2-2280-nvme-gen4-desempenho-e-eficiencia-para-upgrade-de-pc-snv3s-1000g"
+      },
+      {
+        "Nome": "SSD Kingston NV3, 1TB, M.2 2230, PCIe 4.0 x4, NVMe, Leitura: 6000 MB/s, Grava\u00E7\u00E3o: 5000 MB/s - SNV3SM3/1T0",
+        "Fonte": "kabum",
+        "Preco": 1699.99,
+        "Url": "https://www.kabum.com.br/produto/885085/ssd-kingston-nv3-1tb-m-2-2230-nvme-pcie-4-0-leitura-6-000-mb-s-gravacao-5-000-mb-s-snv3sm3-1t0"
+      },
+      {
+        "Nome": "Hd SSD M.2 1TB Nv3 Gen4 6000-4000 Mb/s Snv3s/1000g Kingston",
+        "Fonte": "kabum",
+        "Preco": 1305.00,
+        "Url": "https://www.kabum.com.br/produto/753550/ssd-kingston-nv3-1tb-m-2-2280-pcie-4-0-nvme-leitura-6000mb-s-gravacao-4000mb-s"
+      },
+      {
+        "Nome": "Ssd 2TB Kingston Nv1, M.2 2280, Nvme Pcie 3.0 X4, Leitura 2100MB/s, Grava\u00E7\u00E3o 1700MB/s - Snvs/2000g",
+        "Fonte": "kabum",
+        "Preco": 2203.05,
+        "Url": "https://www.kabum.com.br/produto/199892/ssd-2tb-kingston-nv1-m-2-2280-nvme-pcie-3-0-x4-leitura-2100mb-s-gravacao-1700mb-s-snvs-2000g"
+      },
+      {
+        "Nome": "SSD M.2 1TB Kingston Nv3 Mini 2230 Nvme PCie 4.0 Snv3sm3/1t0 6000/4000 Mb/s",
+        "Fonte": "kabum",
+        "Preco": 2106.33,
+        "Url": "https://www.kabum.com.br/produto/914128/ssd-m-2-1tb-kingston-nv3-mini-2230-nvme-pcie-4-0-snv3sm3-1t0-6000-4000-mb-s"
+      },
+      {
+        "Nome": "SSD Kingston NV3 1TB M.2 2280 NVMe Gen4, Desempenho e Efici\u00EAncia para Upgrade de PC \u2013 SNV3S/1000G",
+        "Fonte": "amazon",
+        "Preco": 930.05,
+        "Url": "https://www.amazon.com.br/dp/B0DBR3DZWG"
+      },
+      {
+        "Nome": "Kingston NV3 1TB M.2 2230 NVMe SSD | At\u00E9 6000MB/s | SNV3SM3/1T0",
+        "Fonte": "amazon",
+        "Preco": 1519.05,
+        "Url": "https://www.amazon.com.br/dp/B0FD2LGBZF"
+      },
+      {
+        "Nome": "RLSOCO Estojo r\u00EDgido para SSD Kingston NV3 / NV2 M.2 2280 NVMe Gen4 500GB/1TB/2TB \u0026 para Western Digital SSD interno WD Green SN350 / SN3000 (apenas estojo)",
+        "Fonte": "amazon",
+        "Preco": 98.03,
+        "Url": "https://www.amazon.com.br/dp/B0D1KCQX6S"
+      }
+    ]
+  },
+  {
+    "consulta": "verumprodutozzinexistente928477",
+    "segundos": 30.74,
+    "fontes": [
+      {
+        "Fonte": "kabum",
+        "OrigemIa": false,
+        "Status": "Concluida",
+        "Encontrados": 0,
+        "Aceitos": 0,
+        "Codigo": null,
+        "IniciadaEm": "2026-10-12T18:18:10.8055148+00:00",
+        "FinalizadaEm": "2026-10-12T18:18:11.3902904+00:00"
+      },
+      {
+        "Fonte": "amazon",
+        "OrigemIa": false,
+        "Status": "Falhou",
+        "Encontrados": 0,
+        "Aceitos": 0,
+        "Codigo": "TIMEOUT",
+        "IniciadaEm": "2026-10-12T18:18:10.805798+00:00",
+        "FinalizadaEm": "2026-10-12T18:18:41.5447937+00:00"
+      },
+      {
+        "Fonte": "ia",
+        "OrigemIa": true,
+        "Status": "Ignorada",
+        "Encontrados": 0,
+        "Aceitos": 0,
+        "Codigo": "IA_NAO_CONFIGURADA",
+        "IniciadaEm": "2026-10-12T18:18:41.5460776+00:00",
+        "FinalizadaEm": "2026-10-12T18:18:41.5461219+00:00"
+      }
+    ],
+    "ofertas": []
+  }
+]

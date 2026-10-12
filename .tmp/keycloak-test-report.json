@@ -1,0 +1,10 @@
+{
+  "cadastro": true,
+  "verificacaoEmail": true,
+  "loginPkceAssinaturaIssuerAudience": true,
+  "validacaoJwtAspNetCore": true,
+  "refresh": true,
+  "rejeitaSemPkceRedirectExternoEPasswordGrant": true,
+  "logout": true,
+  "recuperacaoSenha": true
+}

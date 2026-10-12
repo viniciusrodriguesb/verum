@@ -45,6 +45,21 @@ internal sealed class Conta
     ExcluidaEm = ValidarExcluidaEm(null);
   }
 
+  public void AtualizarPerfil(string email, string nomeExibicao)
+  {
+    var emailValidado = ValidarEmail(email);
+
+    var nomeValidado = ValidarNomeExibicao(nomeExibicao);
+
+    if (Email == emailValidado && NomeExibicao == nomeValidado) return;
+
+    Email = emailValidado;
+
+    NomeExibicao = nomeValidado;
+
+    AtualizadaEm = DateTimeOffset.UtcNow;
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

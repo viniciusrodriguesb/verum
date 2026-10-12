@@ -76,6 +76,18 @@ public sealed class RankingOfertasTests
     Assert.Equal(campo == "precoPix", oferta.CondicaoPreco.Contains("PIX"));
   }
 
+  [Theory]
+  [InlineData("ssd kingston nv3 1tb", "SSD Kingston NV3 1 TB", true)]
+  [InlineData("ssd kingston nv3 1tb", "SSD Kingston NV1 2TB PCIe 3.0", false)]
+  [InlineData("samsung s25", "Samsung Galaxy S24 25W", false)]
+  [InlineData("cabo scsi hd68", "Cabo SCSI HD50 68 pinos", false)]
+  [InlineData("O homem mais rico da Babilônia", "HOMEM MAIS RICO DA BABILONIA, O - ED. ECONOMICA", true)]
+  [InlineData("1984 George Orwell", "1984 - Autor George Orwell", true)]
+  public void PreservaModelosCapacidadesEAcentos(string consulta, string titulo, bool corresponde)
+  {
+    Assert.Equal(corresponde, NormalizacaoOferta.Corresponde(consulta, titulo));
+  }
+
   private static OfertaConsultada Oferta(string nome, decimal confianca) => new(
     Guid.NewGuid(), Guid.NewGuid(), nome, "https://loja.example/produto/" + Guid.NewGuid(), 500m,
     "Preço anunciado", null, "teste", confianca, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddMinutes(15));

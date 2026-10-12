@@ -15,7 +15,7 @@ internal static class NormalizacaoOferta
       .Normalize(NormalizationForm.FormC), @"\bps\s*5\b", "playstation 5"), @"\b(televisao|televisor|televisores)\b", "tv");
 
   private static string[] Tokens(string texto) =>
-    Regex.Matches(Regex.Replace(Normalizar(texto), @"([a-z])([0-9])|([0-9])([a-z])", "$1$3 $2$4"), @"[a-z0-9]+")
+    Regex.Matches(Regex.Replace(Normalizar(texto), @"\b(\d+)\s+(tb|gb|mb|mhz|ghz|hz|mm|cm|k)\b", "$1$2"), @"[a-z0-9]+")
       .Select(x => x.Value).ToArray();
 
   public static bool ConsultaEspecifica(string consulta) => Tokens(consulta).Length >= 2;

@@ -6,12 +6,20 @@ using Verum.Modules.Busca.Contratos.DTOs;
 
 namespace Verum.Api.Controllers;
 
-[ApiController]
 [AllowAnonymous]
-[Route("api/v1/buscas")]
-public sealed class BuscasController(IBuscaService buscas, IDataProtectionProvider protection) : ControllerBase
+public sealed class BuscasController(IBuscaService buscas, IDataProtectionProvider protection) : AppController
 {
   private const string CookieNome = "verum.visitante";
+
+  [HttpGet("visitante")]
+  public IActionResult PrepararVisitante()
+  {
+    Visitante(criar: true);
+
+    Response.Headers.CacheControl = "no-store";
+
+    return NoContent();
+  }
 
   [HttpPost]
   public async Task<IActionResult> Solicitar([FromBody] SolicitarBusca pedido, CancellationToken cancellationToken)
