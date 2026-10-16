@@ -22,7 +22,9 @@ const CORES_GRAFICO: Readonly<Record<CorGrafico, string>> = {
 })
 export class GraficoPrecoComponent {
   readonly identificador = input.required<string>();
+
   readonly pontos = input.required<string>();
+
   readonly cor = input.required<CorGrafico>();
 
   protected readonly corHexadecimal = computed(() => CORES_GRAFICO[this.cor()]);
@@ -35,7 +37,9 @@ export class GraficoPrecoComponent {
 
   protected readonly pontoFinal = computed<PontoGrafico>(() => {
     const pontosSeparados = this.pontos().trim().split(/\s+/);
+
     const ultimoPonto = pontosSeparados.at(-1) ?? '260,45';
+
     const [x, y] = ultimoPonto.split(',').map(Number);
 
     return {

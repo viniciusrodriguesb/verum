@@ -1,9 +1,9 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { AvisosApiService } from '@shared/services/avisos-api.service';
 import Keycloak from 'keycloak-js';
 import { AUTENTICACAO_CONFIG } from '../configuracoes/autenticacao.config';
 import { UsuarioAutenticado } from '../models/usuario-autenticado';
-import { AvisosApiService } from '@shared/services/avisos-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class AutenticacaoService {

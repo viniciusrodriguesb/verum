@@ -1,4 +1,3 @@
-import { IniciarBuscaService } from '../services/iniciar-busca.service';
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -19,6 +18,7 @@ import {
   LucideTag,
   LucideWatch,
 } from '@lucide/angular';
+import { IniciarBuscaService } from '../services/iniciar-busca.service';
 
 import { IlustracaoRadarComponent } from '@shared/components/ilustracao-radar/ilustracao-radar';
 

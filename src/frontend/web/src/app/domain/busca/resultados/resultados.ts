@@ -1,4 +1,3 @@
-import { IniciarBuscaService } from '../services/iniciar-busca.service';
 import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -23,20 +22,20 @@ import {
   LucideStar,
   LucideTag,
 } from '@lucide/angular';
-import { map, startWith, timer } from 'rxjs';
+import { EMPTY, map, startWith, switchMap, timer } from 'rxjs';
+import { IniciarBuscaService } from '../services/iniciar-busca.service';
 
 import { BuscaConsulta } from '../dtos/busca-consulta.dto';
 import { BuscasService } from '../services/buscas.service';
 import { mensagemErroBusca } from '../utils/mensagem-erro-busca';
 import { apresentarOferta } from './mappers/oferta-apresentacao.mapper';
-import { EMPTY, switchMap } from 'rxjs';
 
 import { Header } from '@core/components/header/header';
 import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
 
-import { OfertaResultado } from './models/oferta-resultado.model';
 import { normalizarTermoBusca, validarTermoBusca } from '../validators/termo-busca.validator';
 import { CartaoOfertaComponent } from './cartao-oferta/cartao-oferta';
+import { OfertaResultado } from './models/oferta-resultado.model';
 
 type OrdemResultado = 'melhor-escolha' | 'menor-preco' | 'mais-confiavel';
 
@@ -76,9 +75,11 @@ interface OpcaoOrdenacao {
 })
 export class ResultadosComponent {
   private readonly rota = inject(ActivatedRoute);
+
   private readonly roteador = inject(Router);
 
   protected readonly inicioBusca = inject(IniciarBuscaService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly inputBuscaDesktop =
@@ -263,9 +264,13 @@ export class ResultadosComponent {
         switchMap((parametros) => {
           this.resultado.set(null);
           this.erro.set(null);
+
           const consulta = parametros.get('q') ?? '';
+
           this.formularioBusca.controls.termo.setValue(consulta);
+
           const id = parametros.get('id');
+
           if (!id) {
             void this.roteador.navigate(['/']);
             return EMPTY;

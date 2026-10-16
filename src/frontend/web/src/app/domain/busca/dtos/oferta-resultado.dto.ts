@@ -1,3 +1,5 @@
+import { FundamentosRanking } from './fundamentos-ranking.dto';
+
 export interface OfertaResultado {
   readonly ofertaId: string;
   readonly varianteId: string;
@@ -15,4 +17,6 @@ export interface OfertaResultado {
   readonly pontuacaoPreco: number;
   readonly pontuacaoConfianca: number;
   readonly pontuacaoAtualizacao: number;
+
+  readonly fundamentos?: FundamentosRanking | null;
 }

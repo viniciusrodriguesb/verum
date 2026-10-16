@@ -1,4 +1,3 @@
-import { IniciarBuscaService } from '../services/iniciar-busca.service';
 import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -12,7 +11,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   LucideArrowLeft,
   LucideCheck,
@@ -23,13 +22,12 @@ import {
   LucideTag,
 } from '@lucide/angular';
 import { EMPTY, switchMap, tap, timer } from 'rxjs';
+import { IniciarBuscaService } from '../services/iniciar-busca.service';
 
 import { IlustracaoRadarComponent } from '@shared/components/ilustracao-radar/ilustracao-radar';
 
 import { BuscaConsulta } from '../dtos/busca-consulta.dto';
 import { BuscasService } from '../services/buscas.service';
-
-import { ParamMap } from '@angular/router';
 
 import { Header } from '@core/components/header/header';
 import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
@@ -86,9 +84,11 @@ interface InformacaoAvaliacao {
 })
 export class ProcessamentoComponent {
   private readonly rota = inject(ActivatedRoute);
+
   private readonly roteador = inject(Router);
 
   protected readonly inicioBusca = inject(IniciarBuscaService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly inputBuscaDesktop =
@@ -257,15 +257,20 @@ export class ProcessamentoComponent {
     this.inicioAcompanhamento = Date.now();
 
     this.ultimoAvanco = this.inicioAcompanhamento;
+
     const consulta = parametros.get('q') ?? '';
+
     this.consulta.set(consulta);
     this.formularioBusca.controls.termo.setValue(consulta);
+
     const id = parametros.get('id');
+
     if (id)
       return this.buscas.acompanhar(id).pipe(
         tap({
           complete: () => {
             const status = this.busca()?.status;
+
             if (!status || status === 'Recebida' || status === 'Processando') {
               this.erro.set(
                 'A busca está demorando. Retome o acompanhamento para consultar a mesma solicitação.',

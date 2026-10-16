@@ -1,9 +1,10 @@
-import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { NavegacaoMobileComponent } from './navegacao-mobile';
 
 describe('NavegacaoMobileComponent', () => {
   let component: NavegacaoMobileComponent;
+
   let fixture: ComponentFixture<NavegacaoMobileComponent>;
 
   beforeEach(async () => {

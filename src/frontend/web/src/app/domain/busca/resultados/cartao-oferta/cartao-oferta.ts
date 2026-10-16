@@ -1,3 +1,4 @@
+import { CurrencyPipe, DecimalPipe, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,7 +9,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { CurrencyPipe, DecimalPipe, NgClass } from '@angular/common';
 import {
   LucideBadgeCheck,
   LucideClock,
@@ -57,6 +57,7 @@ export class CartaoOfertaComponent {
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly oferta = input.required<OfertaResultado>();
+
   readonly favorita = input(false);
 
   readonly favoritoAlterado = output<string>();

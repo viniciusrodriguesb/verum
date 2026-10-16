@@ -3,6 +3,7 @@ import { OfertaResultado } from '../models/oferta-resultado.model';
 
 export function apresentarOferta(dto: OfertaDto, agora = Date.now()): OfertaResultado {
   const host = new URL(dto.url).hostname;
+
   return {
     id: dto.ofertaId,
     produtoId: dto.varianteId,

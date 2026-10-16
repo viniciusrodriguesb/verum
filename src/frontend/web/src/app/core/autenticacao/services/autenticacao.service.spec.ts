@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { AvisosApiService } from '@shared/services/avisos-api.service';
 import { vi } from 'vitest';
 import { AutenticacaoService } from './autenticacao.service';
-import { AvisosApiService } from '@shared/services/avisos-api.service';
 
 const { cliente } = vi.hoisted(() => ({
   cliente: {

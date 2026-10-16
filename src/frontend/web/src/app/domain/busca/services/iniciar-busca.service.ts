@@ -1,8 +1,8 @@
-import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { finalize, switchMap, TimeoutError } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
 
 import { AvisosApiService } from '@shared/services/avisos-api.service';
 import { mensagemErroApi } from '@shared/utils/mensagem-erro-api';

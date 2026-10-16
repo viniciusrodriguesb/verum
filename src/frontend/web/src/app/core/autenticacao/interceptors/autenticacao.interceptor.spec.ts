@@ -2,8 +2,8 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
-import { autenticacaoInterceptor } from './autenticacao.interceptor';
 import { AutenticacaoService } from '../services/autenticacao.service';
+import { autenticacaoInterceptor } from './autenticacao.interceptor';
 
 describe('autenticacaoInterceptor', () => {
   const obterToken = vi.fn();

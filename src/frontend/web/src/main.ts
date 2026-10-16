@@ -1,6 +1,6 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
 import { App } from './app/app';
+import { appConfig } from './app/app.config';
 import { AUTENTICACAO_CONFIG } from './app/core/autenticacao/configuracoes/autenticacao.config';
 
 async function iniciar(): Promise<void> {

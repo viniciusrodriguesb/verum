@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { AutenticacaoService } from '@core/autenticacao/services/autenticacao.service';
 import { RouterLink } from '@angular/router';
+import { AutenticacaoService } from '@core/autenticacao/services/autenticacao.service';
 
 interface ItemMenu {
   readonly rotulo: string;

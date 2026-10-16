@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { AutenticacaoService } from '@core/autenticacao/services/autenticacao.service';
 
 import { SolicitarBusca } from '../dtos/solicitar-busca.dto';
 
@@ -6,14 +7,16 @@ import { SolicitarBusca } from '../dtos/solicitar-busca.dto';
 export class SolicitacoesPendentesService {
   private readonly pedidos = new Map<string, SolicitarBusca>();
 
+  private readonly autenticacao = inject(AutenticacaoService);
+
   obter(consulta: string): SolicitarBusca {
-    const existente = this.pedidos.get(consulta) ?? this.ler(consulta);
+    const existente = this.pedidos.get(this.chave(consulta)) ?? this.ler(consulta);
 
     if (existente) return existente;
 
     const pedido = { consulta, chaveIdempotencia: crypto.randomUUID() };
 
-    this.pedidos.set(consulta, pedido);
+    this.pedidos.set(this.chave(consulta), pedido);
 
     try {
       sessionStorage.setItem(this.chave(consulta), JSON.stringify(pedido));
@@ -25,7 +28,7 @@ export class SolicitacoesPendentesService {
   }
 
   concluir(consulta: string): void {
-    this.pedidos.delete(consulta);
+    this.pedidos.delete(this.chave(consulta));
 
     try {
       sessionStorage.removeItem(this.chave(consulta));
@@ -46,7 +49,7 @@ export class SolicitacoesPendentesService {
         pedido.chaveIdempotencia.length > 0 &&
         pedido.chaveIdempotencia.length <= 100
       ) {
-        this.pedidos.set(consulta, pedido as SolicitarBusca);
+        this.pedidos.set(this.chave(consulta), pedido as SolicitarBusca);
 
         return pedido as SolicitarBusca;
       }
@@ -58,6 +61,10 @@ export class SolicitacoesPendentesService {
   }
 
   private chave(consulta: string): string {
-    return `verum.busca.pendente:${consulta}`;
+    const sujeito = this.autenticacao.usuario()?.sujeito;
+
+    return sujeito
+      ? `verum.busca.pendente:conta:${sujeito}:${consulta}`
+      : `verum.busca.pendente:${consulta}`;
   }
 }

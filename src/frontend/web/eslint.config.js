@@ -15,6 +15,13 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      'no-duplicate-imports': 'error',
+      'lines-between-class-members': ['error', 'always'],
+      'padding-line-between-statements': [
+        'error',
+        { blankLine: 'always', prev: ['const', 'let', 'var'], next: '*' },
+        { blankLine: 'always', prev: '*', next: ['const', 'let', 'var'] },
+      ],
       '@angular-eslint/directive-selector': [
         'error',
         {

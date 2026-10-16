@@ -1,19 +1,19 @@
-import { errosApiInterceptor } from './shared/interceptors/erros-api.interceptor';
+import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import localePtBr from '@angular/common/locales/pt';
 import {
   ApplicationConfig,
-  provideBrowserGlobalErrorListeners,
-  provideAppInitializer,
   inject,
   LOCALE_ID,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import localePtBr from '@angular/common/locales/pt';
 import { routes } from './app.routes';
-import { registerLocaleData } from '@angular/common';
 import { autenticacaoInterceptor } from './core/autenticacao/interceptors/autenticacao.interceptor';
 import { AutenticacaoService } from './core/autenticacao/services/autenticacao.service';
 import { ContaService } from './core/autenticacao/services/conta.service';
+import { errosApiInterceptor } from './shared/interceptors/erros-api.interceptor';
 
 registerLocaleData(localePtBr);
 

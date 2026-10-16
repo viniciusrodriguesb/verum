@@ -5,6 +5,7 @@ import { BuscasService } from './buscas.service';
 
 describe('BuscasService', () => {
   let service: BuscasService;
+
   let http: HttpTestingController;
 
   beforeEach(() => {
@@ -22,9 +23,13 @@ describe('BuscasService', () => {
 
   it('envia o contrato e preserva o cookie sem repetir o POST', () => {
     const pedido = { consulta: 'ssd kingston', chaveIdempotencia: 'chave-1' };
+
     const sucesso = vi.fn();
+
     service.solicitar(pedido).subscribe(sucesso);
+
     const request = http.expectOne('/api/v1/buscas');
+
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(pedido);
     expect(request.request.withCredentials).toBe(true);
@@ -34,13 +39,18 @@ describe('BuscasService', () => {
 
   it('interrompe o acompanhamento após o estado final', async () => {
     vi.useFakeTimers();
+
     const estados: string[] = [];
+
     const concluida = vi.fn();
+
     service
       .acompanhar('id-1')
       .subscribe({ next: (busca) => estados.push(busca.status), complete: concluida });
     await vi.advanceTimersByTimeAsync(0);
+
     const primeira = http.expectOne('/api/v1/buscas/id-1');
+
     expect(primeira.request.withCredentials).toBe(true);
     await vi.advanceTimersByTimeAsync(2000);
     http.expectNone('/api/v1/buscas/id-1');
@@ -55,6 +65,7 @@ describe('BuscasService', () => {
 
   it('propaga o limite diário sem nova solicitação automática', () => {
     const erro = vi.fn();
+
     service
       .solicitar({ consulta: 'ssd kingston', chaveIdempotencia: 'chave-1' })
       .subscribe({ error: erro });

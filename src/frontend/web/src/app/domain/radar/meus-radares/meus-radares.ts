@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Header } from '@core/components/header/header';
+import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
 import {
   LucideArrowRight,
   LucideBadgeCheck,
@@ -18,9 +20,7 @@ import {
   LucideStar,
   LucideTag,
 } from '@lucide/angular';
-import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
 import { GraficoPrecoComponent } from '../components/grafico-preco/grafico-preco';
-import { Header } from '@core/components/header/header';
 
 type EstadoRadar = 'preco-atingido' | 'monitorando' | 'sem-estoque' | 'pausado';
 
@@ -108,7 +108,9 @@ export class MeusRadaresComponent {
   private readonly radares = signal<readonly RadarMonitorado[]>([]);
 
   protected readonly filtros = FILTROS;
+
   protected readonly filtroSelecionado = signal<FiltroRadar>('todos');
+
   protected readonly ordenacaoSelecionada = signal<OrdenacaoRadar>('mais-recentes');
 
   protected readonly resumo = {

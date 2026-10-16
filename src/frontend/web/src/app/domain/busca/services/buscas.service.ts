@@ -1,13 +1,27 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { exhaustMap, takeUntil, takeWhile, timer, timeout } from 'rxjs';
+import { exhaustMap, takeUntil, takeWhile, timeout, timer } from 'rxjs';
+import { AcessoBusca } from '../dtos/acesso-busca.dto';
 import { BuscaAceita } from '../dtos/busca-aceita.dto';
 import { BuscaConsulta } from '../dtos/busca-consulta.dto';
+import { BuscaHistorico } from '../dtos/busca-historico.dto';
 import { SolicitarBusca } from '../dtos/solicitar-busca.dto';
 
 @Injectable({ providedIn: 'root' })
 export class BuscasService {
   private readonly http = inject(HttpClient);
+
+  obterAcesso() {
+    return this.http
+      .get<AcessoBusca>('/api/v1/buscas/acesso', { withCredentials: true })
+      .pipe(timeout(15000));
+  }
+
+  obterHistorico() {
+    return this.http
+      .get<readonly BuscaHistorico[]>('/api/v1/buscas/historico', { withCredentials: true })
+      .pipe(timeout(15000));
+  }
 
   prepararVisitante() {
     return this.http
