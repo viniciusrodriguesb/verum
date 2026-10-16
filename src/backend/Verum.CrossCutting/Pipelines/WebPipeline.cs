@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +20,21 @@ public static class WebPipeline
     services.AddOpenApi();
 
     services.AddProblemDetails();
+
+    services.Configure<ForwardedHeadersOptions>(options =>
+    {
+      options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+      foreach (var network in configuration.GetSection("ReverseProxy:KnownNetworks").Get<string[]>() ?? [])
+        options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(network));
+    });
+
+    var keysPath = configuration["DataProtection:KeysPath"];
+
+    if (!string.IsNullOrWhiteSpace(keysPath))
+      services.AddDataProtection()
+        .SetApplicationName(configuration["DataProtection:ApplicationName"] ?? "Verum.Api")
+        .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
 
     var origins = configuration.GetSection("Cors:Origins").Get<string[]>() ?? [];
 

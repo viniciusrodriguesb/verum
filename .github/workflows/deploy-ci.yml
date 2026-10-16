@@ -1,0 +1,21 @@
+name: Deploy configuration CI
+on:
+  pull_request:
+    branches: [main]
+    paths: ["deploy/**", ".github/workflows/deploy*.yml"]
+  push:
+    branches: [main]
+    paths: ["deploy/**", ".github/workflows/deploy*.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - run: bash deploy/scripts/validate.sh
+      - run: bash deploy/tests/deploy-service.test.sh
+      - name: Analisar scripts de implantação
+        run: shellcheck deploy/scripts/*.sh deploy/tests/*.sh

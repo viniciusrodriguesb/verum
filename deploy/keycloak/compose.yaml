@@ -1,0 +1,61 @@
+services:
+  keycloak:
+    image: ${APP_IMAGE:?Configure APP_IMAGE com digest}
+    env_file:
+      - ${VERUM_CONFIG_DIR:?Configure VERUM_CONFIG_DIR}/keycloak.env
+    init: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"
+    mem_limit: 2g
+    stop_grace_period: 60s
+    expose:
+      - "8080"
+    networks:
+      verum:
+        aliases:
+          - verum-keycloak
+      identity: {}
+
+  postgres:
+    image: postgres:16.15-alpine
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Configure KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - keycloak-db:/var/lib/postgresql/data
+    mem_limit: 512m
+    stop_grace_period: 60s
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U keycloak -d keycloak']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - identity
+
+volumes:
+  keycloak-db:
+
+networks:
+  identity:
+    internal: true
+  verum:
+    external: true
+    name: verum

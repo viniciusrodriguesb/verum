@@ -1,0 +1,78 @@
+name: Deploy VPS reusable
+on:
+  workflow_call:
+    inputs:
+      service:
+        type: string
+        required: true
+      image_digest:
+        type: string
+        required: true
+      migrations_digest:
+        type: string
+        default: ""
+      environment:
+        type: string
+        default: production
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: deploy-${{ inputs.environment }}-${{ inputs.service }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - name: Implantar somente o serviço escolhido
+        env:
+          SERVICE: ${{ inputs.service }}
+          DIGEST: ${{ inputs.image_digest }}
+          MIGRATIONS_DIGEST: ${{ inputs.migrations_digest }}
+          REPOSITORY: ${{ github.repository }}
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          VPS_PORT: ${{ vars.VPS_PORT || '22' }}
+          VPS_ROOT: ${{ vars.VPS_ROOT || '/opt/verum' }}
+          RELEASE: ${{ github.run_id }}-${{ github.run_attempt }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          case "$SERVICE" in api|worker-descoberta|worker-radar|web|keycloak|migrations) ;; *) exit 1 ;; esac
+          [[ "$DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]] || { echo "Digest inválido"; exit 1; }
+          [[ "$VPS_ROOT" =~ ^/[a-zA-Z0-9/_-]+$ && "$VPS_ROOT" != "/" ]] || exit 1
+          [[ "$VPS_PORT" =~ ^[0-9]+$ ]] || exit 1
+          [[ "$VPS_USER" =~ ^[a-zA-Z0-9_-]+$ ]] || exit 1
+          [[ "$VPS_HOST" =~ ^[a-zA-Z0-9.-]+$ ]] || exit 1
+          [[ -n "$VPS_KEY" && -n "$VPS_KNOWN_HOSTS" ]] || { echo "Configure os secrets da VPS"; exit 1; }
+          migration_image=""
+          if [[ "$SERVICE" == api || "$SERVICE" == worker-* ]]; then
+            [[ "$MIGRATIONS_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]] || { echo "Informe migrations_digest"; exit 1; }
+            migration_image="ghcr.io/${REPOSITORY,,}/migrations@$MIGRATIONS_DIGEST"
+          fi
+          temp="$(mktemp -d)"
+          trap 'rm -rf -- "$temp"' EXIT
+          printf '%s\n' "$VPS_KEY" > "$temp/key"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$temp/known_hosts"
+          chmod 600 "$temp/key" "$temp/known_hosts"
+          ssh_options=(-i "$temp/key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$temp/known_hosts")
+          remote="$VPS_USER@$VPS_HOST"
+          destination="$VPS_ROOT/releases/$RELEASE/$SERVICE"
+          ssh "${ssh_options[@]}" -p "$VPS_PORT" "$remote" "mkdir -p '$destination'"
+          paths=(deploy/scripts deploy/"$SERVICE")
+          [[ "$SERVICE" == migrations ]] || paths+=(deploy/migrations)
+          tar -czf "$temp/runtime.tgz" "${paths[@]}"
+          scp "${ssh_options[@]}" -P "$VPS_PORT" "$temp/runtime.tgz" "$remote:$destination/runtime.tgz"
+          ssh "${ssh_options[@]}" -p "$VPS_PORT" "$remote" "tar -xzf '$destination/runtime.tgz' -C '$destination'"
+          image="ghcr.io/${REPOSITORY,,}/$SERVICE@$DIGEST"
+          printf '%s' "$REGISTRY_TOKEN" | ssh "${ssh_options[@]}" -p "$VPS_PORT" "$remote" \
+            "bash '$destination/deploy/scripts/deploy-service.sh' '$VPS_ROOT' '$SERVICE' '$image' '$REGISTRY_USER' '$migration_image'"

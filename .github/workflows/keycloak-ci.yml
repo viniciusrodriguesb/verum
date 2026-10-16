@@ -1,0 +1,21 @@
+name: Keycloak CI
+on:
+  pull_request:
+    branches: [main]
+    paths: ["src/keycloak/**", "deploy/keycloak/**", ".github/workflows/keycloak-ci.yml", ".github/workflows/container-image.yml", ".dockerignore"]
+  push:
+    branches: [main]
+    paths: ["src/keycloak/**", "deploy/keycloak/**", ".github/workflows/keycloak-ci.yml", ".github/workflows/container-image.yml", ".dockerignore"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  image:
+    uses: ./.github/workflows/container-image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      service: keycloak
+      dockerfile: src/keycloak/Dockerfile
+      publish: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}

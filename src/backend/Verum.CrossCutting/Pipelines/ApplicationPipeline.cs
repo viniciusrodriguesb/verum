@@ -8,6 +8,8 @@ public static class ApplicationPipeline
 {
   public static WebApplication UseVerumApi(this WebApplication app)
   {
+    app.UseForwardedHeaders();
+
     app.UseExceptionHandler();
 
     app.UseStatusCodePages();

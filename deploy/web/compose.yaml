@@ -1,0 +1,32 @@
+services:
+  web:
+    image: ${APP_IMAGE:?Configure APP_IMAGE com digest}
+    init: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    mem_limit: 256m
+    stop_grace_period: 30s
+    volumes:
+      - ${VERUM_CONFIG_DIR:?Configure VERUM_CONFIG_DIR}/web.configuracao.json:/usr/share/nginx/html/configuracao.json:ro
+    expose:
+      - "8080"
+    networks:
+      verum:
+        aliases:
+          - verum-web
+
+networks:
+  verum:
+    external: true
+    name: verum

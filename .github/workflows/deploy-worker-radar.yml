@@ -1,0 +1,28 @@
+name: Deploy Worker Radar
+on:
+  workflow_dispatch:
+    inputs:
+      image_digest:
+        description: "Digest sha256 da imagem worker-radar publicada pelo CI"
+        required: true
+        type: string
+      migrations_digest:
+        description: "Digest sha256 da imagem migrations da mesma release"
+        required: true
+        type: string
+      environment:
+        description: Ambiente de destino
+        type: environment
+        default: production
+permissions:
+  contents: read
+  packages: read
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-vps.yml
+    with:
+      service: worker-radar
+      image_digest: ${{ inputs.image_digest }}
+      migrations_digest: ${{ inputs.migrations_digest }}
+      environment: ${{ inputs.environment }}
+    secrets: inherit

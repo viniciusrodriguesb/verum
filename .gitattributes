@@ -1,0 +1,2 @@
+# Scripts executados nos containers e na VPS Linux.
+*.sh text eol=lf

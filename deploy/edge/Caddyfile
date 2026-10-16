@@ -1,0 +1,18 @@
+{
+  email {$ACME_EMAIL}
+  admin off
+}
+
+{$WEB_HOST} {
+  encode zstd gzip
+  handle /api/* {
+    reverse_proxy verum-api:8080
+  }
+  handle {
+    reverse_proxy verum-web:8080
+  }
+}
+
+{$SSO_HOST} {
+  reverse_proxy verum-keycloak:8080
+}

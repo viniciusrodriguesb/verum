@@ -1,0 +1,37 @@
+services:
+  api:
+    image: ${APP_IMAGE:?Configure APP_IMAGE com digest}
+    env_file:
+      - ${VERUM_CONFIG_DIR:?Configure VERUM_CONFIG_DIR}/api.env
+    init: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    mem_limit: 1g
+    stop_grace_period: 60s
+    volumes:
+      - api-keys:/var/lib/verum/keys
+    expose:
+      - "8080"
+    networks:
+      verum:
+        aliases:
+          - verum-api
+
+volumes:
+  api-keys:
+
+networks:
+  verum:
+    external: true
+    name: verum

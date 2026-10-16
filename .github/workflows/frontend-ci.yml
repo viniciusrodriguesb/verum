@@ -8,6 +8,8 @@ on:
       - "src/frontend/web/**"
       - ".github/workflows/frontend-ci.yml"
       - ".editorconfig"
+      - ".dockerignore"
+      - ".github/workflows/container-image.yml"
 
   push:
     branches:
@@ -16,6 +18,8 @@ on:
       - "src/frontend/web/**"
       - ".github/workflows/frontend-ci.yml"
       - ".editorconfig"
+      - ".dockerignore"
+      - ".github/workflows/container-image.yml"
 
   workflow_dispatch:
 
@@ -146,3 +150,14 @@ jobs:
           path: src/frontend/web/dist/
           if-no-files-found: error
           retention-days: 14
+
+  imagem:
+    needs: buildar-producao
+    uses: ./.github/workflows/container-image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      service: web
+      dockerfile: src/frontend/web/Dockerfile
+      publish: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}

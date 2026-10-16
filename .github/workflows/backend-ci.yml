@@ -1,0 +1,84 @@
+name: Backend CI
+on:
+  pull_request:
+    branches: [main]
+    paths: ["src/backend/**", "deploy/scripts/migrate.sh", ".github/workflows/backend-ci.yml", ".github/workflows/container-image.yml", ".dockerignore", ".editorconfig"]
+  push:
+    branches: [main]
+    paths: ["src/backend/**", "deploy/scripts/migrate.sh", ".github/workflows/backend-ci.yml", ".github/workflows/container-image.yml", ".dockerignore", ".editorconfig"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: src/backend
+    services:
+      postgres:
+        image: postgres:16.15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: verum
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:8-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0
+        ports: ["6379:6379"]
+      rabbitmq:
+        image: rabbitmq:4.2-management
+        env:
+          RABBITMQ_DEFAULT_USER: admin
+          RABBITMQ_DEFAULT_PASS: admin123
+        ports: ["5672:5672", "15672:15672"]
+        options: --health-cmd "rabbitmq-diagnostics -q ping" --health-interval 10s --health-timeout 5s --health-retries 15
+    env:
+      VERUM_TEST_POSTGRES: Host=localhost;Database=verum;Username=postgres;Password=postgres
+      VERUM_TEST_REDIS: localhost:6379
+      VERUM_TEST_RABBITMQ: "1"
+      VERUM_TEST_PLAYWRIGHT: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: src/backend/global.json
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('src/backend/Directory.Packages.props', 'src/backend/**/*.csproj', 'src/backend/global.json') }}
+      - run: dotnet restore Verum.Backend.slnx
+      - run: dotnet format style Verum.Backend.slnx --no-restore --diagnostics IDE0005 --severity info --verify-no-changes
+      - run: dotnet build Verum.Backend.slnx -c Release --no-restore
+      - name: Instalar Chromium para testes locais
+        shell: pwsh
+        run: ./Tests/Verum.Tests.Integracao/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+      - name: Executar regressão
+        run: dotnet test Verum.Backend.slnx -c Release --no-build --logger trx --results-directory TestResults
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-tests
+          path: src/backend/TestResults
+          retention-days: 7
+
+  images:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api, worker-descoberta, worker-radar, migrations]
+    uses: ./.github/workflows/container-image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      service: ${{ matrix.service }}
+      dockerfile: src/backend/Dockerfile
+      target: ${{ matrix.service }}
+      publish: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}

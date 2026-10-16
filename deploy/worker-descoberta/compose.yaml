@@ -1,0 +1,31 @@
+services:
+  worker-descoberta:
+    image: ${APP_IMAGE:?Configure APP_IMAGE com digest}
+    env_file:
+      - ${VERUM_CONFIG_DIR:?Configure VERUM_CONFIG_DIR}/worker-descoberta.env
+    init: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    mem_limit: 2g
+    stop_grace_period: 210s
+    shm_size: 1g
+    networks:
+      verum:
+        aliases:
+          - verum-worker-descoberta
+
+networks:
+  verum:
+    external: true
+    name: verum

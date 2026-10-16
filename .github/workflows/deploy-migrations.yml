@@ -1,0 +1,23 @@
+name: Deploy Migrations
+on:
+  workflow_dispatch:
+    inputs:
+      image_digest:
+        description: "Digest sha256 da imagem migrations publicada pelo CI"
+        required: true
+        type: string
+      environment:
+        description: Ambiente de destino
+        type: environment
+        default: production
+permissions:
+  contents: read
+  packages: read
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-vps.yml
+    with:
+      service: migrations
+      image_digest: ${{ inputs.image_digest }}
+      environment: ${{ inputs.environment }}
+    secrets: inherit
