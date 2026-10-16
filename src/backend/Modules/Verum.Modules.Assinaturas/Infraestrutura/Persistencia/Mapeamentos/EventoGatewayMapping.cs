@@ -27,6 +27,12 @@ internal sealed class EventoGatewayMapping : IEntityTypeConfiguration<Entidade>
 
     builder.HasKey(x => x.Id);
 
+    builder.Property(x => x.ProximaTentativaEm)
+           .HasColumnName("PROXIMA_TENTATIVA_EM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.HasIndex(x => new { x.Status, x.ProximaTentativaEm, x.Id });
+
     builder.Property(x => x.Id)
            .HasColumnName("ID")
            .HasColumnType("bigint")

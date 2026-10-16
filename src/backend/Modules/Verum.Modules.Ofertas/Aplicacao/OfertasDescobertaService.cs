@@ -3,9 +3,9 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
+using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 using Verum.Modules.Ofertas.Dominio;
 using Verum.Modules.Ofertas.Infraestrutura.Persistencia;
-using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 
 namespace Verum.Modules.Ofertas.Aplicacao;
 
@@ -75,7 +75,14 @@ internal sealed class OfertasDescobertaService(OfertasDbContext db) : IOfertasDe
 
     return new(oferta.Id, oferta.ProdutoVarianteId, oferta.TituloExterno, oferta.Url, oferta.PrecoAtual,
       oferta.CondicaoPreco!, oferta.ImagemUrl, fonte.Codigo, Math.Min(fonte.NivelConfianca, loja.PontuacaoConfianca),
-      oferta.ObservadaEm, oferta.ValidaAte);
+      oferta.ObservadaEm, oferta.ValidaAte)
+    {
+      LojaId = loja.Id,
+
+      ConfiancaLoja = loja.PontuacaoConfianca,
+
+      ConfiancaDado = fonte.NivelConfianca
+    };
   }
 
   public async Task RegistrarExecucaoAsync(Guid buscaId, DiagnosticoFonte item, CancellationToken cancellationToken)
@@ -113,7 +120,43 @@ internal sealed class OfertasDescobertaService(OfertasDbContext db) : IOfertasDe
     return fonte;
   }
 
+  public async Task<IReadOnlyList<OfertaConsultada>> ObterFundamentosRankingAsync(IReadOnlyList<OfertaConsultada> ofertas, CancellationToken cancellationToken)
+  {
+    var variantes = ofertas.Select(x => x.VarianteId).Distinct().ToArray();
+
+    if (variantes.Length == 0) return [];
+
+    var inicio = DateTimeOffset.UtcNow.AddDays(-30);
+
+    var diario = await db.Observacoes.AsNoTracking()
+      .Where(x => variantes.Contains(x.Oferta.ProdutoVarianteId) && x.ObservadaEm >= inicio && x.Preco > 0)
+      .GroupBy(x => new
+      {
+        x.Oferta.ProdutoVarianteId,
+        x.Oferta.LojaId,
+        Ano = x.ObservadaEm.UtcDateTime.Year,
+        Mes = x.ObservadaEm.UtcDateTime.Month,
+        Dia = x.ObservadaEm.UtcDateTime.Day,
+        Pix = x.PrecoPix != null
+      })
+      .Select(x => new { x.Key.ProdutoVarianteId, x.Key.LojaId, x.Key.Ano, x.Key.Mes, x.Key.Dia, x.Key.Pix, Preco = x.Min(y => y.Preco) })
+      .ToArrayAsync(cancellationToken);
+
+    return ofertas.Select(x => x with
+    {
+      Historico = diario.Where(y => y.ProdutoVarianteId == x.VarianteId)
+        .Select(y => new ObservacaoPrecoRanking(y.LojaId, new DateTimeOffset(y.Ano, y.Mes, y.Dia, 0, 0, 0, TimeSpan.Zero), y.Preco, y.Pix)).ToArray()
+    }).ToArray();
+  }
+
   private static OfertaConsultada Converter(Oferta x) =>
     new(x.Id, x.ProdutoVarianteId, x.TituloExterno, x.Url, x.PrecoAtual, x.CondicaoPreco ?? "Confirme na loja.",
-      x.ImagemUrl, x.Fonte.Codigo, Math.Min(x.Fonte.NivelConfianca, x.Loja.PontuacaoConfianca), x.ObservadaEm, x.ValidaAte);
+      x.ImagemUrl, x.Fonte.Codigo, Math.Min(x.Fonte.NivelConfianca, x.Loja.PontuacaoConfianca), x.ObservadaEm, x.ValidaAte)
+    {
+      LojaId = x.LojaId,
+
+      ConfiancaLoja = x.Loja.PontuacaoConfianca,
+
+      ConfiancaDado = x.Fonte.NivelConfianca
+    };
 }

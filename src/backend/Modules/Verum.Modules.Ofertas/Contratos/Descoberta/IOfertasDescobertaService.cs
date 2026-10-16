@@ -9,4 +9,6 @@ public interface IOfertasDescobertaService
   Task<OfertaConsultada> RegistrarAsync(Guid varianteId, OfertaDescoberta oferta, CancellationToken cancellationToken);
 
   Task RegistrarExecucaoAsync(Guid buscaId, DiagnosticoFonte execucao, CancellationToken cancellationToken);
+
+  Task<IReadOnlyList<OfertaConsultada>> ObterFundamentosRankingAsync(IReadOnlyList<OfertaConsultada> ofertas, CancellationToken cancellationToken);
 }

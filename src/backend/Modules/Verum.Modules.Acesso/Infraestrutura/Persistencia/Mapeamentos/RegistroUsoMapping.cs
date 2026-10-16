@@ -64,5 +64,13 @@ internal sealed class RegistroUsoMapping : IEntityTypeConfiguration<Entidade>
            .HasColumnName("OCORRIDO_EM")
            .HasColumnType("timestamp with time zone")
            .IsRequired();
+
+    builder.HasIndex(x => new { x.RecursoCodigo, x.ReferenciaId })
+           .IsUnique()
+           .HasFilter("\"REFERENCIA_ID\" IS NOT NULL");
+
+    builder.HasIndex(x => new { x.ContaId, x.RecursoCodigo, x.OcorridoEm });
+
+    builder.HasIndex(x => new { x.VisitanteId, x.RecursoCodigo, x.OcorridoEm });
   }
 }

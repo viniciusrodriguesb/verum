@@ -1,6 +1,6 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using Polly.CircuitBreaker;
 using Polly.RateLimiting;
 using Polly.Timeout;
@@ -24,6 +24,7 @@ public sealed class TratamentoErrosHandler(ILogger<TratamentoErrosHandler> logge
 
     var (status, codigo, mensagem) = exception switch
     {
+      UnauthorizedAccessException => (401, "SESSAO_INVALIDA", "Sua sessão expirou. Entre novamente para continuar."),
       ErroAplicacaoException erro => (erro.Tipo switch
       {
         TipoErro.Validacao => 400,

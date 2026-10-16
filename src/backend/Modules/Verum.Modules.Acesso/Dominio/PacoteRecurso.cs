@@ -46,6 +46,15 @@ internal sealed class PacoteRecurso
     Configuracao = ValidarConfiguracao(configuracao);
   }
 
+  public void Configurar(bool habilitado, int? limiteQuantidade, PeriodicidadeUso? periodicidade)
+  {
+    Habilitado = habilitado;
+
+    LimiteQuantidade = ValidarLimiteQuantidade(limiteQuantidade);
+
+    Periodicidade = ValidarPeriodicidade(periodicidade);
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

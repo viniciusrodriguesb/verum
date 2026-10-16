@@ -1,8 +1,6 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
-using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
 using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 

@@ -31,6 +31,30 @@ internal sealed class AssinaturaMapping : IEntityTypeConfiguration<Entidade>
 
     builder.HasKey(x => x.Id);
 
+    builder.Property(x => x.ChaveIdempotencia)
+           .HasColumnName("CHAVE_IDEMPOTENCIA")
+           .HasColumnType("varchar(100)")
+           .HasMaxLength(100);
+
+    builder.Property(x => x.UrlCheckout)
+           .HasColumnName("URL_CHECKOUT")
+           .HasColumnType("varchar(2000)")
+           .HasMaxLength(2000);
+
+    builder.Property(x => x.SincronizadaEm)
+           .HasColumnName("SINCRONIZADA_EM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.Property(x => x.ReconciliacaoAgendadaEm)
+           .HasColumnName("RECONCILIACAO_AGENDADA_EM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.HasIndex(x => x.ReconciliacaoAgendadaEm);
+
+    builder.HasIndex(x => new { x.ContaId, x.ChaveIdempotencia })
+           .IsUnique()
+           .HasFilter("\"CHAVE_IDEMPOTENCIA\" IS NOT NULL");
+
     builder.Property(x => x.Id)
            .HasColumnName("ID")
            .HasColumnType("uuid")

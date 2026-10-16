@@ -43,6 +43,13 @@ internal sealed class PacoteAcesso
     AtualizadoEm = ValidarAtualizadoEm(agora);
   }
 
+  public void DefinirAtivo(bool ativo)
+  {
+    Ativo = ativo;
+
+    AtualizadoEm = DateTimeOffset.UtcNow;
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

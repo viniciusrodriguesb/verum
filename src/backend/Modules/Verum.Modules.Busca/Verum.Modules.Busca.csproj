@@ -18,5 +18,6 @@
     <ProjectReference Include="../../Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
     <ProjectReference Include="../Verum.Modules.Catalogo/Verum.Modules.Catalogo.csproj" />
     <ProjectReference Include="../Verum.Modules.Ofertas/Verum.Modules.Ofertas.csproj" />
+    <ProjectReference Include="../Verum.Modules.Acesso/Verum.Modules.Acesso.csproj" />
   </ItemGroup>
 </Project>

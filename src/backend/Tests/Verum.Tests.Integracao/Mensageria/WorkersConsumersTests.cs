@@ -1,6 +1,7 @@
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Verum.CrossCutting.Mensageria;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 using Verum.CrossCutting.Pipelines;
 using Verum.Modules.Busca.Contratos;
 using Verum.Modules.Radar.Contratos;
@@ -9,7 +10,6 @@ using Verum.Worker.Descoberta.Consumidores;
 using Verum.Worker.Radar.Configuracoes;
 using Verum.Worker.Radar.Consumidores;
 using Xunit;
-using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 
@@ -86,7 +86,8 @@ public sealed class WorkersConsumersTests
 
       Assert.Equal(1, observer.Tentativas);
     }
-    finally {
+    finally
+    {
       await bus.StopAsync(CancellationToken.None);
     }
   }
@@ -124,7 +125,8 @@ public sealed class WorkersConsumersTests
 
         int previous;
 
-        do {
+        do
+        {
           previous = Volatile.Read(ref peak);
         }
         while (current > previous && Interlocked.CompareExchange(ref peak, current, previous) != previous);
@@ -137,7 +139,8 @@ public sealed class WorkersConsumersTests
 
           await Task.Delay(20, context.CancellationToken);
         }
-        finally {
+        finally
+        {
           Interlocked.Decrement(ref active);
         }
 

@@ -45,6 +45,11 @@ internal sealed class Recurso
     CriadoEm = ValidarCriadoEm(agora);
   }
 
+  public void DefinirAtivo(bool ativo)
+  {
+    Ativo = ativo;
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

@@ -1,11 +1,10 @@
-using Verum.BuildingBlocks.Erros;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Verum.BuildingBlocks.Erros;
 using Xunit;
 
 namespace Verum.Tests.Integracao;
@@ -379,7 +378,7 @@ public sealed class PersistenciaModelTests
     var services = new ServiceCollection();
 
     var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
-      { ["ConnectionStrings:PostgreSQL"] = "Host=localhost;Database=verum_model_test;Username=test;Password=test" }).Build();
+    { ["ConnectionStrings:PostgreSQL"] = "Host=localhost;Database=verum_model_test;Username=test;Password=test" }).Build();
 
     Assembly.Load($"Verum.Modules.{modulo}").GetType($"Verum.Modules.{modulo}.DependencyInjection")!
       .GetMethod($"Add{modulo}Persistencia")!.Invoke(null, [services, configuration]);

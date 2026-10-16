@@ -1,0 +1,14 @@
+{
+  "loginPkce": true,
+  "jwtReal": true,
+  "visitante1": true,
+  "free3": true,
+  "pago30": true,
+  "downgradePreservaConsumo": true,
+  "bloqueio403": true,
+  "tokenInvalido401": true,
+  "historicoPrivado": true,
+  "idempotencia": true,
+  "logout": true,
+  "worker": true
+}

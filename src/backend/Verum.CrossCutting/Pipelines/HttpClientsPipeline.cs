@@ -14,10 +14,8 @@ public static class HttpClientsPipeline
   {
     services.TryAddSingleton<ResiliencePipelineRegistry<string>>();
 
-    services.ConfigureHttpClientDefaults(http =>
-      http.ConfigureHttpClient(client => client.Timeout = Timeout.InfiniteTimeSpan));
+    services.ConfigureHttpClientDefaults(http => http.ConfigureHttpClient(client => client.Timeout = Timeout.InfiniteTimeSpan));
 
-    // O builder concreto fornece o nome real, inclusive para clientes tipados.
     services.ConfigureAll<HttpClientFactoryOptions>(options => options.HttpMessageHandlerBuilderActions.Add(builder =>
     {
       var registry = builder.Services.GetRequiredService<ResiliencePipelineRegistry<string>>();
@@ -59,7 +57,7 @@ public static class HttpClientsPipeline
     options.Retry.DisableForUnsafeHttpMethods();
 
     pipeline.AddRateLimiter(options.RateLimiter)
-      .AddTimeout(options.TotalRequestTimeout);
+            .AddTimeout(options.TotalRequestTimeout);
 
     if (retryEnabled) pipeline.AddRetry(options.Retry);
 

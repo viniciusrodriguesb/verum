@@ -2,11 +2,17 @@
 
 O Verum usa um monólito modular em .NET 10, com API e workers separados. Cada módulo mantém domínio, aplicação, contratos e infraestrutura próprios. A organização preserva limites de negócio sem exigir uma interface para cada operação.
 
-O primeiro fluxo de busca para visitante e a integração de identidade com Keycloak estão implementados. Contas são vinculadas à identidade real; planos, concessões de acesso, busca por conta e processamento do Radar permanecem para as próximas entregas.
+O fluxo de busca identifica visitante ou conta autenticada. Contas recebem FREE e podem usar concessões válidas de BUSCA_PLUS ou VERUM_PLUS, agora integradas à confirmação de pagamentos. O processamento do Radar e o layout de contratação permanecem para entregas próprias.
 
 Os controllers herdam de `AppController`, que define `api/v1/[controller]`, proteção por padrão e métodos protected para obter sujeito (`sub`), e-mail, username, nome e confirmação de e-mail. Rotas geradas usam minúsculas. `BuscasController` permite visitante explicitamente. CPF não faz parte do token atual.
 
-`POST /api/v1/contas/me` exige JWT com issuer, assinatura, audience e validade corretos, além de e-mail confirmado. Não recebe dados de perfil no corpo: usa as claims validadas, cria uma conta no primeiro acesso e atualiza o perfil nos seguintes. O índice único de `SUJEITO_IDENTIDADE` impede duplicação entre abas. Contas bloqueadas ou excluídas são rejeitadas. Não concede planos nem transforma uma busca de visitante em busca autenticada.
+`POST /api/v1/contas/me` exige JWT com issuer, assinatura, audience e validade corretos, além de e-mail confirmado. Usa as claims validadas, cria ou atualiza a conta e provisiona FREE uma única vez. O índice único de `SUJEITO_IDENTIDADE` impede duplicação entre abas. Contas bloqueadas ou excluídas são rejeitadas em cada operação de busca, inclusive leitura. Nenhuma busca de visitante é migrada para a conta.
+
+O módulo Acesso mantém BUSCA_EXECUTAR, pacotes, concessões e consumo. Os limites iniciais são visitante 1, FREE 3 e pago 30 por dia UTC. Configure `Acesso:LimiteVisitanteDiario`, `Acesso:LimiteFreeDiario` e `Acesso:LimitePagoDiario`; a preparação idempotente sincroniza esses limites sem reativar recursos, pacotes ou concessões bloqueados. `Busca:LimiteVisitanteDiario` permanece como compatibilidade quando a seção Acesso não define o limite.
+
+Concessões futuras, expiradas, revogadas ou com pacote inativo não elevam o limite. Benefícios sobrepostos usam o maior limite, sem soma. Upgrade ou downgrade não zeram uso do dia. Sem benefício pago, prevalece FREE quando válido; FREE revogado não é concedido novamente no login. Não existe endpoint público para atribuir pacote ou desbloquear conta. Assinaturas poderá conceder benefícios futuramente por integração interna, sem ser consultada a cada busca.
+
+`GET /api/v1/buscas/acesso` informa contexto, pacote, limite, uso, saldo e renovação. `GET /api/v1/buscas/historico` retorna somente as últimas 50 buscas da conta autenticada. Resultado, histórico e acesso não permitem cache HTTP compartilhado. Token inválido não vira visitante. Os contratos e as decisões visuais pendentes estão em [contas-acesso-ranking.md](../frontend/web/docs/contas-acesso-ranking.md).
 
 ## Organização
 
@@ -32,8 +38,8 @@ O `ServicesPipeline` registra automaticamente classes com sufixo `Service` no na
 
 ## Fluxo da busca
 
-1. `POST /api/v1/buscas` recebe `consulta` e `chaveIdempotencia`. Valida entrada, identifica o visitante por cookie protegido e verifica repetição e cota. Retorna `202` com ID e endereço para acompanhamento.
-2. Busca e comando são gravados na mesma transação PostgreSQL. A Outbox entrega a mensagem à fila RabbitMQ, mesmo que o worker ainda não tenha iniciado.
+1. `POST /api/v1/buscas` recebe consulta e chave de idempotência. Resolve a conta pelo sub validado ou o visitante pelo cookie. Verifica repetição, permissão e cota. Retorna 202 com ID e endereço para acompanhamento.
+2. Uso em Acesso, busca e comando são gravados na mesma transação PostgreSQL. Os contextos compartilham conexão e transação, mas cada módulo acessa somente seu schema. Rollback não consome cota. A Outbox entrega a mensagem à fila RabbitMQ, mesmo que o worker ainda não tenha iniciado.
 3. O worker reutiliza primeiro o catálogo e suas ofertas válidas. Havendo resultados suficientes, evita consultas externas.
 4. Quando necessário, consulta as lojas configuradas em paralelo. KaBuM e Amazon possuem perfis Playwright. Se ainda faltarem ofertas, tenta a IA quando habilitada e configurada.
 5. Valida e normaliza candidatos, preservando resultados válidos quando outra fonte falha ou demora. Catálogo e Ofertas persistem seus dados e diagnósticos em transações curtas próprias.
@@ -41,7 +47,7 @@ O `ServicesPipeline` registra automaticamente classes com sufixo `Service` no na
 
 Estados: `Recebida`, `Processando`, `Concluida`, `ConcluidaSemResultado`, `Falhou` e `Expirada`. Uma fonte operacional sem produtos difere de uma falha técnica de todas as fontes. O prazo global inclui a espera na fila. Resultados válidos já obtidos podem acompanhar uma busca expirada; `parcial` indica limitação ou indisponibilidade de fontes. Consultas genéricas sem especificação suficiente recebem motivo explícito para refinamento.
 
-A identificação de produtos é conservadora: os termos da consulta precisam aparecer no título, e cada URL mantém uma identidade provisória. Não unificamos automaticamente produtos de lojas diferentes sem evidência suficiente. Marca e categoria desconhecidas ficam explícitas. O ranking prioriza relevância textual (70%) e combina preço dentro da mesma variante (9%), confiança inicial da fonte/loja (12%) e atualização (9%). Reconhece PS5 como PlayStation 5 e televisão/televisor como TV. Reduz a prioridade de acessórios quando não solicitados, inclusive quando a marca aparece antes do tipo de acessório. É uma regra conservadora, não uma classificação universal de categorias. Uma nota máxima de preço com apenas uma oferta não comprova desconto. As ofertas são alternativas; o fluxo não afirma equivalência apenas por semelhança de nome.
+A identificação permanece conservadora e provisória por URL. `ranking-v1.0` usa correspondência como elegibilidade e combina preço 45%, confiança 35% e atualização 20%, igualmente para todos os contextos. Acessórios reconhecidos e não solicitados são excluídos desta seleção. Mercado e histórico comparam somente a mesma variante e condição de pagamento. Sem amostra suficiente, o preço recebe nota neutra provisória; uma oferta isolada não recebe nota máxima nem comprova preço justo. Há percentis com tolerância de 0,5%, mediana e consolidação diária por loja em uma janela de 30 dias. Histórico suficiente exige 10 observações e 3 lojas; com mercado suficiente, utiliza histórico 60% e mercado 40%. A atualização usa meia-vida de 60 minutos. Fundamentos, pesos e qualidade da amostra ficam no snapshot. Reputação externa, vendedor confirmado, validação adicional de outliers e identificação entre lojas ainda não estão completos e não são presumidos.
 
 O cookie `verum.visitante` é protegido, HttpOnly e válido por 30 dias. A cota padrão é uma busca por dia UTC, configurável. Repetir a mesma chave e consulta retorna o mesmo ID sem consumir outra cota; usar a mesma chave com outra consulta gera conflito. A identificação é operacional: apagar cookies permite uma nova identidade. Preserve e compartilhe as chaves de ASP.NET Core Data Protection entre reinicializações e réplicas da API. Clientes web precisam enviar o cookie; CORS aceita credenciais somente nas origens explicitamente configuradas.
 
@@ -155,6 +161,71 @@ dotnet run --project Apps/Verum.Worker.Descoberta --launch-profile Verum.Worker.
 ```
 
 A API fica em `http://localhost:5099`. `/openapi/v1.json` está disponível em Development. Envie a busca e acompanhe o endereço retornado mantendo o cookie. A API apenas aceita e enfileira; mantenha também o worker Descoberta executando. Sem consumidor, a busca permanece recebida na fila e pode exceder seu prazo antes de ser processada. `/health/live` verifica o processo; `/health/ready` inclui MassTransit quando habilitado, mas não comprova a presença do worker, PostgreSQL, Redis, Keycloak ou providers.
+
+## Assinaturas e pagamentos
+
+O módulo Assinaturas usa renovação mensal automática e checkout hospedado do Mercado Pago, sem plano associado no provedor. O catálogo e o preço são definidos pelo servidor; o cliente envia somente o código do plano e uma chave de idempotência. O navegador nunca envia valor, conta ou prazo de benefício. Dados de cartão ficam no checkout do provedor.
+
+A integração usa HttpClient e System.Text.Json do .NET, passando pela resiliência compartilhada. IGatewayAssinaturas é o contrato para incluir outros gateways; somente MercadoPagoGateway está implementado. A escolha está em Assinaturas:Gateway e cada assinatura guarda seu gateway de origem. Uma falha de cobrança não provoca troca automática de gateway: isso poderia gerar duas cobranças. Para incluir outro provedor, implemente o contrato, registre-o e estenda o enum e as constraints correspondentes.
+
+### Fluxo e liberação
+
+1. Conta autenticada, com e-mail confirmado e status permitido, solicita BUSCA_PLUS ou VERUM_PLUS.
+2. O servidor persiste a contratação antes de criar a assinatura remota, com referência externa igual ao ID local.
+3. O frontend recebe a URL do checkout e direciona o usuário. A autorização ou o retorno do navegador não libera recursos.
+4. O webhook valida HMAC-SHA256, relacionando data.id, x-request-id e x-signature. Somente após persistir EVENTO_GATEWAY responde HTTP 200.
+5. PagamentosWorker, hospedado na API, consulta os recursos na API do gateway, verifica vínculo da assinatura/fatura/pagamento, valor, moeda, recebedor e ambiente. Somente pagamento approved com data válida gera benefício.
+6. PAGAMENTO, CONCESSAO_PACOTE e conclusão do evento são confirmados na mesma transação PostgreSQL, mantendo cada DbContext no próprio schema. A referência da concessão é o ID local do pagamento.
+7. O módulo Acesso passa a reconhecer o pacote pago na próxima operação. A busca continua consultando Acesso; não chama o gateway nem Assinaturas para cada solicitação.
+
+A liberação costuma ocorrer no próximo ciclo do processador, configurado inicialmente em cinco segundos, além do tempo de confirmação do provedor. Cada fatura aprovada libera um mês contado da data de débito da fatura; a renovação cria outro período, sem somar limites. A data de aprovação é o fallback quando a data de débito não estiver disponível. O período de um pagamento reentregue não é acrescentado novamente.
+
+Cotas permanecem em 1/3/30 por dia, conforme as configurações de Acesso; upgrade, renovação, estorno e cancelamento não apagam o consumo. Pagamento pendente, recusado ou assinatura somente autorizada não cria concessão. Estorno, chargeback, mediação ou devolução parcial revogam o benefício daquele pagamento; outros períodos válidos continuam independentes. A política inicial não calcula acesso proporcional para devolução parcial.
+
+O cancelamento registra uma intenção durável e retorna 202. O processador interrompe a recorrência no gateway e preserva o período já pago, que expira naturalmente. Consulte a assinatura para confirmar Cancelada. Não há troca de plano com rateio nesta entrega; uma nova contratação exige o encerramento da anterior. Conta bloqueada não pode contratar nem usar recursos; bloqueio administrativo não cancela a cobrança automaticamente.
+
+### Idempotência, indisponibilidade e operação
+
+A mesma chave por conta recupera a contratação existente; outro plano com a mesma chave retorna conflito. Há no máximo uma contratação pendente ou assinatura não encerrada por conta. Se a resposta do POST externo se perder, a recuperação usa external_reference, sem repetir o POST. Uma contratação sem resposta pode ser consultada em GET /api/v1/assinaturas. Se continuar sem correspondência remota, fica pendente de conciliação operacional; não é criada outra cobrança automaticamente. Não exclua esse registro para tentar novamente sem verificar o gateway.
+
+Webhooks repetidos com a mesma identificação são deduplicados. Entregas diferentes sobre o mesmo recurso são serializadas por assinatura; pagamento e concessão possuem proteção contra duplicação. O banco usa FOR UPDATE SKIP LOCKED para permitir várias instâncias da API. Falhas têm até dez tentativas com espera exponencial e limite de uma hora entre tentativas. Após isso, o evento permanece Falhou para investigação pelo EventoGatewayId; não existe endpoint público para forçar benefícios.
+
+Uma conciliação periódica, inicialmente a cada cinco minutos, agenda até cinquenta assinaturas por rodada e consulta suas faturas, recuperando notificações perdidas e intenções de cancelamento. O rodízio considera a última data de agendamento para que uma assinatura com erro não impeça as demais. Canceladas são conciliadas rotineiramente por até noventa dias; webhooks continuam aceitos depois disso. As rotas do gateway são fixas: o receptor não segue URLs recebidas no payload. EVENTO_GATEWAY armazena somente o ID do recurso, sem cartão, credencial ou payload financeiro completo.
+
+As novas migrations de Assinaturas e Acesso devem ser aplicadas antes de habilitar pagamentos. O início da API não aplica migrations. Tokens e segredo do webhook devem ficar em variáveis de ambiente ou no gerenciador de segredos; nunca no Angular ou em arquivo versionado.
+
+### Configurar Mercado Pago Developers
+
+Crie uma aplicação própria do Verum em [Suas integrações](https://www.mercadopago.com.br/developers/panel/app). Use Assinaturas com checkout hospedado e recorrência mensal; esta implementação não utiliza Checkout Pro de pagamento avulso nem exige cadastrar preapproval_plan no painel. A criação segue o fluxo oficial de [assinatura com pagamento pendente](https://www.mercadopago.com.br/developers/pt/docs/subscriptions/integration-configuration/subscription-no-associated-plan/pending-payments).
+
+Configure uma URL pública HTTPS para o receptor /api/v1/webhooks/mercadopago. Localhost não recebe notificações externas; em desenvolvimento use um túnel HTTPS para a API. Configure também uma URL HTTPS de retorno do frontend. O retorno pode usar a página inicial existente enquanto não houver layout de assinatura.
+
+Ative os tópicos payment, subscription_preapproval e subscription_authorized_payment. Utilize Webhooks assinados e gere o segredo da aplicação. A documentação de Assinaturas orienta a configuração por notification_url durante a criação; o adapter já envia esse campo. Confirme os eventos disponíveis e sua entrega no painel da aplicação. Não substitua Webhooks por IPN, cuja autenticação não segue este contrato. Referência: [notificações oficiais](https://www.mercadopago.com.br/developers/pt/docs/subscriptions/additional-content/your-integrations/notifications/webhooks).
+
+| Configuração da API | Preenchimento |
+| --- | --- |
+| Assinaturas__Habilitado | true somente após configurar e migrar |
+| Assinaturas__Gateway | MercadoPago |
+| Assinaturas__PrecosMensais__BUSCA_PLUS | Valor mensal aprovado, com ponto decimal |
+| Assinaturas__PrecosMensais__VERUM_PLUS | Valor mensal aprovado, com ponto decimal |
+| Assinaturas__MercadoPago__AccessToken | Access Token privado da conta vendedora do ambiente |
+| Assinaturas__MercadoPago__WebhookSecret | Segredo Webhooks da aplicação correspondente |
+| Assinaturas__MercadoPago__CollectorId | User ID do vendedor que recebe a cobrança |
+| Assinaturas__MercadoPago__Producao | false em testes; true apenas em produção |
+| Assinaturas__MercadoPago__UrlRetorno | URL pública HTTPS do frontend |
+| Assinaturas__MercadoPago__UrlWebhook | URL pública HTTPS da API terminada em /api/v1/webhooks/mercadopago |
+
+Valores zero mantêm o plano fora do checkout. Os preços de testes automatizados são fictícios e não definem a política comercial. Credenciais, vendedor e comprador devem pertencer ao mesmo ambiente/país. Use comprador de teste diferente do vendedor e cartões de teste seguindo o [roteiro oficial de compra](https://www.mercadopago.com.br/developers/pt/docs/subscriptions/integration-test/test-purchase); não use cartão real para a homologação. O fluxo hospedado não precisa de Public Key no Angular.
+
+Antes de produção, conclua uma contratação no ambiente do provedor, confirme assinatura e cobrança na API e a liberação em GET /api/v1/buscas/acesso, depois valide renovação, recusa, cancelamento e estorno. O simulador de notificações sozinho não comprova pagamento: um ID inexistente nunca deve liberar acesso. Use credenciais e segredo próprios de produção e outra URL/ambiente para a homologação.
+
+Pagamentos permanecem desabilitados no arquivo padrão, com preços e credenciais vazios. Os testes automatizados usam HTTP simulado do gateway e PostgreSQL real; não substituem a homologação no Mercado Pago. O layout de contratação e retorno está pendente e seus contratos estão documentados junto ao frontend.
+
+Nos testes manuais, use uma conta Verum de homologação com o e-mail do comprador de teste do Mercado Pago, pois o backend usa o e-mail confirmado da conta como payer_email. Confirme esse e-mail pelo Mailpit local e abra o checkout em uma sessão separada da conta vendedora.
+
+Validação desta integração: 185 testes backend aprovados e um JWT optativo ignorado; 24 testes frontend aprovados, lint e builds sem erros. A carga local simulou 200 entregas de webhook com quatro processadores e confirmou um único pagamento e benefício. Migrations de Assinaturas e Acesso aplicadas ao banco local verum.
+
+O SDK 10.0.401 fixado no global.json não estava instalado neste ambiente. Esta entrega foi compilada e testada com o SDK .NET 10.0.113 instalado, sem alterar a versão exigida pelo repositório. Para os comandos usuais de desenvolvimento, instale o SDK fixado.
 
 ## Validação
 

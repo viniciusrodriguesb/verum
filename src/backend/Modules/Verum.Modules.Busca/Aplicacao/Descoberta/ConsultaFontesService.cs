@@ -1,17 +1,15 @@
-using Verum.Modules.Busca.Aplicacao.Descoberta.DTOs;
-using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
-using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
+using Verum.Modules.Busca.Aplicacao.Descoberta.DTOs;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
+using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
 
-internal sealed class ConsultaFontesService(
-  IConsultaLoja lojas, IDescobertaProdutosIaService ia, IOptions<BuscaOptions> options,
-  ILogger<ConsultaFontesService> logger)
+internal sealed class ConsultaFontesService(IConsultaLoja lojas, IDescobertaProdutosIaService ia, IOptions<BuscaOptions> options, ILogger<ConsultaFontesService> logger)
 {
   public async Task<ColetaOfertas> ConsultarAsync(string consulta, int quantidadeExistente, CancellationToken cancellationToken, CancellationToken cancelamentoHost = default)
   {

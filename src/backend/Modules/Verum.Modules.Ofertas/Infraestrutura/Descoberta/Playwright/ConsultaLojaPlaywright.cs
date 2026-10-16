@@ -1,7 +1,7 @@
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Playwright;
-using System.Text.RegularExpressions;
 using Verum.BuildingBlocks.Erros;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;

@@ -4,9 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Verum.BuildingBlocks.Erros;
 using Verum.BuildingBlocks.InteligenciaArtificial;
-using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
 using Verum.Modules.Busca.Aplicacao.InteligenciaArtificial.DTOs;
+using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
 
 namespace Verum.Modules.Busca.Aplicacao.InteligenciaArtificial;
@@ -92,7 +92,8 @@ internal sealed class DescobertaProdutosIaService(IConsultaIa ia, IConfiguration
       ConsultaInterpretada = resultado.ConsultaInterpretada,
       MotivoSemResultado = motivo,
       Produtos = validos.ToArray()
-    }, resposta) { Descartados = descartados.ToArray() };
+    }, resposta)
+    { Descartados = descartados.ToArray() };
 
     void RegistrarDescarte(int indice, string codigo)
     {

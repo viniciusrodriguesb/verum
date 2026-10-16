@@ -1,13 +1,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Verum.Modules.Contas;
-using Verum.Modules.Catalogo;
-using Verum.Modules.Ofertas;
-using Verum.Modules.Busca;
-using Verum.Modules.Radar;
-using Verum.Modules.Notificacoes;
 using Verum.Modules.Acesso;
 using Verum.Modules.Assinaturas;
+using Verum.Modules.Busca;
+using Verum.Modules.Catalogo;
+using Verum.Modules.Contas;
+using Verum.Modules.Notificacoes;
+using Verum.Modules.Ofertas;
+using Verum.Modules.Radar;
 
 namespace Verum.CrossCutting.Pipelines;
 
@@ -31,6 +31,8 @@ public static class ModulosPipeline
 
     services.AddAssinaturasPersistencia(configuration);
 
+    services.AddAssinaturasProcessamento();
+
     return services.AddVerumServices(typeof(Verum.Modules.Contas.DependencyInjection).Assembly,
       typeof(Verum.Modules.Catalogo.DependencyInjection).Assembly,
       typeof(Verum.Modules.Ofertas.DependencyInjection).Assembly,
@@ -43,8 +45,10 @@ public static class ModulosPipeline
 
   public static IServiceCollection AddVerumDescobertaModules(this IServiceCollection services, IConfiguration configuration) =>
     services.AddBuscaPersistencia(configuration).AddCatalogoPersistencia(configuration).AddOfertasPersistencia(configuration)
+      .AddAcessoPersistencia(configuration)
       .AddVerumServices(typeof(Verum.Modules.Busca.DependencyInjection).Assembly,
-        typeof(Verum.Modules.Catalogo.DependencyInjection).Assembly, typeof(Verum.Modules.Ofertas.DependencyInjection).Assembly);
+        typeof(Verum.Modules.Catalogo.DependencyInjection).Assembly, typeof(Verum.Modules.Ofertas.DependencyInjection).Assembly,
+        typeof(Verum.Modules.Acesso.DependencyInjection).Assembly);
 
   public static IServiceCollection AddVerumRadarModules(this IServiceCollection services, IConfiguration configuration) =>
     services.AddRadarPersistencia(configuration).AddCatalogoPersistencia(configuration)

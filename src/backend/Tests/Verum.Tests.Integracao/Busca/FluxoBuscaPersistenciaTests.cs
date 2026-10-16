@@ -1,24 +1,24 @@
 extern alias VerumApi;
-
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using MassTransit;
 using MassTransit.EntityFrameworkCoreIntegration;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Net.Http.Headers;
-using System.Text;
 using Npgsql;
 using Verum.BuildingBlocks.Erros;
 using Verum.CrossCutting;
 using Verum.Modules.Busca;
 using Verum.Modules.Busca.Contratos;
+using Verum.Modules.Busca.Contratos.DTOs;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 using Verum.Modules.Busca.Infraestrutura.Persistencia;
 using Verum.Modules.Catalogo.Infraestrutura.Persistencia;
@@ -26,7 +26,6 @@ using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Ofertas.Infraestrutura.Persistencia;
 using Verum.Worker.Descoberta.Configuracoes;
 using Xunit;
-using Verum.Modules.Busca.Contratos.DTOs;
 
 namespace Verum.Tests.Integracao;
 
@@ -342,7 +341,7 @@ public sealed class FluxoBuscaPersistenciaTests
     Assert.Equal(0, ambiente.Loja.Chamadas);
   }
 
-  private sealed class Ambiente(IHost host, string conexaoAdmin, string banco, FluxoFontesTests.LojaFake loja, string conexao, int limite, bool rabbit) : IAsyncDisposable
+  internal sealed class Ambiente(IHost host, string conexaoAdmin, string banco, FluxoFontesTests.LojaFake loja, string conexao, int limite, bool rabbit) : IAsyncDisposable
   {
     private string Fila => banco.Replace('_', '-');
 
@@ -385,6 +384,8 @@ public sealed class FluxoBuscaPersistenciaTests
 
         services.AddVerumWorkerDescoberta(config);
 
+        services.AddDbContext<Verum.Modules.Contas.Infraestrutura.Persistencia.ContasDbContext>(options => options.UseNpgsql(cs.ConnectionString));
+
         // Este cenário mede reutilização e idempotência com uma fonte, independente do catálogo de providers padrão.
         services.PostConfigure<Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes.BuscaOptions>(options => options.Lojas = ["kabum"]);
 
@@ -413,6 +414,10 @@ public sealed class FluxoBuscaPersistenciaTests
         await scope.ServiceProvider.GetRequiredService<CatalogoDbContext>().Database.MigrateAsync();
 
         await scope.ServiceProvider.GetRequiredService<OfertasDbContext>().Database.MigrateAsync();
+
+        await scope.ServiceProvider.GetRequiredService<Verum.Modules.Acesso.Infraestrutura.Persistencia.AcessoDbContext>().Database.MigrateAsync();
+
+        await scope.ServiceProvider.GetRequiredService<Verum.Modules.Contas.Infraestrutura.Persistencia.ContasDbContext>().Database.MigrateAsync();
 
         return ambiente;
       }

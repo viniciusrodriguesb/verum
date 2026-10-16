@@ -45,6 +45,24 @@ internal sealed class Conta
     ExcluidaEm = ValidarExcluidaEm(null);
   }
 
+  public void Bloquear()
+  {
+    if (Status == StatusConta.Excluida) throw Verum.BuildingBlocks.Erros.ErroAplicacaoException.Validacao("Conta excluída não pode ser bloqueada.");
+
+    Status = StatusConta.Bloqueada;
+
+    AtualizadaEm = DateTimeOffset.UtcNow;
+  }
+
+  public void Excluir()
+  {
+    Status = StatusConta.Excluida;
+
+    ExcluidaEm ??= DateTimeOffset.UtcNow;
+
+    AtualizadaEm = DateTimeOffset.UtcNow;
+  }
+
   public void AtualizarPerfil(string email, string nomeExibicao)
   {
     var emailValidado = ValidarEmail(email);

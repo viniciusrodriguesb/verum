@@ -22,6 +22,8 @@ internal sealed class EventoGateway
 
   public string? UltimoErro { get; private set; }
 
+  public DateTimeOffset? ProximaTentativaEm { get; private set; }
+
   // Materialização pelo EF Core.
   private EventoGateway() { }
 
@@ -52,6 +54,28 @@ internal sealed class EventoGateway
     Tentativas = ValidarTentativas(0);
 
     UltimoErro = ValidarUltimoErro(null);
+  }
+
+  public void Concluir()
+  {
+    Status = StatusEventoGateway.Processado;
+
+    ProcessadoEm = DateTimeOffset.UtcNow;
+
+    UltimoErro = null;
+
+    ProximaTentativaEm = null;
+  }
+
+  public void RegistrarFalha()
+  {
+    Tentativas++;
+
+    Status = StatusEventoGateway.Falhou;
+
+    UltimoErro = "Não foi possível confirmar o recurso no gateway. Consulte os logs pelo EventoGatewayId.";
+
+    ProximaTentativaEm = DateTimeOffset.UtcNow.AddSeconds(Math.Min(3600, 5 * Math.Pow(2, Tentativas)));
   }
 
   private static long ValidarId(long valor) =>

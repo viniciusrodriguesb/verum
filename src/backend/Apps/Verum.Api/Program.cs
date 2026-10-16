@@ -1,6 +1,6 @@
+using Verum.Api.Configuracoes;
 using Verum.CrossCutting;
 using Verum.CrossCutting.Pipelines;
-using Verum.Api.Configuracoes;
 
 var builder = WebApplication.CreateBuilder(args);
 

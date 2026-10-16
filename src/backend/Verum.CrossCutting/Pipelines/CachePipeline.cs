@@ -1,7 +1,7 @@
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
 using Verum.CrossCutting.Cache;
 using Verum.CrossCutting.Cache.Modulos;
@@ -9,7 +9,6 @@ using Verum.Modules.Acesso.Contratos.Cache;
 using Verum.Modules.Busca.Contratos.Cache;
 using Verum.Modules.Catalogo.Contratos.Cache;
 using Verum.Modules.Ofertas.Contratos.Cache;
-using Verum.CrossCutting.Cache.Configuracoes;
 
 namespace Verum.CrossCutting.Pipelines;
 

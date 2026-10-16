@@ -1,6 +1,6 @@
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Routing;
 
 namespace Verum.CrossCutting.Pipelines;
 

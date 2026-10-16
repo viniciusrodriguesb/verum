@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
-using Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
 
 namespace Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
 

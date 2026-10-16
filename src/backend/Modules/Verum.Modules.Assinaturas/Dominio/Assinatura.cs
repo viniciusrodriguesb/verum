@@ -14,6 +14,14 @@ internal sealed class Assinatura
 
   public string IdentificadorExterno { get; private set; } = null!;
 
+  public string? ChaveIdempotencia { get; private set; }
+
+  public string? UrlCheckout { get; private set; }
+
+  public DateTimeOffset? SincronizadaEm { get; private set; }
+
+  public DateTimeOffset? ReconciliacaoAgendadaEm { get; private set; }
+
   public StatusAssinatura Status { get; private set; }
 
   public decimal ValorContratado { get; private set; }
@@ -84,6 +92,47 @@ internal sealed class Assinatura
     CriadaEm = ValidarCriadaEm(agora);
 
     AtualizadaEm = ValidarAtualizadaEm(agora);
+  }
+
+  public void DefinirPedido(string chave)
+  {
+    ChaveIdempotencia = Validacao.Texto(chave, nameof(ChaveIdempotencia), 100);
+  }
+
+  public void VincularGateway(string identificador, string? url)
+  {
+    IdentificadorExterno = ValidarIdentificadorExterno(identificador);
+
+    UrlCheckout = url is null ? null : Validacao.Texto(url, nameof(UrlCheckout), 2000);
+
+    AtualizadaEm = DateTimeOffset.UtcNow;
+  }
+
+  public void SolicitarCancelamento()
+  {
+    CancelamentoSolicitadoEm ??= DateTimeOffset.UtcNow;
+  }
+
+  public void AgendarReconciliacao()
+  {
+    ReconciliacaoAgendadaEm = DateTimeOffset.UtcNow;
+  }
+
+  public void Sincronizar(string status, DateTimeOffset? inicio, DateTimeOffset? fim, bool cobrancaEmAtraso)
+  {
+    PeriodoIniciadoEm = ValidarPeriodoIniciadoEm(inicio);
+
+    PeriodoTerminaEm = ValidarPeriodoTerminaEm(fim);
+
+    Status = status == "cancelled" ? StatusAssinatura.Cancelada
+      : fim > DateTimeOffset.UtcNow ? StatusAssinatura.Ativa
+      : cobrancaEmAtraso || status == "paused" ? StatusAssinatura.Inadimplente : StatusAssinatura.Pendente;
+
+    if (status == "cancelled") CanceladaEm ??= DateTimeOffset.UtcNow;
+
+    SincronizadaEm = DateTimeOffset.UtcNow;
+
+    AtualizadaEm = DateTimeOffset.UtcNow;
   }
 
   private static Guid ValidarId(Guid valor) =>

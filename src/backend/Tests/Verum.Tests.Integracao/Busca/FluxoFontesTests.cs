@@ -1,15 +1,14 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
-using Verum.BuildingBlocks.InteligenciaArtificial;
-using Verum.Modules.Busca.Aplicacao.Descoberta;
-using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
-using Verum.Modules.Ofertas.Contratos.Descoberta;
-using Xunit;
 using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
+using Verum.Modules.Busca.Aplicacao.Descoberta;
 using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
+using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
+using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
+using Xunit;
 
 namespace Verum.Tests.Integracao;
 

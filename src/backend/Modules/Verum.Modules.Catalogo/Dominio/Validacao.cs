@@ -1,6 +1,6 @@
-using Verum.BuildingBlocks.Erros;
 using System.Net.Mail;
 using System.Text.Json;
+using Verum.BuildingBlocks.Erros;
 
 namespace Verum.Modules.Catalogo.Dominio;
 
@@ -57,7 +57,8 @@ internal static class Validacao
       if (document.RootElement.ValueKind != JsonValueKind.Object)
         throw ErroAplicacaoException.Validacao("Esperado um objeto JSON.", nome);
     }
-    catch (JsonException ex) {
+    catch (JsonException ex)
+    {
       throw ErroAplicacaoException.Validacao("JSON inválido.", nome, ex);
     }
 

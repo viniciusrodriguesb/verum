@@ -10,4 +10,6 @@ public sealed record OfertaResultado(
   public decimal PontuacaoConfianca { get; init; }
 
   public decimal PontuacaoAtualizacao { get; init; }
+
+  public FundamentosRanking? Fundamentos { get; init; }
 }

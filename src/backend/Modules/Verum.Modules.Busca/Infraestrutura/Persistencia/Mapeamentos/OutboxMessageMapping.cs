@@ -1,8 +1,8 @@
+using System.Text.RegularExpressions;
 using MassTransit;
 using MassTransit.EntityFrameworkCoreIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Text.RegularExpressions;
 
 namespace Verum.Modules.Busca.Infraestrutura.Persistencia.Mapeamentos;
 

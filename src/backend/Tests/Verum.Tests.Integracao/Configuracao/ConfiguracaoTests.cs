@@ -5,10 +5,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Verum.CrossCutting;
 using Verum.CrossCutting.Mensageria;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 using Verum.CrossCutting.Pipelines;
 using Verum.Tests.Integracao.Aplicacao;
 using Xunit;
-using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 
@@ -24,7 +24,7 @@ public sealed class ConfiguracaoTests
     services.AddVerumServices(typeof(ExemploService).Assembly);
 
     using var provider = services.BuildServiceProvider(new ServiceProviderOptions
-      { ValidateScopes = true, ValidateOnBuild = true });
+    { ValidateScopes = true, ValidateOnBuild = true });
 
     using var first = provider.CreateScope();
 
@@ -97,7 +97,9 @@ public sealed class ConfiguracaoTests
 
     services.AddVerumMensageria(Config(new()
     {
-      ["RabbitMQ:Enabled"] = "true", ["RabbitMQ:Username"] = "test", ["RabbitMQ:Password"] = "test"
+      ["RabbitMQ:Enabled"] = "true",
+      ["RabbitMQ:Username"] = "test",
+      ["RabbitMQ:Password"] = "test"
     }), "test", bus => bus.AddConsumer<RecuperavelConsumer>());
 
     await using var provider = services.BuildServiceProvider();

@@ -27,6 +27,18 @@ internal sealed class PagamentoMapping : IEntityTypeConfiguration<Entidade>
 
     builder.HasKey(x => x.Id);
 
+    builder.Property(x => x.PeriodoInicio)
+           .HasColumnName("PERIODO_INICIO")
+           .HasColumnType("timestamp with time zone");
+
+    builder.Property(x => x.PeriodoFim)
+           .HasColumnName("PERIODO_FIM")
+           .HasColumnType("timestamp with time zone");
+
+    builder.Property(x => x.AtualizadoGatewayEm)
+           .HasColumnName("ATUALIZADO_GATEWAY_EM")
+           .HasColumnType("timestamp with time zone");
+
     builder.Property(x => x.Id)
            .HasColumnName("ID")
            .HasColumnType("uuid")

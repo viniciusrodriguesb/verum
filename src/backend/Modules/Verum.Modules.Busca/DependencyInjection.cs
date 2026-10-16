@@ -1,10 +1,9 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Verum.Modules.Busca.Infraestrutura.Persistencia;
-using Verum.Modules.Busca.Aplicacao.Descoberta;
-using MassTransit;
 using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
+using Verum.Modules.Busca.Infraestrutura.Persistencia;
 
 namespace Verum.Modules.Busca;
 

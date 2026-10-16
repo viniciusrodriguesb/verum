@@ -4,11 +4,11 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Verum.BuildingBlocks.InteligenciaArtificial;
+using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
 using Verum.CrossCutting.InteligenciaArtificial;
 using Verum.CrossCutting.Pipelines;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial;
 using Xunit;
-using Verum.BuildingBlocks.InteligenciaArtificial.DTOs;
 
 namespace Verum.Tests.Integracao;
 
@@ -351,7 +351,8 @@ public sealed class InteligenciaArtificialTests
     ["output"] = new JsonArray(
       new JsonObject
       {
-        ["type"] = "web_search_call", ["status"] = "completed",
+        ["type"] = "web_search_call",
+        ["status"] = "completed",
         ["action"] = new JsonObject { ["sources"] = new JsonArray(new JsonObject { ["type"] = "url", ["url"] = UrlProduto }) }
       },
       new JsonObject
@@ -359,7 +360,8 @@ public sealed class InteligenciaArtificialTests
         ["type"] = "message",
         ["content"] = new JsonArray(new JsonObject
         {
-          ["type"] = "output_text", ["text"] = json.ToJsonString(),
+          ["type"] = "output_text",
+          ["text"] = json.ToJsonString(),
           ["annotations"] = new JsonArray(new JsonObject { ["type"] = "url_citation", ["url"] = UrlProduto, ["title"] = "Produto" })
         })
       })

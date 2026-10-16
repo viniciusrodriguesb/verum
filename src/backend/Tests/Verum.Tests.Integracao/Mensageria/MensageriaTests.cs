@@ -2,9 +2,9 @@ using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Verum.CrossCutting.Mensageria;
+using Verum.CrossCutting.Mensageria.Configuracoes;
 using Verum.CrossCutting.Pipelines;
 using Xunit;
-using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 
@@ -127,7 +127,8 @@ public sealed class MensageriaTests
 
       Assert.Equal(1, contador.Invalidas);
     }
-    finally {
+    finally
+    {
       await bus.StopAsync(CancellationToken.None);
     }
   }

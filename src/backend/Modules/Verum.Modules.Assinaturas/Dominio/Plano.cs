@@ -65,6 +65,13 @@ internal sealed class Plano
     AtualizadoEm = ValidarAtualizadoEm(agora);
   }
 
+  public void AtualizarPreco(decimal valor)
+  {
+    ValorAtual = ValidarValorAtual(valor);
+
+    AtualizadoEm = DateTimeOffset.UtcNow;
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

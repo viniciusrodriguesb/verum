@@ -262,7 +262,8 @@ public sealed class RedisRealTests
     // Porta sem serviço: não interrompe nem reconfigura o Redis do desenvolvedor.
     using var provider = CacheRedisTests.CriarProvider(new()
     {
-      ["Redis:Enabled"] = "true", ["ConnectionStrings:Redis"] = "127.0.0.1:1,abortConnect=false",
+      ["Redis:Enabled"] = "true",
+      ["ConnectionStrings:Redis"] = "127.0.0.1:1,abortConnect=false",
       ["Redis:TimeoutMilissegundos"] = "100"
     });
 
@@ -296,7 +297,8 @@ public sealed class RedisRealTests
 
       var values = new Dictionary<string, string?>
       {
-        ["Redis:Enabled"] = "true", ["Redis:Prefixo"] = cenario._prefixo,
+        ["Redis:Enabled"] = "true",
+        ["Redis:Prefixo"] = cenario._prefixo,
         ["ConnectionStrings:Redis"] = Environment.GetEnvironmentVariable("VERUM_TEST_REDIS")
       };
 

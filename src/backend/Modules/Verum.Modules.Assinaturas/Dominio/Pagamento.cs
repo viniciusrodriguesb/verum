@@ -24,6 +24,12 @@ internal sealed class Pagamento
 
   public DateTimeOffset AtualizadoEm { get; private set; }
 
+  public DateTimeOffset? PeriodoInicio { get; private set; }
+
+  public DateTimeOffset? PeriodoFim { get; private set; }
+
+  public DateTimeOffset? AtualizadoGatewayEm { get; private set; }
+
 
   public Assinatura Assinatura { get; private set; } = null!;
 
@@ -61,6 +67,40 @@ internal sealed class Pagamento
     CriadoEm = ValidarCriadoEm(agora);
 
     AtualizadoEm = ValidarAtualizadoEm(agora);
+  }
+
+  public bool Sincronizar(string status, DateTimeOffset? pagoEm, DateTimeOffset inicio, DateTimeOffset atualizadoEm)
+  {
+    if (AtualizadoGatewayEm > atualizadoEm) return false;
+
+    // Um reenvio antigo nunca reativa uma concessão estornada.
+    if (Status == StatusPagamento.Estornado) return false;
+
+    var periodoConfirmado = Status == StatusPagamento.Aprovado;
+
+    Status = status switch
+    {
+      "approved" => StatusPagamento.Aprovado,
+      "refunded" or "charged_back" or "in_mediation" => StatusPagamento.Estornado,
+      "rejected" => StatusPagamento.Recusado,
+      "cancelled" => StatusPagamento.Cancelado,
+      _ => StatusPagamento.Pendente
+    };
+
+    PagoEm = ValidarPagoEm(pagoEm) ?? PagoEm;
+
+    if (!periodoConfirmado)
+    {
+      PeriodoInicio = Validacao.Data(inicio, nameof(PeriodoInicio));
+
+      PeriodoFim = inicio.AddMonths(1);
+    }
+
+    AtualizadoGatewayEm = Validacao.Data(atualizadoEm, nameof(AtualizadoGatewayEm));
+
+    AtualizadoEm = DateTimeOffset.UtcNow;
+
+    return true;
   }
 
   private static Guid ValidarId(Guid valor) =>

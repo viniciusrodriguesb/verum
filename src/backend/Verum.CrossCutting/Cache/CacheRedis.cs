@@ -76,7 +76,8 @@ public sealed class CacheRedis(RedisConexao conexao, IOptions<RedisOptions> opti
 
       var restante = validoAte - relogio.GetUtcNow();
 
-      if (restante < TimeSpan.FromMilliseconds(1)) {
+      if (restante < TimeSpan.FromMilliseconds(1))
+      {
         await RemoveAsync(chave, cancellationToken);
 
         return false;
@@ -175,7 +176,8 @@ public sealed class CacheRedis(RedisConexao conexao, IOptions<RedisOptions> opti
 
       return valor;
     }
-    finally {
+    finally
+    {
       gate.Release();
     }
   }

@@ -34,7 +34,8 @@ internal sealed class ContaService(ContasDbContext db) : IContaService
     }
 
     if (conta.Status != StatusConta.Ativa)
-      throw new ErroAplicacaoException("CONTA_INATIVA", "Esta conta não está ativa.", TipoErro.AcessoNegado);
+      throw new ErroAplicacaoException(conta.Status == StatusConta.Bloqueada ? "CONTA_BLOQUEADA" : "CONTA_EXCLUIDA",
+        conta.Status == StatusConta.Bloqueada ? "Esta conta está bloqueada." : "Esta conta foi excluída.", TipoErro.AcessoNegado);
 
     conta.AtualizarPerfil(email, nome);
 

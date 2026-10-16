@@ -3,11 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Verum.Modules.Busca.Aplicacao.Descoberta;
+using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
 using Verum.Modules.Ofertas;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
-using Verum.Modules.Busca.Aplicacao.Descoberta;
-using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -64,8 +64,13 @@ public sealed class NovasLojasReaisTests(ITestOutputHelper output)
         Guid.NewGuid(), Guid.NewGuid(), x.Nome, x.Url, x.Preco, x.CondicaoPreco, x.ImagemUrl,
         x.Fonte, 50m, x.ObservadaEm, x.ObservadaEm.AddMinutes(15))), 12, consulta);
 
-      relatorios.Add(new { consulta, fontes = coleta.Fontes, encontrados = coleta.Ofertas.Count,
-        selecionados = ranking.Select(x => new { x.Nome, x.Fonte, x.Preco, x.Url, x.Pontuacao }).ToArray() });
+      relatorios.Add(new
+      {
+        consulta,
+        fontes = coleta.Fontes,
+        encontrados = coleta.Ofertas.Count,
+        selecionados = ranking.Select(x => new { x.Nome, x.Fonte, x.Preco, x.Url, x.Pontuacao }).ToArray()
+      });
 
       if (ranking.Count == 0) falhas.Add(consulta + ": nenhum resultado correspondente");
 

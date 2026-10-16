@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Verum.CrossCutting.Mensageria;
-using Verum.Modules.Busca;
 using Verum.CrossCutting.Mensageria.Configuracoes;
+using Verum.Modules.Busca;
 
 namespace Verum.CrossCutting.Pipelines;
 
@@ -20,12 +20,11 @@ public static class MensageriaPipeline
       return services;
 
     services.AddOptions<RabbitMqOptions>().Bind(section).ValidateDataAnnotations()
-      .Validate(o => o.ConcurrentMessageLimit <= o.PrefetchCount,
-        "ConcurrentMessageLimit deve ser menor ou igual a PrefetchCount.")
-      .Validate(o => !o.UseDelayedRedelivery || o.RedeliveryIntervalsSeconds is { Length: > 0 }
-        && o.RedeliveryIntervalsSeconds.All(s => s > 0 && s <= 86400),
-        "Os intervalos de redelivery devem estar entre 1 e 86400 segundos.")
-      .ValidateOnStart();
+            .Validate(o => o.ConcurrentMessageLimit <= o.PrefetchCount, "ConcurrentMessageLimit deve ser menor ou igual a PrefetchCount.")
+            .Validate(o => !o.UseDelayedRedelivery || o.RedeliveryIntervalsSeconds is { Length: > 0 }
+                           && o.RedeliveryIntervalsSeconds.All(s => s > 0 && s <= 86400),
+                           "Os intervalos de redelivery devem estar entre 1 e 86400 segundos.")
+            .ValidateOnStart();
 
     services.Configure<MassTransitHostOptions>(o =>
     {
@@ -44,7 +43,8 @@ public static class MensageriaPipeline
 
       registrarConsumidores?.Invoke(bus);
 
-      if (hostName == "api") bus.AddBuscaOutbox();
+      if (hostName == "api")
+        bus.AddBuscaOutbox();
 
       bus.UsingRabbitMq((context, rabbit) =>
       {
@@ -56,7 +56,8 @@ public static class MensageriaPipeline
 
           host.Password(options.Password);
 
-          if (options.UseSsl) host.UseSsl(ssl => {
+          if (options.UseSsl) host.UseSsl(ssl =>
+          {
             ssl.ServerName = options.Host;
           });
         });
@@ -68,8 +69,7 @@ public static class MensageriaPipeline
         rabbit.ConfigureEndpoints(context);
       });
 
-      bus.AddConfigureEndpointsCallback((context, _, endpoint) =>
-        endpoint.ConfigureVerumConsumer(context, settings));
+      bus.AddConfigureEndpointsCallback((context, _, endpoint) => endpoint.ConfigureVerumConsumer(context, settings));
     });
 
     return services;

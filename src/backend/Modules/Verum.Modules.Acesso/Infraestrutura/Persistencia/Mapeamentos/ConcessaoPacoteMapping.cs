@@ -73,5 +73,9 @@ internal sealed class ConcessaoPacoteMapping : IEntityTypeConfiguration<Entidade
            .WithMany(x => x.Concessoes)
            .HasForeignKey(x => x.PacoteAcessoId)
            .OnDelete(DeleteBehavior.Restrict);
+
+    builder.HasIndex(x => new { x.Origem, x.ReferenciaOrigemId })
+           .IsUnique()
+           .HasFilter("\"ORIGEM\" = 2 AND \"REFERENCIA_ORIGEM_ID\" IS NOT NULL");
   }
 }

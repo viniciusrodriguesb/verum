@@ -2,13 +2,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Verum.CrossCutting.Cache;
+using Verum.CrossCutting.Cache.Configuracoes;
 using Verum.CrossCutting.Pipelines;
 using Verum.Modules.Acesso.Contratos.Cache;
 using Verum.Modules.Busca.Contratos.Cache;
 using Verum.Modules.Catalogo.Contratos.Cache;
 using Verum.Modules.Ofertas.Contratos.Cache;
 using Xunit;
-using Verum.CrossCutting.Cache.Configuracoes;
 
 namespace Verum.Tests.Integracao;
 

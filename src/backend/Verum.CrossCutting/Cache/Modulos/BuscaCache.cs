@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
-using Verum.Modules.Busca.Contratos.Cache;
 using Verum.CrossCutting.Cache.Configuracoes;
+using Verum.Modules.Busca.Contratos.Cache;
 
 namespace Verum.CrossCutting.Cache.Modulos;
 

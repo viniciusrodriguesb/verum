@@ -5,8 +5,7 @@ namespace Verum.CrossCutting.Pipelines;
 
 public static class ServicesPipeline
 {
-  // Somente assemblies explicitamente selecionados pelo host são inspecionados.
-  // Classes concretas fechadas em Aplicacao, terminadas em Service, são scoped.
+
   public static IServiceCollection AddVerumServices(this IServiceCollection services, params Assembly[] assemblies)
   {
     var types = assemblies.Distinct().SelectMany(a => a.GetTypes())
@@ -23,7 +22,8 @@ public static class ServicesPipeline
       {
         var existing = services.SingleOrDefault(d => d.ServiceType == type);
 
-        if (existing?.ImplementationType == type) continue;
+        if (existing?.ImplementationType == type)
+          continue;
 
         throw new InvalidOperationException($"Registro ambíguo para {contract.FullName}.");
       }

@@ -59,6 +59,11 @@ internal sealed class ConcessaoPacote
       throw ErroAplicacaoException.Validacao("ValidaAte deve ser posterior a ValidaDe.");
   }
 
+  public void Revogar()
+  {
+    RevogadaEm ??= DateTimeOffset.UtcNow;
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

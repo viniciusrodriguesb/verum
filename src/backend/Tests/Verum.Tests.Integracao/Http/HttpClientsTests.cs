@@ -1,8 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
-using Verum.CrossCutting.Pipelines;
 using Polly.CircuitBreaker;
 using Polly.Timeout;
+using Verum.CrossCutting.Pipelines;
 using Xunit;
 
 namespace Verum.Tests.Integracao;

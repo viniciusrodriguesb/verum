@@ -1,21 +1,25 @@
+using System.Text.Json;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 using Verum.BuildingBlocks.Erros;
+using Verum.BuildingBlocks.Identidade;
+using Verum.Modules.Acesso.Contratos;
+using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
 using Verum.Modules.Busca.Contratos;
 using Verum.Modules.Busca.Contratos.Cache;
+using Verum.Modules.Busca.Contratos.DTOs;
 using Verum.Modules.Busca.Dominio;
 using Verum.Modules.Busca.Infraestrutura.Persistencia;
 using BuscaEntidade = Verum.Modules.Busca.Dominio.Busca;
-using Verum.Modules.Busca.Aplicacao.Descoberta.Configuracoes;
-using Verum.Modules.Busca.Contratos.DTOs;
 
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
-internal sealed class BuscaService(BuscaDbContext db, IOptions<BuscaOptions> options, IBuscaCache cache, ISendEndpointProvider? sender = null) : IBuscaService
+internal sealed class BuscaService(BuscaDbContext db, IOptions<BuscaOptions> options, IBuscaCache cache,
+  IAcessoBuscaService acesso, ISendEndpointProvider? sender = null) : IBuscaService
 {
-  public async Task<BuscaAceita> SolicitarAsync(Guid visitanteId, SolicitarBusca pedido, CancellationToken cancellationToken)
+  public async Task<BuscaAceita> SolicitarAsync(AtorBusca ator, SolicitarBusca pedido, CancellationToken cancellationToken)
   {
     if (sender is null)
       throw new ErroAplicacaoException("BUSCA_INDISPONIVEL", "O serviço de busca está indisponível.", TipoErro.Indisponivel);
@@ -24,14 +28,15 @@ internal sealed class BuscaService(BuscaDbContext db, IOptions<BuscaOptions> opt
 
     var chave = Validacao.Texto(pedido.ChaveIdempotencia, nameof(pedido.ChaveIdempotencia), 100);
 
-    Validacao.Identificador(visitanteId, nameof(visitanteId));
+    await acesso.PrepararAsync(ator, cancellationToken);
 
     await using var transacao = await db.Database.BeginTransactionAsync(cancellationToken);
 
     await db.Database.ExecuteSqlInterpolatedAsync(
-      $"SELECT pg_advisory_xact_lock(hashtextextended({visitanteId.ToString()}, 710003))", cancellationToken);
+      $"SELECT pg_advisory_xact_lock(hashtextextended({ator.Chave}, 710003))", cancellationToken);
 
-    var existente = await db.Buscas.SingleOrDefaultAsync(x => x.VisitanteId == visitanteId && x.ChaveIdempotencia == chave, cancellationToken);
+    var existente = await db.Buscas.SingleOrDefaultAsync(x => x.ContaId == ator.ContaId
+      && x.VisitanteId == ator.VisitanteId && x.ChaveIdempotencia == chave, cancellationToken);
 
     if (existente is not null)
     {
@@ -41,12 +46,10 @@ internal sealed class BuscaService(BuscaDbContext db, IOptions<BuscaOptions> opt
       return new(existente.Id, existente.Status.ToString());
     }
 
-    var inicioDia = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero);
+    var busca = new BuscaEntidade(chave, consulta, DateTimeOffset.UtcNow.AddSeconds(options.Value.PrazoSegundos),
+      contaId: ator.ContaId, visitanteId: ator.VisitanteId);
 
-    if (await db.Buscas.CountAsync(x => x.VisitanteId == visitanteId && x.IniciadaEm >= inicioDia, cancellationToken) >= options.Value.LimiteVisitanteDiario)
-      throw new ErroAplicacaoException("LIMITE_BUSCAS", "Limite diário de buscas atingido.", TipoErro.LimiteExcedido);
-
-    var busca = new BuscaEntidade(chave, consulta, DateTimeOffset.UtcNow.AddSeconds(options.Value.PrazoSegundos), visitanteId: visitanteId);
+    await acesso.RegistrarAsync(ator, busca.Id, db.Database.GetDbConnection(), transacao.GetDbTransaction(), cancellationToken);
 
     db.Buscas.Add(busca);
 
@@ -56,7 +59,6 @@ internal sealed class BuscaService(BuscaDbContext db, IOptions<BuscaOptions> opt
 
     db.Etapas.Add(etapa);
 
-    // Comando dirigido à fila durável: a primeira solicitação também aguarda um worker futuro.
     var endpoint = await sender.GetSendEndpoint(new Uri("queue:" + options.Value.FilaSolicitacoes));
 
     await endpoint.Send(new BuscaSolicitada(busca.Id), context => context.CorrelationId = busca.Id, cancellationToken);
@@ -68,13 +70,24 @@ internal sealed class BuscaService(BuscaDbContext db, IOptions<BuscaOptions> opt
     return new(busca.Id, busca.Status.ToString());
   }
 
-  public async Task<BuscaConsulta> ObterAsync(Guid visitanteId, Guid buscaId, CancellationToken cancellationToken)
+  public async Task<IReadOnlyList<BuscaHistorico>> ObterHistoricoAsync(AtorBusca ator, CancellationToken cancellationToken)
   {
-    var busca = await db.Buscas.AsNoTracking()
-      .SingleOrDefaultAsync(x => x.Id == buscaId && x.VisitanteId == visitanteId, cancellationToken)
+    if (!ator.ContaId.HasValue)
+      throw new ErroAplicacaoException("HISTORICO_REQUER_CONTA", "Entre para acessar o histórico da sua conta.", TipoErro.AcessoNegado);
+
+    return await db.Buscas.AsNoTracking().Where(x => x.ContaId == ator.ContaId && x.VisitanteId == null)
+      .OrderByDescending(x => x.IniciadaEm).ThenByDescending(x => x.Id).Take(50)
+      .Select(x => new BuscaHistorico(x.Id, x.ConsultaOriginal, x.Status.ToString(), x.IniciadaEm, x.ConcluidaEm))
+      .ToArrayAsync(cancellationToken);
+  }
+
+  public async Task<BuscaConsulta> ObterAsync(AtorBusca ator, Guid buscaId, CancellationToken cancellationToken)
+  {
+    var busca = await db.Buscas
+                        .AsNoTracking()
+                        .SingleOrDefaultAsync(x => x.Id == buscaId && x.ContaId == ator.ContaId && x.VisitanteId == ator.VisitanteId, cancellationToken)
       ?? throw new ErroAplicacaoException("BUSCA_NAO_ENCONTRADA", "Busca não encontrada.", TipoErro.NaoEncontrado);
 
-    // A propriedade é sempre autorizada no banco antes de acessar qualquer projeção.
     if (busca.ConcluidaEm.HasValue)
     {
       var armazenado = await cache.ObterResultadoAsync<BuscaConsulta>(buscaId, cancellationToken);

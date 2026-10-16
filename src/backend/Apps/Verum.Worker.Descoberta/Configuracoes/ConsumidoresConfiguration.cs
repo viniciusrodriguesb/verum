@@ -1,6 +1,6 @@
 using MassTransit;
-using Verum.Worker.Descoberta.Consumidores;
 using Verum.Modules.Busca.Contratos;
+using Verum.Worker.Descoberta.Consumidores;
 
 namespace Verum.Worker.Descoberta.Configuracoes;
 

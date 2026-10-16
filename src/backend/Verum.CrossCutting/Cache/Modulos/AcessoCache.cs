@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
-using Verum.Modules.Acesso.Contratos.Cache;
 using Verum.CrossCutting.Cache.Configuracoes;
+using Verum.Modules.Acesso.Contratos.Cache;
 using Verum.Modules.Acesso.Contratos.Cache.DTOs;
 
 namespace Verum.CrossCutting.Cache.Modulos;
