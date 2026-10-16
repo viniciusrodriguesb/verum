@@ -1,9 +1,22 @@
 name: verum-keycloak
 
+x-runtime: &runtime
+  init: true
+  restart: unless-stopped
+  stop_grace_period: 30s
+  security_opt:
+    - no-new-privileges:true
+  logging:
+    driver: local
+    options:
+      max-size: 10m
+      max-file: "3"
+
 services:
   postgres:
+    <<: *runtime
     image: postgres:16.15-alpine
-    restart: unless-stopped
+    mem_limit: 512m
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -17,9 +30,12 @@ services:
       retries: 20
 
   keycloak:
+    <<: *runtime
     image: quay.io/keycloak/keycloak:26.8.0
     command: [start-dev, --import-realm]
-    restart: unless-stopped
+    mem_limit: 2g
+    cap_drop:
+      - ALL
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,8 +68,9 @@ services:
       retries: 20
 
   mailpit:
+    <<: *runtime
     image: axllent/mailpit:v1.31.5
-    restart: unless-stopped
+    mem_limit: 256m
     environment:
       MP_DATABASE: /data/mailpit.db
       MP_MAX_MESSAGES: "100"

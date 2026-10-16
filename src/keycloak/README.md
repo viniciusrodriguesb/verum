@@ -31,7 +31,7 @@ Use `localhost` consistentemente. As portas publicadas são vinculadas somente �
 
 Contas e permissões comerciais continuam no backend. O vínculo usa o `sub` estável do Keycloak, nunca e-mail, CPF ou uma identidade por empresa. Não há federação de usuários, SPI, GOV.BR ou fluxo personalizado neste ambiente. O banco interno do Keycloak é gerenciado pelo próprio servidor, com seus nomes e migrations nativos; não é gerenciado por EF Core.
 
-O Angular usa `verum-web` para login, cadastro, logout e gerenciamento da identidade. Configure URL, realm e client em `src/frontend/web/public/configuracao.json`; o arquivo é carregado antes da aplicação. A API local aponta para `http://localhost:8081/realms/verum`, com audiência `verum-api`. Ao iniciar uma sessão autenticada, o frontend chama `POST /api/v1/contas/me`, que sincroniza a conta do Verum a partir das claims validadas. O fluxo de busca continua usando cookie e cota de visitante até a implementação das concessões do módulo Acesso.
+O Angular usa `verum-web` para login, cadastro, logout e gerenciamento da identidade. Configure URL, realm e client em `src/frontend/web/public/configuracao.json`; o arquivo é carregado antes da aplicação. A API local aponta para `http://localhost:8081/realms/verum`, com audiência `verum-api`. Ao iniciar uma sessão autenticada, o frontend chama `POST /api/v1/contas/me`, que sincroniza a conta e provisiona FREE. Buscas autenticadas pertencem à conta; buscas anônimas pertencem ao visitante. Planos, concessões e cotas ficam no módulo Acesso, sem roles comerciais no Keycloak. Login não migra buscas anônimas, e bloqueio da conta interna é verificado mesmo quando o JWT ainda está válido.
 
 ## Persistência e alterações
 
@@ -40,5 +40,9 @@ O volume PostgreSQL mantém usuários, vínculos e configurações. `docker comp
 O Keycloak importa o JSON na criação inicial e ignora a importação quando o realm já existe. Alterar o JSON ou `.env` não sobrescreve um realm existente. Ajuste a instância pela administração e mantenha o arquivo inicial alinhado quando mudar a configuração. Senhas de bootstrap só criam o administrador inicial; editar `.env` não troca a senha existente.
 
 Versões de imagens são fixadas no Compose. Atualizações exigem leitura das notas de versão e backup do banco. O Mailpit mantém somente mensagens locais; não existe SMTP externo ou encaminhamento de e-mails reais.
+
+O runtime usa init para encaminhar sinais e recolher processos, prazo de 30 segundos para encerrar, logs locais limitados a três arquivos de 10 MB e bloqueio de elevação de privilégios. O Keycloak usa o usuário não root da imagem oficial e não recebe capabilities adicionais. Os limites locais de memória são 2 GB para Keycloak, 512 MB para PostgreSQL e 256 MB para Mailpit; revise-os conforme a carga medida.
+
+Não há Dockerfiles de backend ou frontend, nem ambiente de produção em containers definido neste repositório. Este Compose atende ao desenvolvimento local e não representa uma implantação escalável de produção. Nesse ambiente futuro, use build em etapas, runtime mínimo sem segredos na imagem e configuração própria de TLS, persistência, disponibilidade e recursos. Para Keycloak, a imagem otimizada deve executar o build antes do start --optimized, conforme o [guia oficial de containers](https://www.keycloak.org/server/containers).
 
 Este Compose usa `start-dev` e HTTP para desenvolvimento. Produção exige hostname público HTTPS, configuração de proxy conforme a implantação, SMTP real e gestão de segredos. Não reutilize o `.env` local em produção. Observabilidade completa fica para a entrega correspondente; o health check aqui apenas valida a prontidão do container.
