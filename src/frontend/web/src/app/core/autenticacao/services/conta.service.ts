@@ -18,6 +18,10 @@ export class ContaService {
     return conta?.sujeitoIdentidade === this.autenticacao.usuario()?.sujeito ? conta : null;
   });
 
+  obter() {
+    return this.http.get<ContaAutenticada>('/api/v1/contas/me').pipe(timeout(15000));
+  }
+
   async sincronizar(): Promise<void> {
     this.contaAtual.set(
       await firstValueFrom(

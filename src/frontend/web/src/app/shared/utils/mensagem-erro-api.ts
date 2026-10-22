@@ -17,7 +17,7 @@ export function mensagemErroApi(erro: unknown): string {
         return 'Esta solicitação já foi utilizada. Inicie uma nova tentativa.';
       case 429:
         return busca
-          ? 'Você atingiu o limite diário de buscas. Tente novamente amanhã.'
+          ? 'Você atingiu o limite diário de buscas. Consulte o horário de reposição.'
           : 'Muitas solicitações em pouco tempo. Aguarde antes de tentar novamente.';
     }
   }

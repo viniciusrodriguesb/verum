@@ -250,3 +250,13 @@ Validação local: 171 testes aprovados com serviços locais e um teste JWT opta
 ## Deploy
 
 API e cada worker possuem imagens e deploys independentes para VPS. As migrations executam em imagem própria, com trava compartilhada. Consulte o [guia de implantação](../../deploy/README.md) para configurar o GHCR, a VPS e os secrets do GitHub Actions.
+
+A gestão autenticada em /conta utiliza GET /api/v1/contas/me para leitura do perfil por identidade do token, com projeção e AsNoTracking. O GET não sincroniza nem altera a conta; POST /api/v1/contas/me mantém essa responsabilidade. Plano, uso e concessão são consultados em Busca/Acesso, e o estado da assinatura pelos contratos existentes de Assinaturas. Nenhuma migration é necessária para essa tela.
+
+## Radar e avisos
+
+O Radar possui criação e gestão de metas por anúncio confirmado, acesso por concessão Verum Plus, verificações agrupadas e oportunidades persistidas. O Worker Radar utiliza os mesmos providers de Ofertas da Busca e também despacha os e-mails via MailKit. Free e Busca Plus não incluem Radar. Sem configuração de SMTP, os avisos permanecem disponíveis na plataforma e as entregas pendentes.
+
+As opções `Radar` e `Notificacoes:Email` estão nos appsettings e nos exemplos de deploy da API/Worker Radar. Development utiliza Mailpit em localhost:1025; produção começa desabilitada. Configure política comercial, preços, credenciais e webhook antes da liberação. Migrations continuam com execução independente.
+
+Decisões, limites deste primeiro corte, comportamento de retries, configuração e evidências de teste: [implementação do Radar](../../docs/implementacao-radar-2026-10-20.md).

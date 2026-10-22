@@ -14,6 +14,33 @@ internal sealed class PreferenciaNotificacao
 
   public DateTimeOffset AtualizadaEm { get; private set; }
 
+  public int SilencioInicio { get; private set; } = 22;
+
+  public int SilencioFim { get; private set; } = 8;
+
+  public string Fuso { get; private set; } = "America/Sao_Paulo";
+
+  public void Atualizar(bool habilitada, int inicio, int fim, string fuso)
+  {
+    if (inicio is < 0 or > 23 || fim is < 0 or > 23)
+      throw Verum.BuildingBlocks.Erros.ErroAplicacaoException.Validacao("Horários devem estar entre 0 e 23.");
+
+    fuso = Validacao.Texto(fuso, nameof(Fuso), 100);
+
+    try { _ = TimeZoneInfo.FindSystemTimeZoneById(fuso); }
+    catch (TimeZoneNotFoundException) { throw Verum.BuildingBlocks.Erros.ErroAplicacaoException.Validacao("Fuso inválido."); }
+
+    Habilitada = habilitada;
+
+    SilencioInicio = inicio;
+
+    SilencioFim = fim;
+
+    Fuso = Validacao.Texto(fuso, nameof(Fuso), 100);
+
+    AtualizadaEm = DateTimeOffset.UtcNow;
+  }
+
   // Materialização pelo EF Core.
   private PreferenciaNotificacao() { }
 

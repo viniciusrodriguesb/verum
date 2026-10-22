@@ -21,4 +21,14 @@ describe('NavegacaoMobileComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('oferece destinos distintos sem histórico desabilitado ou redirecionamento redundante', () => {
+    fixture.detectChanges();
+
+    const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('a'));
+
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/', '/radar', '/conta']);
+
+    expect(links.some((link) => link.hasAttribute('aria-disabled'))).toBe(false);
+  });
 });

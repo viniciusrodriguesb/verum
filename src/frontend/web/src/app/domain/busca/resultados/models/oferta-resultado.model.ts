@@ -1,4 +1,6 @@
-export type DestaqueOferta = 'melhor-escolha' | 'mais-confiavel' | 'menor-preco';
+import { FundamentosRanking } from '../../dtos/fundamentos-ranking.dto';
+
+export type DestaqueOferta = 'comum' | 'melhor-escolha' | 'mais-confiavel' | 'menor-preco';
 
 export type CodigoLoja = string;
 
@@ -13,6 +15,7 @@ export interface AvaliacaoOferta {
   readonly confianca: number;
   readonly atualizacao: number;
   readonly resumo: string;
+  readonly fundamentos?: FundamentosRanking | null;
 }
 
 export interface OfertaResultado {

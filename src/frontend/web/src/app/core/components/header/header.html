@@ -12,12 +12,7 @@
 
     <nav class="cabecalho__navegacao" aria-label="Navegação principal">
       @for (item of itensMenu; track item.rotulo) {
-        <a
-          [routerLink]="item.rota === '/para-empresas' ? null : item.rota"
-          [attr.aria-disabled]="item.rota === '/para-empresas' ? true : null"
-          [fragment]="item.fragmento"
-          class="cabecalho__link"
-        >
+        <a [routerLink]="item.rota" [fragment]="item.fragmento" class="cabecalho__link">
           {{ item.rotulo }}
         </a>
       }
@@ -25,16 +20,8 @@
 
     <div class="cabecalho__acoes">
       @if (autenticacao.autenticado()) {
-        <a
-          href="#"
-          (click)="$event.preventDefault(); autenticacao.gerenciarConta()"
-          class="cabecalho__entrar"
-          >{{ autenticacao.nome() }}</a
-        >
-        <a
-          href="#"
-          (click)="$event.preventDefault(); autenticacao.sair()"
-          class="cabecalho__criar-conta"
+        <a routerLink="/conta" class="cabecalho__entrar">{{ autenticacao.nome() }}</a>
+        <a href="#" (click)="$event.preventDefault(); autenticacao.sair()" class="cabecalho__entrar"
           >Sair</a
         >
       } @else {

@@ -1,16 +1,46 @@
 :host {
   display: block;
   min-height: 100dvh;
-  background-color: #f8fafc;
+  background: #f8fafc;
 }
-
-.menu-radar > summary::-webkit-details-marker {
-  display: none;
+.controle,
+.primario {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  button,
-  a {
-    transition: none !important;
-  }
+.controle {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #0b1d3a;
+}
+.primario {
+  background: #1d4ed8;
+  color: white;
+}
+.campo {
+  min-height: 44px;
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 16px;
+  background: white;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 3px;
 }

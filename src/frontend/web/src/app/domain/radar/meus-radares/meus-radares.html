@@ -1,550 +1,468 @@
 <verum-header />
-
-<main class="min-h-screen bg-slate-50 pb-40 lg:pb-10">
-  <div class="mx-auto max-w-[1440px] px-5 py-8 sm:px-6 lg:px-8 lg:py-9">
-    <div class="flex items-start justify-between gap-6">
-      <div>
-        <h1
-          class="font-heading text-verum-navy text-3xl leading-tight font-bold tracking-tight lg:text-4xl"
-        >
-          Meus radares
-        </h1>
-
-        <p class="mt-2 hidden text-sm text-slate-600 lg:block">
-          Acompanhe preços e receba alertas no momento certo.
-        </p>
-
-        <p class="mt-1 text-base font-semibold text-emerald-600 lg:hidden" aria-live="polite">
-          {{ resumo.oportunidades }} oportunidades
-        </p>
-      </div>
-
-      <button
-        type="button"
-        class="hidden h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 focus-visible:outline-none lg:inline-flex"
-        disabled
-        title="Radar ainda indisponível"
-      >
-        <span class="text-xl leading-none" aria-hidden="true">+</span>
-        Criar radar
-      </button>
+<main class="text-verum-navy mx-auto max-w-5xl px-4 py-8 pb-28 sm:px-6 lg:pb-12">
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold text-emerald-700">VERUM RADAR</p>
+      <h1 class="font-heading mt-2 text-2xl font-bold sm:text-3xl">
+        Você escolhe o preço. O Radar acompanha por você.
+      </h1>
     </div>
-
-    <div class="mt-7 grid gap-7 xl:grid-cols-[minmax(0,1fr)_19rem]">
-      <div class="min-w-0">
-        <section class="hidden grid-cols-3 gap-5 lg:grid" aria-label="Resumo dos radares">
-          <article
-            class="flex min-h-28 items-center gap-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <span
-              class="flex size-14 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600"
-              aria-hidden="true"
-            >
-              <svg lucideRadar [size]="29" [strokeWidth]="1.8"></svg>
-            </span>
-
-            <div>
-              <strong class="text-verum-navy text-2xl font-bold">
-                {{ resumo.radaresAtivos }}
-              </strong>
-              <p class="text-verum-navy font-semibold">radares ativos</p>
-              <p class="mt-1 text-xs text-slate-500">Monitorando preços para você</p>
-            </div>
-          </article>
-
-          <article
-            class="flex min-h-28 items-center gap-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <span
-              class="flex size-14 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"
-              aria-hidden="true"
-            >
-              <svg lucideTag [size]="29" [strokeWidth]="1.8"></svg>
-            </span>
-
-            <div>
-              <strong class="text-verum-navy text-2xl font-bold">
-                {{ resumo.oportunidades }}
-              </strong>
-              <p class="text-verum-navy font-semibold">oportunidades agora</p>
-              <p class="mt-1 text-xs text-slate-500">Preços dentro da sua meta</p>
-            </div>
-          </article>
-
-          <article
-            class="flex min-h-28 items-center gap-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <span
-              class="flex size-14 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"
-              aria-hidden="true"
-            >
-              <svg lucideChartNoAxesColumnIncreasing [size]="29" [strokeWidth]="1.8"></svg>
-            </span>
-
-            <div>
-              <strong class="text-verum-navy text-2xl font-bold">
-                {{ resumo.economiaPotencial }}
-              </strong>
-              <p class="text-verum-navy font-semibold">de economia potencial</p>
-              <p class="mt-1 text-xs text-slate-500">Com base nas suas metas</p>
-            </div>
-          </article>
-        </section>
-
-        <section
-          class="mt-7 hidden items-center justify-between gap-5 lg:flex"
-          aria-label="Opções da lista"
-        >
-          <div
-            class="inline-flex rounded-xl border border-slate-200 bg-white p-1"
-            role="tablist"
-            aria-label="Filtrar radares"
-          >
-            @for (filtro of filtros; track filtro.valor) {
-              <button
-                type="button"
-                role="tab"
-                class="rounded-lg px-5 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
-                [class.bg-blue-50]="filtroSelecionado() === filtro.valor"
-                [class.text-blue-600]="filtroSelecionado() === filtro.valor"
-                [class.text-slate-600]="filtroSelecionado() !== filtro.valor"
-                [attr.aria-selected]="filtroSelecionado() === filtro.valor"
-                (click)="selecionarFiltro(filtro.valor)"
-              >
-                {{ filtro.rotulo }}
-              </button>
-            }
-          </div>
-
-          <div class="relative">
-            <label class="sr-only" for="ordenacao-radares"> Ordenar radares </label>
-
-            <select
-              #campoOrdenacao
-              id="ordenacao-radares"
-              class="text-verum-navy h-11 appearance-none rounded-xl border border-slate-200 bg-white py-2 pr-11 pl-4 text-sm font-medium transition outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10"
-              [value]="ordenacaoSelecionada()"
-              (change)="alterarOrdenacao(campoOrdenacao.value)"
-            >
-              <option value="mais-recentes">Mais recentes</option>
-              <option value="mais-antigos">Mais antigos</option>
-              <option value="maior-economia">Maior economia</option>
-            </select>
-
-            <svg
-              lucideChevronDown
-              class="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-slate-600"
-              [size]="17"
-              [strokeWidth]="1.9"
-              aria-hidden="true"
-            ></svg>
-          </div>
-        </section>
-
-        <section
-          class="mt-5 space-y-4 lg:overflow-hidden lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:shadow-sm"
-          aria-label="Radares monitorados"
-        >
-          @for (radar of radaresFiltrados(); track radar.id) {
-            <article
-              class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:rounded-none lg:border-0 lg:border-b lg:border-slate-200 lg:p-5 lg:shadow-none last:lg:border-b-0"
-            >
-              <div class="lg:hidden">
-                <div class="grid grid-cols-[5.25rem_minmax(0,1fr)_2rem] items-start gap-4">
-                  <div
-                    class="text-verum-navy flex h-24 items-center justify-center rounded-xl bg-slate-50"
-                    aria-hidden="true"
-                  >
-                    @switch (radar.iconeProduto) {
-                      @case ('celular') {
-                        <svg lucideSmartphone [size]="51" [strokeWidth]="1.5"></svg>
-                      }
-
-                      @case ('notebook') {
-                        <svg lucideLaptop [size]="58" [strokeWidth]="1.4"></svg>
-                      }
-
-                      @default {
-                        <svg lucidePackage [size]="51" [strokeWidth]="1.4"></svg>
-                      }
-                    }
-                  </div>
-
-                  <div class="min-w-0">
-                    <h2 class="font-heading text-verum-navy line-clamp-2 font-bold">
-                      {{ radar.produto }}
-                    </h2>
-
-                    <p
-                      class="mt-3 text-sm font-semibold"
-                      [class.text-emerald-600]="radar.estado === 'preco-atingido'"
-                      [class.text-blue-600]="radar.estado === 'monitorando'"
-                      [class.text-slate-500]="
-                        radar.estado === 'sem-estoque' || radar.estado === 'pausado'
-                      "
-                    >
-                      {{ obterRotuloEstado(radar.estado) }}
-                    </p>
-
-                    <p class="text-verum-navy mt-2 text-xl font-bold">
-                      {{ radar.precoAtual }}
-                    </p>
-
-                    <p class="mt-1 text-sm text-slate-500">Meta: {{ radar.precoAlvo }}</p>
-                  </div>
-
-                  <details class="menu-radar relative">
-                    <summary
-                      class="text-verum-navy flex size-8 cursor-pointer list-none items-center justify-center rounded-lg text-lg font-bold tracking-widest hover:bg-slate-100"
-                      aria-label="Opções de {{ radar.produto }}"
-                    >
-                      ···
-                    </summary>
-
-                    <div
-                      class="absolute top-9 right-0 z-20 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
-                    >
-                      <button
-                        type="button"
-                        class="text-verum-navy flex w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50"
-                        (click)="editarRadar(radar.id)"
-                      >
-                        Editar radar
-                      </button>
-
-                      <button
-                        type="button"
-                        class="text-verum-navy flex w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50"
-                        (click)="alternarPausa(radar.id)"
-                      >
-                        {{
-                          radar.estado === 'pausado'
-                            ? 'Retomar monitoramento'
-                            : 'Pausar monitoramento'
-                        }}
-                      </button>
-                    </div>
-                  </details>
-                </div>
-
-                <verum-grafico-preco
-                  class="mt-5 h-24"
-                  [identificador]="radar.id + '-mobile'"
-                  [pontos]="radar.pontosGrafico"
-                  [cor]="radar.corGrafico"
-                />
-
-                <p class="mt-2 text-sm text-slate-500">Atualizado {{ radar.atualizadoEm }}</p>
-
-                <div class="mt-4 grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    class="inline-flex h-12 items-center justify-center rounded-xl bg-blue-600 px-4 font-bold text-white transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:outline-none"
-                    (click)="executarAcaoPrincipal(radar)"
-                  >
-                    {{ obterRotuloAcao(radar) }}
-                  </button>
-
-                  <button
-                    type="button"
-                    class="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 font-bold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
-                    (click)="editarRadar(radar.id)"
-                  >
-                    <svg lucidePencil [size]="18" [strokeWidth]="1.9" aria-hidden="true"></svg>
-                    Editar
-                  </button>
-                </div>
-              </div>
-
-              <!-- Apresentação desktop -->
-              <div
-                class="hidden items-center gap-5 lg:grid lg:grid-cols-[minmax(15rem,1.3fr)_8.5rem_9.5rem_minmax(12rem,1fr)_6rem]"
-              >
-                <div class="flex min-w-0 items-center gap-4">
-                  <div
-                    class="text-verum-navy flex size-20 shrink-0 items-center justify-center rounded-xl bg-slate-50"
-                    aria-hidden="true"
-                  >
-                    @switch (radar.iconeProduto) {
-                      @case ('celular') {
-                        <svg lucideSmartphone [size]="43" [strokeWidth]="1.5"></svg>
-                      }
-
-                      @case ('notebook') {
-                        <svg lucideLaptop [size]="51" [strokeWidth]="1.4"></svg>
-                      }
-
-                      @default {
-                        <svg lucidePackage [size]="45" [strokeWidth]="1.4"></svg>
-                      }
-                    }
-                  </div>
-
-                  <div class="min-w-0">
-                    <h2 class="font-heading text-verum-navy truncate font-bold">
-                      {{ radar.produto }}
-                    </h2>
-
-                    <p class="mt-2 flex items-center gap-1.5 text-sm">
-                      {{ radar.loja }}
-
-                      <svg
-                        lucideBadgeCheck
-                        [size]="15"
-                        [strokeWidth]="2"
-                        class="text-blue-600"
-                        aria-label="Loja verificada"
-                      ></svg>
-                    </p>
-
-                    <p class="mt-1 text-xs text-slate-500">Criado em {{ radar.criadoEm }}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <p class="text-xs text-slate-500">Preço atual</p>
-                  <strong class="text-verum-navy mt-2 block text-xl font-bold">
-                    {{ radar.precoAtual }}
-                  </strong>
-                  <p class="mt-2 text-xs text-slate-500">Alvo: {{ radar.precoAlvo }}</p>
-                </div>
-
-                <div>
-                  <span
-                    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
-                    [class.bg-emerald-50]="radar.estado === 'preco-atingido'"
-                    [class.text-emerald-700]="radar.estado === 'preco-atingido'"
-                    [class.bg-blue-50]="radar.estado === 'monitorando'"
-                    [class.text-blue-700]="radar.estado === 'monitorando'"
-                    [class.bg-slate-100]="
-                      radar.estado === 'sem-estoque' || radar.estado === 'pausado'
-                    "
-                    [class.text-slate-600]="
-                      radar.estado === 'sem-estoque' || radar.estado === 'pausado'
-                    "
-                  >
-                    @if (radar.estado === 'preco-atingido') {
-                      <svg lucideCheck [size]="15" [strokeWidth]="2.4" aria-hidden="true"></svg>
-                    } @else {
-                      <svg lucideRefreshCw [size]="15" [strokeWidth]="2" aria-hidden="true"></svg>
-                    }
-
-                    {{ obterRotuloEstado(radar.estado) }}
-                  </span>
-
-                  <p class="mt-3 text-xs text-slate-500">Atualizado {{ radar.atualizadoEm }}</p>
-                </div>
-
-                <verum-grafico-preco
-                  class="h-20"
-                  [identificador]="radar.id + '-desktop'"
-                  [pontos]="radar.pontosGrafico"
-                  [cor]="radar.corGrafico"
-                />
-
-                <button
-                  type="button"
-                  class="inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold transition focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
-                  [class.bg-blue-600]="radar.estado === 'preco-atingido'"
-                  [class.text-white]="radar.estado === 'preco-atingido'"
-                  [class.border]="radar.estado !== 'preco-atingido'"
-                  [class.border-slate-300]="radar.estado !== 'preco-atingido'"
-                  [class.text-blue-600]="radar.estado !== 'preco-atingido'"
-                  (click)="executarAcaoPrincipal(radar)"
-                >
-                  {{ obterRotuloAcao(radar) }}
-                </button>
-              </div>
-            </article>
-          } @empty {
-            <div class="rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center">
-              <svg
-                lucideRadar
-                [size]="42"
-                [strokeWidth]="1.5"
-                class="mx-auto text-slate-400"
-                aria-hidden="true"
-              ></svg>
-
-              <h2 class="text-verum-navy mt-4 font-bold">Nenhum radar encontrado</h2>
-
-              <p class="mt-2 text-sm text-slate-500">
-                Não existem radares correspondentes a este filtro.
-              </p>
-            </div>
-          }
-        </section>
-      </div>
-
-      <aside class="hidden space-y-5 xl:block">
-        @if (oportunidadeDestaque(); as oportunidade) {
-          <section
-            class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-            aria-labelledby="titulo-oportunidade"
-          >
-            <h2
-              id="titulo-oportunidade"
-              class="font-heading text-verum-navy flex items-center gap-3 font-bold"
-            >
-              <span
-                class="flex size-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"
-                aria-hidden="true"
-              >
-                <svg lucideStar [size]="21" [strokeWidth]="1.8"></svg>
-              </span>
-
-              Oportunidade em destaque
-            </h2>
-
-            <div class="mt-6 flex items-center gap-4">
-              <span
-                class="text-verum-navy flex size-16 shrink-0 items-center justify-center rounded-xl bg-slate-50"
-                aria-hidden="true"
-              >
-                <svg lucideSmartphone [size]="37" [strokeWidth]="1.5"></svg>
-              </span>
-
-              <div>
-                <h3 class="text-verum-navy font-bold">
-                  {{ oportunidade.produto }}
-                </h3>
-                <p class="mt-1 text-sm text-slate-600">
-                  O preço caiu
-                  <strong class="text-emerald-600">12%</strong>
-                  desde que você criou este radar.
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-5 rounded-xl bg-emerald-50 px-4 py-5 text-center">
-              <span class="text-sm text-slate-600"> Você pode economizar até </span>
-              <strong class="mt-1 block text-2xl font-bold text-emerald-600"> R$ 500,00 </strong>
-              <span class="text-xs text-slate-500"> se comprar agora. </span>
-            </div>
-
-            <button
-              type="button"
-              class="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-blue-600 font-bold text-white transition hover:bg-blue-700"
-              (click)="executarAcaoPrincipal(oportunidade)"
-            >
-              Ver oferta
-            </button>
-
-            <a
-              [routerLink]="['/historico', oportunidade.produtoSlug]"
-              class="text-verum-navy mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 font-semibold transition hover:bg-slate-50"
-            >
-              Ver histórico
-            </a>
-          </section>
-        }
-
-        <section
-          class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-          aria-labelledby="titulo-preferencias"
-        >
-          <h2 id="titulo-preferencias" class="font-heading text-verum-navy font-bold">
-            Preferências de aviso
-          </h2>
-
-          <p class="mt-1 text-sm text-slate-500">Como você quer ser avisado</p>
-
-          <div class="mt-5 divide-y divide-slate-100">
-            <div class="flex items-center justify-between py-3">
-              <span class="text-verum-navy flex items-center gap-3 text-sm">
-                <svg lucideBell [size]="18" [strokeWidth]="1.8" aria-hidden="true"></svg>
-                Push
-              </span>
-              <span class="text-xs font-semibold text-emerald-600"> Ativado </span>
-            </div>
-
-            <div class="flex items-center justify-between py-3">
-              <span class="text-verum-navy flex items-center gap-3 text-sm">
-                <svg lucideBookmark [size]="18" [strokeWidth]="1.8" aria-hidden="true"></svg>
-                E-mail
-              </span>
-              <span class="text-xs font-semibold text-emerald-600"> Ativado </span>
-            </div>
-          </div>
-
-          <a
-            routerLink="/conta/preferencias"
-            class="mt-3 inline-flex w-full items-center justify-between text-sm font-semibold text-blue-600 hover:text-blue-700"
-          >
-            Gerenciar preferências
-
-            <svg lucideArrowRight [size]="17" [strokeWidth]="1.9" aria-hidden="true"></svg>
-          </a>
-        </section>
-      </aside>
-    </div>
-
-    <footer
-      class="mt-7 hidden grid-cols-[1.5fr_1fr_1fr_1fr] divide-x divide-slate-200 rounded-2xl border border-slate-200 bg-white p-6 lg:grid"
-    >
-      <div class="flex items-center gap-4 pr-6">
-        <span
-          class="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"
-        >
-          <svg lucideShieldCheck [size]="24" [strokeWidth]="1.8" aria-hidden="true"></svg>
-        </span>
-
-        <div>
-          <strong class="text-verum-navy text-sm">
-            Transparência, segurança e inteligência para suas compras.
-          </strong>
-          <p class="mt-1 text-xs text-slate-500">
-            Monitoramos preços em lojas confiáveis para ajudar você a decidir melhor.
-          </p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-3 px-6">
-        <svg
-          lucideBadgeCheck
-          [size]="22"
-          [strokeWidth]="1.8"
-          class="text-emerald-600"
-          aria-hidden="true"
-        ></svg>
-        <span class="text-verum-navy text-sm">Preços verificados</span>
-      </div>
-
-      <div class="flex items-center gap-3 px-6">
-        <svg
-          lucideBell
-          [size]="22"
-          [strokeWidth]="1.8"
-          class="text-emerald-600"
-          aria-hidden="true"
-        ></svg>
-        <span class="text-verum-navy text-sm"> Alertas no momento certo </span>
-      </div>
-
-      <div class="flex items-center gap-3 pl-6">
-        <svg
-          lucideShieldCheck
-          [size]="22"
-          [strokeWidth]="1.8"
-          class="text-emerald-600"
-          aria-hidden="true"
-        ></svg>
-        <span class="text-verum-navy text-sm"> Sua privacidade primeiro </span>
-      </div>
-    </footer>
-  </div>
-
-  <div class="fixed inset-x-0 bottom-20 z-30 px-5 lg:hidden" aria-label="Ação principal">
     <button
+      class="controle"
+      id="atualizar-radar"
       type="button"
-      class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.99]"
-      disabled
-      title="Radar ainda indisponível"
+      (click)="carregar()"
+      [disabled]="carregando() || salvando()"
     >
-      <span class="text-xl leading-none" aria-hidden="true">+</span>
-      Criar radar
+      Atualizar dados
     </button>
   </div>
+  @if (erro(); as mensagem) {
+    <div class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4" role="alert">
+      {{ mensagem }}
+      <button class="controle ml-2" type="button" (click)="carregar()">Tentar novamente</button>
+    </div>
+  }
+  @if (aviso(); as mensagem) {
+    <p class="mb-5 rounded-xl bg-emerald-50 p-4 text-emerald-800" role="status">{{ mensagem }}</p>
+  }
+  @if (carregando()) {
+    <p role="status">Consultando disponibilidade e acesso…</p>
+  } @else if (capacidade(); as acesso) {
+    @if ((!acesso.disponivel || !acesso.permitido) && !oferta()) {
+      <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+        <p
+          class="mb-3 inline-block rounded-full bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800"
+        >
+          Incluído no Verum Plus
+        </p>
+        <h2 class="text-xl font-bold">Quer esperar um preço melhor?</h2>
+        <p class="mt-3 max-w-2xl leading-7 text-slate-600">
+          Escolha um anúncio, confirme o produto e suas condições, defina sua meta e receba um aviso
+          quando observarmos um preço que a atenda. Busca Plus e Free não incluem o Radar.
+        </p>
+        @if (!acesso.disponivel) {
+          <p class="mt-5 font-semibold">
+            Radar em preparação neste ambiente. Não é possível ativar monitoramentos agora.
+          </p>
+        } @else if (!acesso.vendaDisponivel) {
+          <p class="mt-4">
+            Novas assinaturas do Verum Plus estão indisponíveis neste ambiente. Você pode continuar
+            comparando ofertas.
+          </p>
+          <a routerLink="/" class="primario mt-4">Continuar comparando</a>
+        } @else if (!autenticacao.autenticado()) {
+          <p class="mt-5 text-sm">Para ativar alertas, é preciso uma conta e um plano com Radar.</p>
+          <button type="button" class="primario mt-4" (click)="entrar()">
+            Entrar e conhecer o plano
+          </button>
+        } @else {
+          @if (erroLista()) {
+            <p role="alert" class="mt-4 text-sm text-red-700">
+              Não foi possível carregar seus radares. {{ erroLista() }}
+            </p>
+          }
+          @if (erroLista()) {
+            <p role="alert" class="mt-4 text-red-700">{{ erroLista() }}</p>
+          }
+          @if (radares().length) {
+            <p class="mt-5">Seu plano não permite acompanhar agora. Suas metas estão salvas.</p>
+          } @else {
+            <p class="mt-5">Para criar seu primeiro alerta, escolha um plano com Radar.</p>
+          }
+          <a class="primario mt-4" routerLink="/conta" fragment="plano" (click)="guardarIntencao()"
+            >Conhecer o Verum Plus</a
+          >
+        }
+      </section>
+    }
+    @if (erroOferta()) {
+      <p role="alert" class="mt-4 text-sm text-red-700">
+        Não foi possível carregar o anúncio. {{ erroOferta() }}
+      </p>
+    }
+    @if (oferta(); as produto) {
+      <section class="mt-6 rounded-2xl border border-emerald-200 bg-white p-6">
+        <h2 class="text-xl font-bold">Confirme o que deseja acompanhar</h2>
+        <p class="mt-3 font-semibold">{{ produto.nome }}</p>
+        <p class="mt-2 leading-6 text-slate-600">{{ produto.fonte }} · {{ produto.condicao }}</p>
+        <p class="mt-3">
+          Preço observado: <strong>{{ produto.preco | currency: 'BRL' }}</strong
+          >. Frete não incluído.
+        </p>
+        <p class="mt-2 text-sm leading-6">
+          Este alerta acompanha somente este anúncio, nas condições informadas. Preço e estoque
+          podem mudar.
+        </p>
+        @if (ofertaExpirada()) {
+          <p class="mt-4 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">
+            A observação desta oferta venceu. Faça uma nova busca e confirme o anúncio antes de
+            criar o Radar.
+          </p>
+          <a routerLink="/" class="controle mt-3">Fazer nova busca</a>
+        }
+        <form class="mt-5 grid gap-4" [formGroup]="meta" (ngSubmit)="criar()">
+          <label class="grid gap-2 font-semibold"
+            >Quanto deseja pagar? (R$)<input
+              class="campo"
+              type="text"
+              verumValorBrl
+              formControlName="preco"
+              (change)="guardarIntencao()"
+          /></label>
+          @if ((meta.controls.preco.value ?? 0) >= produto.preco) {
+            <p class="text-sm text-emerald-800">
+              A meta já é atendida pelo preço observado. Confira o preço atual na loja.
+            </p>
+          }
+          <label class="flex min-h-11 items-start gap-3 text-sm leading-6"
+            ><input
+              class="mt-1 size-5 shrink-0"
+              type="checkbox"
+              formControlName="confirmado"
+            />Conferi produto, variante e condição deste anúncio.</label
+          >
+          <p class="text-sm text-slate-600">
+            As oportunidades ficam disponíveis aqui. E-mail é opcional e pode ser ativado para todos
+            os seus radares nas preferências.
+          </p>
+          @if (meta.invalid && meta.touched) {
+            <p role="alert" class="text-sm text-red-700">
+              Informe uma meta válida e confirme o anúncio.
+            </p>
+          }
+          @if (acesso.disponivel && acesso.permitido) {
+            <p class="text-sm">
+              Verificação a cada {{ acesso.intervaloMinutos }} minutos. {{ acesso.utilizado }} de
+              {{ acesso.limite }} radares utilizados (incluindo pausados).
+            </p>
+            <button
+              class="primario"
+              type="submit"
+              [disabled]="salvando() || ofertaExpirada() || acesso.utilizado >= acesso.limite"
+            >
+              Criar alerta
+            </button>
+          }
+          @if (!acesso.permitido || !acesso.disponivel) {
+            @if (!acesso.disponivel || !acesso.vendaDisponivel) {
+              <p class="text-sm">
+                A ativação de novos planos está indisponível no momento. Sua intenção pode ser
+                preservada por até 30 minutos.
+              </p>
+              <a class="primario" routerLink="/" (click)="guardarIntencao()"
+                >Continuar comparando</a
+              >
+            } @else if (!autenticacao.autenticado()) {
+              <button class="primario" type="button" (click)="entrar()">
+                Entrar para continuar
+              </button>
+            } @else {
+              <a class="primario" routerLink="/conta" fragment="plano" (click)="guardarIntencao()"
+                >Ativar com Verum Plus</a
+              >
+            }
+          }
+          @if (erro()) {
+            <p role="alert" class="text-sm text-red-700">{{ erro() }}</p>
+          }
+          <a class="controle" [href]="produto.url" target="_blank" rel="noopener noreferrer"
+            >Ver oferta na loja</a
+          >
+        </form>
+      </section>
+    }
+    @if (acesso.permitido && acesso.disponivel) {
+      <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h2 class="text-xl font-bold">
+            Meus radares · {{ acesso.utilizado }}/{{ acesso.limite }}
+          </h2>
+          <a routerLink="/" class="primario">{{
+            radares().length ? 'Acompanhar outro produto' : 'Criar primeiro alerta'
+          }}</a>
+        </div>
+        @if (!acesso.emailDisponivel) {
+          <p class="mt-4 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">
+            O envio de e-mail ainda não está configurado neste ambiente. As oportunidades continuam
+            disponíveis aqui.
+          </p>
+        }
+        @if (acesso.utilizado >= acesso.limite) {
+          <p class="mt-4 text-sm">
+            Cota atingida. Encerre uma meta para liberar espaço. Pausar preserva a vaga.
+          </p>
+        }
+        @if (!radares().length) {
+          <p class="mt-5 leading-7 text-slate-600">
+            Seu Radar está pronto. Faça uma busca e escolha “Acompanhar preço” na oferta desejada.
+          </p>
+        }
+        <p class="mt-4 text-sm text-slate-600">
+          Checagem periódica; o preço pode mudar na loja. Não garantimos estoque ou atualização
+          instantânea.
+        </p>
+      </section>
+    }
+    @if (erroLista()) {
+      <p role="alert" class="mt-4 text-red-700">{{ erroLista() }}</p>
+    }
+    @if (radares().length) {
+      <div class="mt-6 grid items-start gap-5 md:grid-cols-2">
+        @for (radar of radares(); track radar.id) {
+          <article class="rounded-2xl border border-slate-200 bg-white p-5">
+            <p
+              class="mb-3 text-sm font-semibold"
+              [class.text-emerald-800]="radar.estado === 'MetaAtingida'"
+              [class.text-amber-800]="
+                radar.estado === 'SuspensoPorAcesso' || radar.estado === 'VerificacaoIndisponivel'
+              "
+              [class.text-slate-600]="radar.estado === 'Pausado'"
+            >
+              {{ estado(radar.estado) }}
+            </p>
+            <h2 class="text-lg font-bold">{{ radar.nome }}</h2>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+              {{ radar.fonte }} · {{ radar.condicao }}
+            </p>
+            <dl class="mt-4 grid grid-cols-2 gap-3">
+              <div>
+                <dt class="text-sm text-slate-600">Sua meta</dt>
+                <dd class="text-xl font-bold">{{ radar.precoAlvo | currency: 'BRL' }}</dd>
+              </div>
+              <div>
+                <dt class="text-sm text-slate-600">Último preço observado</dt>
+                <dd class="text-xl font-bold">
+                  {{
+                    radar.precoObservado === null ? '—' : (radar.precoObservado | currency: 'BRL')
+                  }}
+                </dd>
+              </div>
+            </dl>
+            <p class="mt-4 text-sm text-slate-600">
+              Última checagem:
+              {{
+                radar.verificadaEm
+                  ? (radar.verificadaEm | date: 'dd/MM/yyyy HH:mm')
+                  : 'ainda não realizada'
+              }}.
+            </p>
+            <p class="mt-2 text-sm text-slate-600">
+              Histórico detalhado ainda não disponível. Preço do produto; frete não incluído.
+            </p>
+            @if (radar.estado !== 'Pausado' && radar.estado !== 'SuspensoPorAcesso') {
+              <p class="mt-2 text-sm text-slate-600">
+                Próxima checagem prevista:
+                {{
+                  radar.proximaVerificacaoEm
+                    ? (radar.proximaVerificacaoEm | date: 'dd/MM/yyyy HH:mm')
+                    : 'aguardando agendamento'
+                }}. Sujeita à disponibilidade das fontes.
+              </p>
+            }
+            <div class="mt-5 flex flex-wrap gap-2">
+              @if (radar.urlOferta) {
+                <a
+                  class="primario"
+                  [href]="radar.urlOferta"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Ver oferta</a
+                >
+              }
+              @if (acesso.permitido && acesso.disponivel) {
+                <button
+                  class="controle"
+                  type="button"
+                  [disabled]="salvando()"
+                  (click)="ajustar(radar)"
+                >
+                  Ajustar meta
+                </button>
+              }
+              <button
+                class="controle"
+                type="button"
+                [disabled]="salvando() || (radar.estado === 'Pausado' && !acesso.permitido)"
+                (click)="acao(radar, radar.estado === 'Pausado' ? 'retomar' : 'pausar')"
+              >
+                {{ radar.estado === 'Pausado' ? 'Retomar' : 'Pausar' }}
+              </button>
+              <button
+                class="controle"
+                type="button"
+                [disabled]="salvando()"
+                (click)="pedirEncerramento(radar.id, $event)"
+              >
+                Encerrar
+              </button>
+            </div>
+            @if (confirmandoEncerramento() === radar.id) {
+              <section
+                class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4"
+                role="region"
+                aria-label="Confirmar encerramento"
+              >
+                <h3 class="font-semibold">Encerrar {{ radar.nome }}?</h3>
+                <p class="mt-2 text-sm">
+                  O acompanhamento será encerrado e a vaga liberada. Para acompanhar novamente será
+                  necessário criar outra meta.
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button class="controle" type="button" (click)="cancelarEncerramento()">
+                    Continuar acompanhando</button
+                  ><button
+                    class="primario"
+                    type="button"
+                    [disabled]="salvando()"
+                    (click)="encerrar(radar)"
+                  >
+                    Confirmar encerramento
+                  </button>
+                </div>
+                @if (erro()) {
+                  <p role="alert" class="mt-3 text-sm text-red-700">{{ erro() }}</p>
+                }
+              </section>
+            }
+            @if (editando()?.id === radar.id) {
+              <form class="mt-4 grid gap-3" (ngSubmit)="salvarMeta()">
+                @if (erro()) {
+                  <p role="alert" class="text-sm text-red-700">{{ erro() }}</p>
+                }
+                <label class="grid gap-2"
+                  >Nova meta em reais<input
+                    class="campo"
+                    type="text"
+                    verumValorBrl
+                    [formControl]="edicao" /></label
+                ><button class="primario" type="submit" [disabled]="salvando() || edicao.invalid">
+                  Salvar meta</button
+                ><button class="controle" type="button" (click)="editando.set(null)">
+                  Cancelar
+                </button>
+              </form>
+            }
+          </article>
+        }
+      </div>
+    }
+    @if (
+      autenticacao.autenticado() &&
+      (acesso.permitido || radares().length > 0 || notificacoes().length > 0)
+    ) {
+      <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
+        <button
+          class="controle"
+          type="button"
+          [attr.aria-expanded]="preferenciasAbertas()"
+          (click)="preferenciasAbertas.update(inverter)"
+        >
+          Gerenciar preferências de aviso
+        </button>
+        @if (preferenciasAbertas()) {
+          <form
+            class="mt-5 grid max-w-lg gap-4"
+            [formGroup]="preferencias"
+            (ngSubmit)="salvarPreferencias()"
+          >
+            <label class="flex min-h-11 items-center gap-3"
+              ><input type="checkbox" class="size-5" formControlName="emailHabilitado" />Receber
+              e-mail para todos os meus radares</label
+            >
+            <label class="flex min-h-11 items-center gap-3"
+              ><input
+                type="checkbox"
+                class="size-5"
+                [checked]="silencioAtivo()"
+                (change)="alterarSilencio($event)"
+              />Ativar horário silencioso</label
+            >
+            @if (silencioAtivo()) {
+              <label class="grid gap-2"
+                >Não enviar a partir de<select class="campo" formControlName="silencioInicio">
+                  @for (hora of horas; track hora) {
+                    <option [ngValue]="hora">{{ hora }}h</option>
+                  }
+                </select></label
+              >
+              <label class="grid gap-2"
+                >Voltar a enviar às<select class="campo" formControlName="silencioFim">
+                  @for (hora of horas; track hora) {
+                    <option [ngValue]="hora">{{ hora }}h</option>
+                  }
+                </select></label
+              >
+            }
+            <label class="grid gap-2"
+              >Horário de referência<select class="campo" formControlName="fuso">
+                @for (fuso of fusos; track fuso.valor) {
+                  <option [value]="fuso.valor">{{ fuso.nome }}</option>
+                }
+              </select></label
+            >
+            <p class="text-sm">{{ resumoSilencio() }}</p>
+            @if (horariosInvalidos()) {
+              <p role="alert" class="text-sm text-red-700">
+                Escolha horários diferentes ou desative o horário silencioso.
+              </p>
+            }
+            @if (erroPreferencias()) {
+              <p role="alert" class="text-sm text-red-700">{{ erroPreferencias() }}</p>
+            }
+            @if (erro()) {
+              <p role="alert" class="text-sm text-red-700">{{ erro() }}</p>
+            }
+            <button
+              class="primario"
+              type="submit"
+              [disabled]="
+                salvando() ||
+                preferencias.invalid ||
+                !preferenciasCarregadas() ||
+                horariosInvalidos()
+              "
+            >
+              Salvar preferências
+            </button>
+          </form>
+        }
+        <h2 class="mt-6 text-lg font-bold">Oportunidades e avisos</h2>
+        @if (erroAvisos()) {
+          <p role="alert" class="mt-3 text-sm text-red-700">
+            Não foi possível carregar os avisos. {{ erroAvisos() }}
+          </p>
+        }
+        @if (!notificacoes().length) {
+          <p class="mt-3 text-sm text-slate-600">
+            As oportunidades encontradas aparecerão aqui, mesmo se o envio de e-mail falhar.
+          </p>
+        }
+        @for (notificacao of notificacoes(); track notificacao.id) {
+          <article class="mt-4 border-t border-slate-200 pt-4">
+            <h3 class="font-semibold">{{ notificacao.titulo }}</h3>
+            <p class="mt-2 text-sm leading-6">
+              {{ notificacao.mensagem }}
+              @if (notificacao.url) {
+                <a
+                  class="controle mt-3"
+                  [href]="notificacao.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Consultar oferta na loja</a
+                >
+              }
+            </p>
+            <p class="mt-2 text-sm text-slate-600">
+              {{ notificacao.criadaEm | date: 'dd/MM/yyyy HH:mm' }}
+              @for (entrega of notificacao.entregas; track $index) {
+                · E-mail: {{ rotuloEntrega(entrega.estado) }}
+              }
+            </p>
+          </article>
+        }
+      </section>
+    }
+  }
 </main>
-
 <verum-navegacao-mobile />

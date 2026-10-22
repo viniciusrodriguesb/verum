@@ -32,6 +32,7 @@ export class AutenticacaoService {
       await this.cliente.init({
         onLoad: 'check-sso',
         pkceMethod: 'S256',
+        locale: 'pt-BR',
         silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
         silentCheckSsoFallback: false,
         checkLoginIframe: false,
@@ -49,11 +50,13 @@ export class AutenticacaoService {
   }
 
   async entrar(redirectUri = location.href): Promise<void> {
-    await this.executar(() => this.cliente.login({ redirectUri }));
+    await this.executar(() => this.cliente.login({ redirectUri, locale: 'pt-BR' }));
   }
 
   async cadastrar(): Promise<void> {
-    await this.executar(() => this.cliente.register({ redirectUri: location.href }));
+    await this.executar(() =>
+      this.cliente.register({ redirectUri: location.href, locale: 'pt-BR' }),
+    );
   }
 
   async sair(): Promise<void> {
@@ -64,7 +67,7 @@ export class AutenticacaoService {
     await this.executar(() =>
       this.autenticado()
         ? this.cliente.accountManagement()
-        : this.cliente.login({ redirectUri: location.href }),
+        : this.cliente.login({ redirectUri: location.href, locale: 'pt-BR' }),
     );
   }
 

@@ -30,6 +30,10 @@ internal sealed class Oportunidade
 
   public DateTimeOffset? ExpiraEm { get; private set; }
 
+  public DateTimeOffset? AvisoEncaminhadoEm { get; private set; }
+
+  public void ConfirmarEncaminhamento() => AvisoEncaminhadoEm = DateTimeOffset.UtcNow;
+
 
   public Monitoramento Monitoramento { get; private set; } = null!;
 

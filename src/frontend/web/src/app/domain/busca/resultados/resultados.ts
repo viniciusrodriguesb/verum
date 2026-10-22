@@ -1,3 +1,4 @@
+import { CotaBuscaComponent } from '../components/cota-busca/cota-busca';
 import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -53,6 +54,7 @@ interface OpcaoOrdenacao {
   standalone: true,
   imports: [
     Header,
+    CotaBuscaComponent,
     NavegacaoMobileComponent,
     CartaoOfertaComponent,
     NgClass,
@@ -92,6 +94,10 @@ export class ResultadosComponent {
     }),
   });
 
+  protected readonly inverterFiltros = (aberto: boolean) => !aberto;
+
+  protected readonly filtrosAbertos = signal(false);
+
   protected readonly formularioFiltros = new FormGroup({
     precoMinimo: new FormControl<number | null>(null),
     precoMaximo: new FormControl<number | null>(null),
@@ -105,8 +111,6 @@ export class ResultadosComponent {
   );
 
   private readonly ordemAtual = signal<OrdemResultado>('melhor-escolha');
-
-  private readonly favoritos = signal<ReadonlySet<string>>(new Set());
 
   private readonly buscas = inject(BuscasService);
 
@@ -131,7 +135,7 @@ export class ResultadosComponent {
     },
     {
       codigo: 'mais-confiavel',
-      rotulo: 'Mais confiável',
+      rotulo: 'Qualidade da fonte',
       icone: 'mais-confiavel',
     },
   ];
@@ -198,6 +202,12 @@ export class ResultadosComponent {
     this.ordemAtual.set(ordem);
   }
 
+  protected get buscaBloqueada(): boolean {
+    return this.inicioBusca.bloqueada(
+      normalizarTermoBusca(this.formularioBusca.controls.termo.value),
+    );
+  }
+
   protected buscarNovamente(): void {
     this.formularioBusca.markAllAsTouched();
 
@@ -220,24 +230,6 @@ export class ResultadosComponent {
       precoMinimo: null,
       precoMaximo: null,
     });
-  }
-
-  protected alternarFavorito(ofertaId: string): void {
-    this.favoritos.update((favoritosAtuais) => {
-      const novosFavoritos = new Set(favoritosAtuais);
-
-      if (novosFavoritos.has(ofertaId)) {
-        novosFavoritos.delete(ofertaId);
-      } else {
-        novosFavoritos.add(ofertaId);
-      }
-
-      return novosFavoritos;
-    });
-  }
-
-  protected ofertaFavorita(ofertaId: string): boolean {
-    return this.favoritos().has(ofertaId);
   }
 
   protected obterMensagemErroBusca(): string | null {

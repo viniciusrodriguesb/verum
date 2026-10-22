@@ -22,7 +22,7 @@
 
   .navegacao-mobile__lista {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
     max-width: 36rem;
     padding: 0;
@@ -67,9 +67,9 @@
   .navegacao-mobile__rotulo {
     overflow: hidden;
     max-width: 100%;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
-    line-height: 14px;
+    line-height: 20px;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -87,10 +87,6 @@
 }
 
 @media (max-width: 359px) {
-  .navegacao-mobile__rotulo {
-    font-size: 10px;
-  }
-
   .navegacao-mobile__link {
     padding-inline: 1px;
   }

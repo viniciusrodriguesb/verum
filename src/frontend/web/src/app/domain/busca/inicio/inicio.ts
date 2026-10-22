@@ -1,22 +1,18 @@
+import { CotaBuscaComponent } from '../components/cota-busca/cota-busca';
+import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
-  LucideArrowDown,
   LucideArrowRight,
   LucideBadgeCheck,
-  LucideBookmark,
   LucideChartNoAxesColumnIncreasing,
-  LucideLaptop,
-  LucidePackage,
   LucideSearch,
   LucideShieldCheck,
-  LucideSmartphone,
   LucideStar,
   LucideStore,
   LucideTag,
-  LucideWatch,
 } from '@lucide/angular';
 import { IniciarBuscaService } from '../services/iniciar-busca.service';
 
@@ -28,21 +24,10 @@ import { normalizarTermoBusca, validarTermoBusca } from '../validators/termo-bus
 
 type IconeEtapa = 'loja' | 'preco' | 'recomendacao';
 
-type IconeProduto = 'celular' | 'eletrodomestico' | 'notebook' | 'relogio';
-
 interface EtapaFuncionamento {
   readonly icone: IconeEtapa;
   readonly titulo: string;
   readonly descricao: string;
-}
-
-interface OfertaDestaque {
-  readonly id: string;
-  readonly nome: string;
-  readonly complemento: string;
-  readonly preco: string;
-  readonly oportunidade: string;
-  readonly icone: IconeProduto;
 }
 
 @Component({
@@ -51,24 +36,24 @@ interface OfertaDestaque {
   standalone: true,
   imports: [
     Header,
+    CotaBuscaComponent,
+    NavegacaoMobileComponent,
     NgClass,
     ReactiveFormsModule,
     IlustracaoRadarComponent,
     RouterLink,
-    LucideArrowDown,
+
     LucideArrowRight,
     LucideBadgeCheck,
-    LucideBookmark,
+
     LucideChartNoAxesColumnIncreasing,
-    LucideLaptop,
-    LucidePackage,
+
     LucideSearch,
     LucideShieldCheck,
-    LucideSmartphone,
+
     LucideStar,
     LucideStore,
     LucideTag,
-    LucideWatch,
   ],
   host: {
     class: 'block min-h-dvh bg-verum-surface',
@@ -92,30 +77,38 @@ export class InicioComponent {
   protected readonly etapasFuncionamento: readonly EtapaFuncionamento[] = [
     {
       icone: 'loja',
-      titulo: 'Buscamos em lojas confiáveis',
-      descricao:
-        'Consultamos diversas lojas parceiras para encontrar as melhores ofertas disponíveis para você.',
+      titulo: 'Consultamos fontes identificadas',
+      descricao: 'Consultamos as fontes disponíveis para o produto e modelo que você procura.',
     },
     {
       icone: 'preco',
       titulo: 'Verificamos preço e histórico',
       descricao:
-        'Analisamos o preço atual, o histórico dos últimos dias e calculamos a média do mercado.',
+        'Comparamos preços da mesma variante e usamos histórico quando há dados suficientes.',
     },
     {
       icone: 'recomendacao',
       titulo: 'Explicamos a recomendação',
       descricao:
-        'Mostramos o contexto, o ranking transparente e indicamos a melhor escolha para você.',
+        'Organizamos as ofertas por correspondência, preço, confiança da fonte e atualização.',
     },
   ];
-
-  protected readonly ofertasDestaque: readonly OfertaDestaque[] = [];
 
   protected get buscaInvalida(): boolean {
     const campoTermo = this.formularioBusca.controls.termo;
 
     return campoTermo.invalid && campoTermo.touched;
+  }
+
+  protected get buscaBloqueada(): boolean {
+    return this.inicioBusca.bloqueada(
+      normalizarTermoBusca(this.formularioBusca.controls.termo.value),
+    );
+  }
+
+  protected focarBusca(): void {
+    this.focarCampoBusca();
+    this.inputBusca().nativeElement.scrollIntoView({ block: 'center', behavior: 'instant' });
   }
 
   protected buscar(): void {

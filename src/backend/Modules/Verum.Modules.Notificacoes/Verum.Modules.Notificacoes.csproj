@@ -3,6 +3,8 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
@@ -11,5 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
+    <ProjectReference Include="../Verum.Modules.Contas/Verum.Modules.Contas.csproj" />
+    <ProjectReference Include="../Verum.Modules.Ofertas/Verum.Modules.Ofertas.csproj" />
   </ItemGroup>
 </Project>

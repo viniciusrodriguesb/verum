@@ -35,6 +35,12 @@
   [attr.aria-busy]="!erro()"
   aria-labelledby="titulo-processamento"
 >
+  @if (demorada() && !erro()) {
+    <p role="status" class="mx-auto max-w-3xl px-5 py-4 text-sm text-slate-600">
+      As fontes estão levando mais tempo. Você pode guardar este endereço e retomar a mesma
+      solicitação, sem consumir outra busca.
+    </p>
+  }
   @if (erro()) {
     <div
       role="alert"
@@ -131,7 +137,7 @@
         <div class="flex max-w-[220px] items-center gap-2.5 text-[13px]">
           <svg lucideShieldCheck class="shrink-0" [size]="27" [strokeWidth]="1.7"></svg>
 
-          Só mostramos preços de lojas confiáveis
+          As ofertas identificam a fonte e o momento da observação
         </div>
       </div>
 
@@ -181,7 +187,10 @@
             ranking.
           </p>
 
-          <p class="mt-2.5 text-sm text-[#536789] lg:hidden">Isso leva alguns segundos.</p>
+          <p class="mt-2.5 text-sm text-[#536789] lg:hidden">
+            Algumas fontes podem demorar. Você pode sair e retomar esta mesma busca no histórico da
+            conta.
+          </p>
 
           <p class="sr-only" aria-live="polite">Etapa atual: {{ etapaAtiva()?.titulo }}.</p>
 
@@ -251,7 +260,8 @@
           >
             <svg lucideShieldCheck [size]="20" [strokeWidth]="1.7" aria-hidden="true"></svg>
 
-            Isso pode levar alguns segundos.
+            O tempo depende das fontes consultadas. Ao retomar esta solicitação, sua cota não é
+            debitada novamente.
           </div>
         </div>
       </article>

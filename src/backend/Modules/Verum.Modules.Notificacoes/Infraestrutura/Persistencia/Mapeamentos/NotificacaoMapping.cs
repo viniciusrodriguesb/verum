@@ -78,5 +78,7 @@ internal sealed class NotificacaoMapping : IEntityTypeConfiguration<Entidade>
     builder.Navigation(x => x.Entregas)
            .HasField("_entregas")
            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+    builder.HasIndex(x => new { x.ContaId, x.CriadaEm });
   }
 }

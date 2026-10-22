@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DecimalPipe, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -6,13 +7,11 @@ import {
   computed,
   inject,
   input,
-  output,
   signal,
 } from '@angular/core';
 import {
   LucideBadgeCheck,
   LucideClock,
-  LucideHeart,
   LucideRadar,
   LucideShieldCheck,
   LucideSmartphone,
@@ -23,6 +22,7 @@ import {
 import { DestaqueOferta, OfertaResultado } from '../models/oferta-resultado.model';
 
 const ROTULOS_DESTAQUE: Readonly<Record<DestaqueOferta, string>> = {
+  comum: 'Oferta correspondente',
   'melhor-escolha': 'Oferta encontrada',
   'mais-confiavel': 'Mais confiável',
   'menor-preco': 'Menor preço',
@@ -32,12 +32,12 @@ const ROTULOS_DESTAQUE: Readonly<Record<DestaqueOferta, string>> = {
   selector: 'verum-cartao-oferta',
   standalone: true,
   imports: [
+    RouterLink,
     CurrencyPipe,
     DecimalPipe,
     NgClass,
     LucideBadgeCheck,
     LucideClock,
-    LucideHeart,
     LucideRadar,
     LucideShieldCheck,
     LucideSmartphone,
@@ -58,17 +58,9 @@ export class CartaoOfertaComponent {
 
   readonly oferta = input.required<OfertaResultado>();
 
-  readonly favorita = input(false);
-
-  readonly favoritoAlterado = output<string>();
-
   protected readonly explicacaoAberta = signal(false);
 
   protected readonly rotuloDestaque = computed(() => ROTULOS_DESTAQUE[this.oferta().destaque]);
-
-  protected alternarFavorito(): void {
-    this.favoritoAlterado.emit(this.oferta().id);
-  }
 
   protected fecharAoClicarFora(evento: MouseEvent): void {
     if (!this.elemento.nativeElement.contains(evento.target as Node)) {

@@ -1,15 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AutenticacaoService } from '@core/autenticacao/services/autenticacao.service';
-import {
-  LucideCircleUserRound,
-  LucideHistory,
-  LucideHouse,
-  LucideRadar,
-  LucideSearch,
-} from '@lucide/angular';
+import { LucideCircleUserRound, LucideRadar, LucideSearch } from '@lucide/angular';
 
-type IconeNavegacao = 'inicio' | 'busca' | 'radar' | 'historico' | 'conta';
+type IconeNavegacao = 'busca' | 'radar' | 'conta';
 
 interface ItemNavegacao {
   readonly icone: IconeNavegacao;
@@ -21,45 +14,23 @@ interface ItemNavegacao {
 @Component({
   selector: 'verum-navegacao-mobile',
   standalone: true,
-  imports: [
-    RouterLink,
-    RouterLinkActive,
-    LucideHouse,
-    LucideSearch,
-    LucideRadar,
-    LucideHistory,
-    LucideCircleUserRound,
-  ],
+  imports: [RouterLink, RouterLinkActive, LucideSearch, LucideRadar, LucideCircleUserRound],
   templateUrl: './navegacao-mobile.html',
   styleUrl: './navegacao-mobile.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavegacaoMobileComponent {
-  protected readonly autenticacao = inject(AutenticacaoService);
-
   protected readonly itensNavegacao: readonly ItemNavegacao[] = [
-    {
-      icone: 'inicio',
-      rotulo: 'Início',
-      rota: '/',
-      correspondenciaExata: true,
-    },
     {
       icone: 'busca',
       rotulo: 'Buscar',
-      rota: '/busca',
-      correspondenciaExata: false,
+      rota: '/',
+      correspondenciaExata: true,
     },
     {
       icone: 'radar',
       rotulo: 'Radar',
       rota: '/radar',
-      correspondenciaExata: false,
-    },
-    {
-      icone: 'historico',
-      rotulo: 'Histórico',
-      rota: '/historico',
       correspondenciaExata: false,
     },
     {

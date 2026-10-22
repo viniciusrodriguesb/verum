@@ -32,11 +32,12 @@ internal sealed class Notificacao
     TipoNotificacao tipo,
     string titulo,
     string mensagem,
-    string? dados = null)
+    string? dados = null,
+    Guid? id = null)
   {
     var agora = DateTimeOffset.UtcNow;
 
-    Id = ValidarId(Guid.CreateVersion7());
+    Id = ValidarId(id ?? Guid.CreateVersion7());
 
     ContaId = ValidarContaId(contaId);
 

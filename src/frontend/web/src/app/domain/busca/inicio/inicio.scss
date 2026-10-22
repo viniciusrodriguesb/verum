@@ -41,21 +41,6 @@
     radial-gradient(circle at 100% 0%, rgb(167 243 208 / 35%), transparent 12rem), #ffffff;
 }
 
-.oferta-card__imagem {
-  background: radial-gradient(circle at 70% 30%, rgb(167 243 208 / 30%), transparent 65%), #f8fafc;
-}
-
-@media (min-width: 768px) {
-  .etapa-funcionamento:not(:last-child)::after {
-    position: absolute;
-    top: 2.9rem;
-    right: -1.25rem;
-    width: 1.5rem;
-    content: '';
-    border-top: 2px dotted #cbd5e1;
-  }
-}
-
 @media (max-width: 639px) {
   .hero-verum {
     background:

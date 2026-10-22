@@ -92,7 +92,7 @@ internal sealed class BuscaService(BuscaDbContext db, IOptions<BuscaOptions> opt
     {
       var armazenado = await cache.ObterResultadoAsync<BuscaConsulta>(buscaId, cancellationToken);
 
-      if (armazenado is not null) return armazenado;
+      if (armazenado is not null) return Revalidar(armazenado, busca.ConsultaOriginal);
     }
 
     var snapshots = await db.OfertasResultado
@@ -112,6 +112,21 @@ internal sealed class BuscaService(BuscaDbContext db, IOptions<BuscaOptions> opt
       await cache.ArmazenarResultadoAsync(buscaId, resultado,
         ofertas.Length > 0 ? ofertas.Min(x => x.ValidaAte) : DateTimeOffset.UtcNow.AddMinutes(1), cancellationToken);
 
-    return resultado;
+    return Revalidar(resultado, busca.ConsultaOriginal);
+  }
+
+  internal static BuscaConsulta Revalidar(BuscaConsulta resultado, string consulta)
+  {
+    var elegiveis = resultado.Ofertas.Where(x => NormalizacaoOferta.Relevancia(consulta, x.Nome) > 30m)
+      .Select((x, indice) => x with { Posicao = indice + 1 }).ToArray();
+
+    return elegiveis.Length == resultado.Ofertas.Count ? resultado : resultado with
+    {
+      Ofertas = elegiveis,
+
+      Parcial = true,
+
+      CodigoErro = "CORRESPONDENCIA_REVALIDADA"
+    };
   }
 }

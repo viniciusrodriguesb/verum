@@ -10,6 +10,22 @@ namespace Verum.Modules.Contas.Aplicacao;
 
 internal sealed class ContaService(ContasDbContext db) : IContaService
 {
+  public async Task<ContaAutenticada> ObterAsync(string sujeito, CancellationToken cancellationToken)
+  {
+    var resultado = await db.Contas.AsNoTracking()
+      .Where(x => x.SujeitoIdentidade == sujeito)
+      .Select(x => new { x.Status, Conta = new ContaAutenticada(x.Id, x.SujeitoIdentidade, x.Email, x.NomeExibicao) })
+      .SingleOrDefaultAsync(cancellationToken);
+
+    if (resultado is null)
+      throw new ErroAplicacaoException("CONTA_NAO_ENCONTRADA", "Conta não encontrada.", TipoErro.NaoEncontrado);
+
+    if (resultado.Status != StatusConta.Ativa)
+      throw new ErroAplicacaoException("CONTA_INDISPONIVEL", "Esta conta não está ativa.", TipoErro.AcessoNegado);
+
+    return resultado.Conta;
+  }
+
   public async Task<ContaAutenticada> SincronizarAsync(string sujeito, string email, string nome, CancellationToken cancellationToken)
   {
     var conta = await db.Contas.SingleOrDefaultAsync(x => x.SujeitoIdentidade == sujeito, cancellationToken);

@@ -26,7 +26,7 @@ public sealed class WorkersConsumersTests
   [Theory]
   [InlineData(true)]
   [InlineData(false)]
-  public Task RadarRecebeMensagemSemConfirmarProcessamentoInexistente(bool idValido) =>
+  public Task RadarPropagaFalhaDoServicoSemConfirmarMensagem(bool idValido) =>
     VerificarEsqueleto(new VerificacaoRadarSolicitada(idValido ? Guid.NewGuid() : Guid.Empty),
       bus => bus.AddConsumidoresRadar(), "radar", typeof(BuscaSolicitadaConsumer),
       idValido ? typeof(ProcessamentoNaoConfiguradoException) : typeof(ArgumentException));
@@ -42,6 +42,8 @@ public sealed class WorkersConsumersTests
     var services = new ServiceCollection().AddLogging();
 
     services.AddScoped<IProcessamentoBuscaService, ProcessamentoFalha>();
+
+    services.AddScoped<IProcessamentoRadarService, RadarFalha>();
 
     services.AddScoped<IFalhaBuscaService, FalhaRegistrada>();
 
@@ -211,6 +213,16 @@ public sealed class WorkersConsumersTests
   private sealed class FalhaRegistrada : IFalhaBuscaService
   {
     public Task RegistrarAsync(Guid buscaId, CancellationToken cancellationToken) => Task.CompletedTask;
+  }
+
+  private sealed class RadarFalha : IProcessamentoRadarService
+  {
+    public Task<IReadOnlyList<Guid>> PendentesAsync(CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<Guid>>([]);
+
+    public Task EncaminharAvisosAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    public Task VerificarAsync(Guid monitoramentoId, CancellationToken cancellationToken) =>
+      throw new ProcessamentoNaoConfiguradoException("Falha simulada do serviço, não do consumidor.");
   }
 }
 

@@ -11,35 +11,13 @@
       <span
         class="inline-flex min-h-7 items-center rounded-md px-2.5 py-1 text-xs font-medium"
         [ngClass]="
-          oferta().destaque === 'menor-preco'
-            ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-100'
+          oferta().destaque === 'comum'
+            ? 'bg-slate-50 text-slate-700 ring-1 ring-slate-200'
             : 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
         "
       >
         {{ rotuloDestaque() }}
       </span>
-
-      <button
-        type="button"
-        class="text-verum-navy inline-flex size-9 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:outline-none"
-        [ngClass]="{
-          'bg-blue-50 text-blue-700': favorita(),
-        }"
-        [attr.aria-label]="
-          favorita() ? 'Remover oferta dos favoritos' : 'Salvar oferta nos favoritos'
-        "
-        [attr.aria-pressed]="favorita()"
-        disabled
-        title="Favoritos ainda indisponíveis"
-      >
-        <svg
-          lucideHeart
-          [size]="18"
-          [strokeWidth]="1.8"
-          [attr.fill]="favorita() ? 'currentColor' : 'none'"
-          aria-hidden="true"
-        ></svg>
-      </button>
     </div>
 
     <div
@@ -63,7 +41,7 @@
 
       <div class="order-1 min-w-0 lg:order-2">
         <h2
-          class="font-heading text-verum-navy line-clamp-3 h-15 text-base leading-5 font-bold"
+          class="font-heading text-verum-navy text-base leading-5 font-bold"
           [attr.title]="oferta().produto"
         >
           {{ oferta().produto }}
@@ -105,9 +83,7 @@
 
           <div class="min-w-0">
             <div class="flex items-center gap-1">
-              <span
-                class="text-verum-navy overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap"
-              >
+              <span class="text-verum-navy text-sm font-semibold break-words">
                 {{ oferta().loja.nome }}
               </span>
 
@@ -117,12 +93,12 @@
                   class="shrink-0 text-emerald-600"
                   [size]="16"
                   [strokeWidth]="2"
-                  aria-label="Loja verificada"
+                  aria-label="Fonte identificada"
                 ></svg>
               }
             </div>
 
-            <p class="mt-0.5 text-xs text-slate-500">Loja confiável</p>
+            <p class="mt-0.5 text-xs text-slate-500">Fonte identificada</p>
           </div>
         </div>
 
@@ -132,10 +108,7 @@
           {{ oferta().preco | currency: 'BRL' : 'symbol' : '1.2-2' }}
         </p>
 
-        <p
-          class="mt-1 line-clamp-2 h-8 text-xs leading-4 text-[#536789]"
-          [attr.title]="oferta().condicaoPreco"
-        >
+        <p class="mt-1 text-sm leading-5 text-[#536789]" [attr.title]="oferta().condicaoPreco">
           {{ oferta().condicaoPreco }}
         </p>
       </div>
@@ -179,7 +152,7 @@
       </span>
     </div>
 
-    <div class="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2.5">
+    <div class="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
       <a
         [href]="oferta().urlOferta"
         target="_blank"
@@ -190,18 +163,27 @@
       </a>
 
       <a
-        title="Radar ainda indisponível"
-        aria-disabled="true"
-        tabindex="-1"
+        [routerLink]="['/radar/criar']"
+        [queryParams]="{ oferta: oferta().id }"
         class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 px-3.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
       >
         <svg lucideRadar [size]="18" [strokeWidth]="1.9" aria-hidden="true"></svg>
 
-        <span class="hidden sm:inline lg:hidden xl:inline"> Criar radar </span>
+        <span>Acompanhar preço</span>
       </a>
     </div>
   </div>
 
+  @if (oferta().avaliacao.fundamentos; as dados) {
+    <p class="px-4 pb-3 text-sm text-slate-600">
+      {{
+        dados.precoProvisorio
+          ? 'Preço: dados insuficientes para comparação estatística.'
+          : 'Preço comparado com anúncios equivalentes.'
+      }}
+      Fonte identificada; vendedor não confirmado.
+    </p>
+  }
   <div class="relative border-t border-slate-200">
     <button
       type="button"
@@ -252,6 +234,7 @@
 
             <strong class="text-verum-navy block text-base">
               {{ oferta().avaliacao.preco | number: '1.1-1' }}
+              <span class="text-xs font-normal">de 10</span>
             </strong>
           </div>
 
@@ -264,10 +247,11 @@
               aria-hidden="true"
             ></svg>
 
-            <p class="mt-1.5 text-xs text-slate-600">Confiança</p>
+            <p class="mt-1.5 text-xs text-slate-600">Qualidade da fonte</p>
 
             <strong class="text-verum-navy block text-base">
               {{ oferta().avaliacao.confianca | number: '1.1-1' }}
+              <span class="text-xs font-normal">de 10</span>
             </strong>
           </div>
 
@@ -284,6 +268,7 @@
 
             <strong class="text-verum-navy block text-base">
               {{ oferta().avaliacao.atualizacao | number: '1.1-1' }}
+              <span class="text-xs font-normal">de 10</span>
             </strong>
           </div>
         </div>
@@ -300,6 +285,12 @@
           ></svg>
 
           {{ oferta().avaliacao.resumo }}
+          @if (oferta().avaliacao.fundamentos; as dados) {
+            <span
+              >Amostra: {{ dados.observacoes }} observações históricas. Confiança do cálculo:
+              {{ dados.confiancaCalculo }}.</span
+            >
+          }
         </p>
       </div>
     }

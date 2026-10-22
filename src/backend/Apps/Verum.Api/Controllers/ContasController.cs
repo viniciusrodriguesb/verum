@@ -8,6 +8,14 @@ namespace Verum.Api.Controllers;
 
 public sealed class ContasController(IContaService contas, IAcessoBuscaService acesso) : AppController
 {
+  [HttpGet("me")]
+  public async Task<ActionResult<ContaAutenticada>> Obter(CancellationToken cancellationToken)
+  {
+    Response.Headers.CacheControl = "no-store";
+
+    return Ok(await contas.ObterAsync(ObterSujeitoIdentidade(), cancellationToken));
+  }
+
   [HttpPost("me")]
   public async Task<ActionResult<ContaAutenticada>> Sincronizar(CancellationToken cancellationToken)
   {

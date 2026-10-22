@@ -15,5 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="../../Verum.BuildingBlocks/Verum.BuildingBlocks.csproj" />
     <ProjectReference Include="../Verum.Modules.Acesso/Verum.Modules.Acesso.csproj" />
+    <ProjectReference Include="../Verum.Modules.Radar/Verum.Modules.Radar.csproj" />
   </ItemGroup>
 </Project>

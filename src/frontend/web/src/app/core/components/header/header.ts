@@ -33,9 +33,5 @@ export class Header {
       rota: '/',
       fragmento: 'como-funciona',
     },
-    {
-      rotulo: 'Para empresas',
-      rota: '/para-empresas',
-    },
   ];
 }

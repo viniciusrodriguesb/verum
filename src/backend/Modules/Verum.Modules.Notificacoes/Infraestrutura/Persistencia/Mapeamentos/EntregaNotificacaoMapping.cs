@@ -91,5 +91,7 @@ internal sealed class EntregaNotificacaoMapping : IEntityTypeConfiguration<Entid
 
     builder.HasIndex(x => new { x.NotificacaoId, x.Canal })
            .IsUnique();
+
+    builder.HasIndex(x => new { x.Status, x.ProximaTentativaEm });
   }
 }

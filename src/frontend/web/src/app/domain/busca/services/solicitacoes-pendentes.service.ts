@@ -9,6 +9,10 @@ export class SolicitacoesPendentesService {
 
   private readonly autenticacao = inject(AutenticacaoService);
 
+  existe(consulta: string): boolean {
+    return this.pedidos.has(this.chave(consulta)) || this.ler(consulta) !== null;
+  }
+
   obter(consulta: string): SolicitarBusca {
     const existente = this.pedidos.get(this.chave(consulta)) ?? this.ler(consulta);
 

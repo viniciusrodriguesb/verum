@@ -33,6 +33,45 @@ namespace Verum.Tests.Integracao;
 public sealed class PagamentosFluxoTests(ITestOutputHelper output)
 {
   [PostgreSqlFact]
+  public async Task VerumPlusSoLiberaRadarAposConfirmacaoDoPagamento()
+  {
+    await using var ambiente = await CriarAsync(radar: true);
+
+    var conta = Guid.NewGuid();
+
+    await using (var scope = ambiente.Services.CreateAsyncScope())
+    {
+      await scope.ServiceProvider.GetRequiredService<IAssinaturasService>()
+        .CriarAsync(conta, "conta@example.test", new("VERUM_PLUS", "radar"), default);
+
+      Assert.False(await scope.ServiceProvider.GetRequiredService<IAcessoRadarService>().PermitidoAsync(conta, default));
+    }
+
+    var estado = ambiente.Http.Assinaturas.Values.Single();
+
+    estado.PagamentoId = 801;
+
+    estado.StatusPagamento = "pending";
+
+    await ReceberAsync(ambiente, "801", "payment", "radar-pendente");
+
+    await ProcessarAsync(ambiente);
+
+    await using (var scope = ambiente.Services.CreateAsyncScope())
+      Assert.False(await scope.ServiceProvider.GetRequiredService<IAcessoRadarService>().PermitidoAsync(conta, default));
+
+    estado.StatusPagamento = "approved";
+
+    await ReceberAsync(ambiente, "801", "payment", "radar-aprovado");
+
+    await ProcessarAsync(ambiente);
+
+    await using var verificar = ambiente.Services.CreateAsyncScope();
+
+    Assert.True(await verificar.ServiceProvider.GetRequiredService<IAcessoRadarService>().PermitidoAsync(conta, default));
+  }
+
+  [PostgreSqlFact]
   public async Task FalhaDepoisDeGravarConcessaoDesfazPagamentoEBeneficioNaMesmaTransacao()
   {
     await using var ambiente = await CriarAsync(falhaAcesso: true);
@@ -423,7 +462,7 @@ public sealed class PagamentosFluxoTests(ITestOutputHelper output)
     throw new InvalidOperationException("Fila não esvaziou.");
   }
 
-  private static async Task<Ambiente> CriarAsync(bool falhaAcesso = false)
+  private static async Task<Ambiente> CriarAsync(bool falhaAcesso = false, bool radar = false)
   {
     var banco = await FluxoBuscaPersistenciaTests.Ambiente.CriarAsync();
 
@@ -455,6 +494,8 @@ public sealed class PagamentosFluxoTests(ITestOutputHelper output)
     services.AddAssinaturasPersistencia(config);
 
     services.AddAssinaturasProcessamento();
+
+    services.Configure<Verum.Modules.Radar.Contratos.Configuracoes.RadarOptions>(x => x.Habilitado = radar);
 
     services.AddVerumServices(typeof(Verum.Modules.Acesso.DependencyInjection).Assembly, typeof(Verum.Modules.Assinaturas.DependencyInjection).Assembly);
 

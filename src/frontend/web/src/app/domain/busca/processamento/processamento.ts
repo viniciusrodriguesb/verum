@@ -102,10 +102,12 @@ export class ProcessamentoComponent {
 
   protected readonly consulta = signal('');
 
-  // Progresso visual estimado; somente a resposta final da API libera os resultados.
-  private readonly indiceEtapaAtual = signal(0);
+  protected readonly demorada = signal(false);
 
-  private inicioAcompanhamento = Date.now();
+  private iniciadaEm = Date.now();
+
+  // Etapas observadas no backend; sem avanço temporal artificial.
+  private readonly indiceEtapaAtual = signal(0);
 
   private ultimoAvanco = Date.now();
 
@@ -120,11 +122,11 @@ export class ProcessamentoComponent {
     {
       codigo: 'entendimento',
       titulo: 'Entendendo sua busca',
-      descricao: 'Identificamos o produto e as melhores variantes.',
+      descricao: 'Interpretamos os termos e o modelo informado.',
     },
     {
       codigo: 'consulta-lojas',
-      titulo: 'Consultando lojas confiáveis',
+      titulo: 'Consultando as fontes disponíveis',
       descricao: 'Buscando ofertas nas fontes disponíveis.',
     },
     {
@@ -158,19 +160,17 @@ export class ProcessamentoComponent {
     {
       icone: 'preco',
       titulo: 'Preço justo',
-      descricao:
-        'Analisamos o preço atual e o histórico para indicar o melhor momento para comprar.',
+      descricao: 'Comparamos ofertas equivalentes e usamos histórico quando há dados suficientes.',
     },
     {
       icone: 'confianca',
       titulo: 'Confiança da loja',
-      descricao:
-        'Verificamos reputação, avaliações e segurança para garantir uma compra tranquila.',
+      descricao: 'A qualidade inicial da fonte não confirma a reputação do vendedor.',
     },
     {
       icone: 'atualizacao',
       titulo: 'Atualização da oferta',
-      descricao: 'Monitoramos as lojas para mostrar apenas ofertas atualizadas e disponíveis.',
+      descricao: 'Mostramos quando o preço foi observado; confirme preço e estoque na loja.',
     },
   ];
 
@@ -181,7 +181,10 @@ export class ProcessamentoComponent {
 
     timer(650, 650)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.avancarStepper());
+      .subscribe(() => {
+        this.demorada.set(Date.now() - this.iniciadaEm >= 30000);
+        this.avancarStepper();
+      });
   }
 
   protected get buscaInvalida(): boolean {
@@ -252,11 +255,13 @@ export class ProcessamentoComponent {
     this.erro.set(null);
     this.busca.set(null);
 
+    this.iniciadaEm = Date.now();
+
+    this.demorada.set(false);
+
     this.indiceEtapaAtual.set(0);
 
-    this.inicioAcompanhamento = Date.now();
-
-    this.ultimoAvanco = this.inicioAcompanhamento;
+    this.ultimoAvanco = Date.now();
 
     const consulta = parametros.get('q') ?? '';
 
@@ -306,7 +311,12 @@ export class ProcessamentoComponent {
 
     const destino = finalizada
       ? 3
-      : Math.min(3, Math.floor((agora - this.inicioAcompanhamento) / 2200));
+      : ((
+          { Recebimento: 0, Catalogo: 0, Ofertas: 1, Ranking: 2, Resultado: 3 } as Record<
+            string,
+            number
+          >
+        )[busca.etapa] ?? 0);
 
     if (indice < destino) {
       this.indiceEtapaAtual.update((atual) => atual + 1);

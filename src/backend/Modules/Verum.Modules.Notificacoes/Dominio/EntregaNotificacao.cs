@@ -57,6 +57,36 @@ internal sealed class EntregaNotificacao
     ReferenciaProvedor = ValidarReferenciaProvedor(null);
   }
 
+public void Adiar(DateTimeOffset quando) => ProximaTentativaEm = quando;
+
+  public void Cancelar() => Status = StatusEntrega.Cancelada;
+
+  public void Entregar(DateTimeOffset agora)
+  {
+    Status = StatusEntrega.Entregue;
+
+    EntregueEm = agora;
+
+    UltimaTentativaEm = agora;
+
+    QuantidadeTentativas++;
+
+    CodigoErro = null;
+  }
+
+  public void Falhar(DateTimeOffset agora, int maximo)
+  {
+    QuantidadeTentativas++;
+
+    UltimaTentativaEm = agora;
+
+    CodigoErro = "SMTP_INDISPONIVEL";
+
+    Status = QuantidadeTentativas >= maximo ? StatusEntrega.FalhouDefinitivamente : StatusEntrega.AguardandoNovaTentativa;
+
+    ProximaTentativaEm = agora.AddMinutes(Math.Min(60, Math.Pow(2, QuantidadeTentativas)));
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 

@@ -99,7 +99,8 @@ internal sealed class ProcessamentoBuscaService(
     {
       var variantes = await catalogo.ResolverAsync(busca.ConsultaNormalizada, prazo.Token);
 
-      ofertasAtuais.AddRange(await ofertas.ObterAtuaisAsync(variantes, prazo.Token));
+      ofertasAtuais.AddRange((await ofertas.ObterAtuaisAsync(variantes, prazo.Token))
+        .Where(x => NormalizacaoOferta.Relevancia(busca.ConsultaOriginal, x.Nome) > 30m));
 
       var etapaCatalogo = new BuscaEtapa(busca.Id, EtapaBusca.Catalogo);
 

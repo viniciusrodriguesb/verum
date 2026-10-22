@@ -59,8 +59,8 @@ internal sealed class MonitoramentoMapping : IEntityTypeConfiguration<Entidade>
 
     builder.Property(x => x.Nome)
            .HasColumnName("NOME")
-           .HasMaxLength(250)
-           .HasColumnType("varchar(250)")
+           .HasMaxLength(300)
+           .HasColumnType("varchar(300)")
            .IsRequired();
 
     builder.Property(x => x.PrecoInicial)
@@ -132,5 +132,40 @@ internal sealed class MonitoramentoMapping : IEntityTypeConfiguration<Entidade>
     builder.Navigation(x => x.Oportunidades)
            .HasField("_oportunidades")
            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+    builder.Property(x => x.OfertaId)
+           .HasColumnName("OFERTA_ID")
+           .HasColumnType("uuid");
+
+    builder.Property(x => x.ChaveIdempotencia)
+           .HasColumnName("CHAVE_IDEMPOTENCIA")
+           .HasMaxLength(100)
+           .HasColumnType("character varying(100)");
+
+    builder.Property(x => x.Condicao)
+           .HasColumnName("CONDICAO")
+           .HasMaxLength(300)
+           .HasColumnType("character varying(300)");
+
+    builder.Property(x => x.EstadoVerificacao)
+           .HasColumnName("ESTADO_VERIFICACAO")
+           .HasMaxLength(40)
+           .HasColumnType("character varying(40)");
+
+    builder.Property(x => x.Rearmado)
+           .HasColumnName("REARMADO")
+           .HasColumnType("boolean");
+
+    builder.Property(x => x.AtualizadoEm)
+           .IsConcurrencyToken();
+
+    builder.HasIndex(x => new { x.ContaId, x.ChaveIdempotencia })
+           .IsUnique()
+           .HasFilter("\"CHAVE_IDEMPOTENCIA\" <> ''");
+
+    builder.HasIndex(x => new { x.OfertaId, x.ProximaVerificacaoEm });
+
+    builder.HasIndex(x => new { x.Status, x.ProximaVerificacaoEm });
+
   }
 }

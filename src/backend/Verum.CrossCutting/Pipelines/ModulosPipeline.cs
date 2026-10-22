@@ -51,9 +51,10 @@ public static class ModulosPipeline
         typeof(Verum.Modules.Acesso.DependencyInjection).Assembly);
 
   public static IServiceCollection AddVerumRadarModules(this IServiceCollection services, IConfiguration configuration) =>
-    services.AddRadarPersistencia(configuration).AddCatalogoPersistencia(configuration)
+    services.AddRadarPersistencia(configuration).AddCatalogoPersistencia(configuration).AddContasPersistencia(configuration).AddAcessoPersistencia(configuration)
       .AddOfertasPersistencia(configuration).AddNotificacoesPersistencia(configuration)
       .AddVerumServices(typeof(Verum.Modules.Radar.DependencyInjection).Assembly,
+        typeof(Verum.Modules.Contas.DependencyInjection).Assembly, typeof(Verum.Modules.Acesso.DependencyInjection).Assembly,
         typeof(Verum.Modules.Catalogo.DependencyInjection).Assembly, typeof(Verum.Modules.Ofertas.DependencyInjection).Assembly,
         typeof(Verum.Modules.Notificacoes.DependencyInjection).Assembly);
 

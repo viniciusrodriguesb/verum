@@ -1,0 +1,430 @@
+<verum-header />
+
+<main class="conta" [attr.aria-busy]="carregando()">
+  <div class="conta__limite">
+    <a routerLink="/" class="voltar"><svg lucideArrowLeft [size]="16"></svg> Voltar para a busca</a>
+    <div
+      class="my-7 flex items-center justify-between gap-6 max-[600px]:flex-col max-[600px]:items-start max-[600px]:gap-4"
+    >
+      <div>
+        <p class="sobretitulo">SEU ESPAÇO NO VERUM</p>
+        <h1>Minha conta</h1>
+        <a routerLink="/radar" class="botao secundario mt-4">{{
+          possuiIntencao ? 'Voltar ao Radar e retomar minha meta' : 'Conhecer o Radar'
+        }}</a>
+        <p>Seu perfil, seu plano e tudo sob controle.</p>
+      </div>
+      <div class="flex flex-col items-start gap-2">
+        <button
+          class="botao secundario"
+          (click)="carregar()"
+          [disabled]="carregando() || processando()"
+        >
+          <svg lucideRefreshCw [size]="16"></svg> Atualizar dados da conta
+        </button>
+        <p role="status" class="legenda">
+          @if (carregando()) {
+            Atualizando perfil, consumo e assinatura…
+          } @else if (ultimaAtualizacao()) {
+            Última atualização: {{ ultimaAtualizacao() | date: 'dd/MM, HH:mm:ss' }}
+          }
+        </p>
+      </div>
+    </div>
+
+    <nav class="abas" aria-label="Seções da conta">
+      <button
+        [class.selecionada]="aba() === 'conta'"
+        [attr.aria-pressed]="aba() === 'conta'"
+        (click)="aba.set('conta')"
+      >
+        <svg lucideUserRound [size]="18"></svg> Minha conta
+      </button>
+      <button
+        [class.selecionada]="aba() === 'plano'"
+        [attr.aria-pressed]="aba() === 'plano'"
+        (click)="aba.set('plano')"
+      >
+        <svg lucideCreditCard [size]="18"></svg> Plano e assinatura
+      </button>
+    </nav>
+
+    @if (carregando()) {
+      <section class="painel estado" role="status">
+        <span class="carregamento"></span>
+        <h2>Consultando sua conta</h2>
+        <p>Buscando as informações mais recentes.</p>
+      </section>
+    } @else if (erro()) {
+      <section class="painel estado" role="alert">
+        <h2>Não foi possível carregar sua conta</h2>
+        <p>Seus dados não foram alterados. Tente novamente em instantes.</p>
+        <button class="botao primario" (click)="carregar()">Tentar novamente</button>
+      </section>
+    } @else {
+      <div
+        [style.display]="aba() === 'plano' ? 'none' : null"
+        class="mb-6 grid grid-cols-1 gap-[18px] min-[601px]:grid-cols-2 min-[901px]:grid-cols-3"
+      >
+        <section class="painel plano-atual min-[601px]:max-[900px]:col-span-2">
+          <div class="flex flex-wrap items-center justify-between gap-2.5">
+            <span class="sobretitulo">SEU PLANO ATUAL</span
+            ><span class="selo"
+              ><svg lucideCheck [size]="14"></svg>
+              {{ acesso()?.contexto === 'Pago' ? 'Acesso pago' : 'Gratuito' }}</span
+            >
+          </div>
+          <h2>{{ nomePlano(acesso()?.pacote ?? 'FREE') }}</h2>
+          <p>
+            {{
+              acesso()?.contexto === 'Pago'
+                ? 'Seu acesso acompanha a validade do período confirmado.'
+                : 'O essencial para encontrar sua próxima boa compra.'
+            }}
+          </p>
+          <button class="link" (click)="aba.set('plano')">
+            Gerenciar plano <svg lucideArrowUpRight [size]="16"></svg>
+          </button>
+        </section>
+        <section class="painel">
+          <p class="sobretitulo">BUSCAS DE HOJE</p>
+          <p class="numero">
+            {{ acesso()?.restante }} <span>de {{ acesso()?.limite }} disponíveis</span>
+          </p>
+          <div
+            class="uso"
+            role="progressbar"
+            aria-label="Buscas disponíveis hoje"
+            [attr.aria-valuenow]="acesso()?.restante"
+            [attr.aria-valuemax]="acesso()?.limite"
+            [style.backgroundColor]="acesso()?.restante === 0 ? '#fef3c7' : null"
+            aria-valuemin="0"
+          >
+            <span [style.width.%]="percentualUso()"></span>
+          </div>
+          <p class="legenda">
+            {{ acesso()?.utilizado }} de {{ acesso()?.limite }} buscas usadas.
+            {{ acesso()?.restante === 0 ? 'Limite atingido.' : '' }} Reposição em
+            {{ acesso()?.reiniciaEm | date: 'dd/MM, HH:mm' }}
+          </p>
+        </section>
+        <section class="painel">
+          <p class="sobretitulo">VALIDADE DO ACESSO</p>
+          <h2>{{ acesso()?.concessaoValidaAte ? prazo() : 'Sem expiração' }}</h2>
+          <p>
+            {{
+              acesso()?.concessaoValidaAte
+                ? 'Acesso confirmado até ' +
+                  (acesso()?.concessaoValidaAte | date: 'dd/MM/yyyy, HH:mm')
+                : acesso()?.contexto === 'Pago'
+                  ? 'Seu acesso não possui uma data final informada.'
+                  : 'Seu plano Free não tem cobrança nem renovação.'
+            }}
+          </p>
+          @if (prazo() === 'Período encerrado') {
+            <p class="alerta">Atualize o status para confirmar o acesso atual.</p>
+          }
+        </section>
+      </div>
+
+      @if (aba() === 'conta') {
+        <div class="grade">
+          <section class="painel">
+            <div class="secao-titulo">
+              <span
+                class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#eff6ff] text-[#1d4ed8]"
+                ><svg lucideUserRound [size]="22"></svg
+              ></span>
+              <div>
+                <h2>Seu perfil</h2>
+                <p>Como você aparece no Verum.</p>
+              </div>
+            </div>
+            <dl class="dados">
+              <div>
+                <dt>Nome</dt>
+                <dd>{{ perfil()?.nomeExibicao }}</dd>
+              </div>
+              <div>
+                <dt>E-mail</dt>
+                <dd>
+                  {{ perfil()?.email }}
+                  <span class="selo">{{
+                    autenticacao.usuario()?.emailConfirmado ? 'Verificado' : 'Não verificado'
+                  }}</span>
+                </dd>
+              </div>
+              <div>
+                <dt>Nome de usuário</dt>
+                <dd>{{ autenticacao.usuario()?.username ?? 'Não informado' }}</dd>
+              </div>
+            </dl>
+            <button class="botao secundario" (click)="autenticacao.gerenciarConta()">
+              Editar perfil <svg lucideArrowUpRight [size]="16"></svg>
+            </button>
+          </section>
+          <section class="painel">
+            <div class="secao-titulo">
+              <span
+                class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#ecfdf5] text-[#059669]"
+                ><svg lucideShieldCheck [size]="22"></svg
+              ></span>
+              <div>
+                <h2>Acesso e segurança</h2>
+                <p>Uma conta para o ecossistema Verum.</p>
+              </div>
+            </div>
+            <p class="my-6!">
+              Gerencie sua senha, seus dados pessoais e as sessões conectadas no ambiente seguro da
+              sua conta.
+            </p>
+            <div class="nota">
+              As alterações de perfil são feitas no login do Verum. Após salvar, entre novamente
+              para atualizar os dados desta sessão.
+            </div>
+            <button class="botao secundario" (click)="autenticacao.gerenciarConta()">
+              Gerenciar segurança <svg lucideArrowUpRight [size]="16"></svg>
+            </button>
+          </section>
+        </div>
+      } @else {
+        <section class="painel assinatura">
+          <div class="secao-titulo">
+            <span
+              class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#eff6ff] text-[#1d4ed8]"
+              ><svg lucideCreditCard [size]="22"></svg
+            ></span>
+            <div>
+              <h2>Sua assinatura</h2>
+              <p>Informações confirmadas pelo processamento de pagamentos.</p>
+            </div>
+          </div>
+          @if (assinatura(); as atual) {
+            <div class="assinatura__cabecalho flex flex-wrap items-center justify-between gap-2.5">
+              <h3>{{ nomePlano(atual.plano) }}</h3>
+              <span
+                class="selo"
+                [class.pendente]="
+                  atual.status === 'Pendente' ||
+                  atual.status === 'Inadimplente' ||
+                  atual.cancelamentoSolicitado
+                "
+                >{{ nomeStatus(atual) }}</span
+              >
+            </div>
+            <dl class="dados assinatura__dados">
+              <div>
+                <dt>Valor contratado</dt>
+                <dd>
+                  {{ atual.valor | currency: atual.moeda }} <span class="legenda">/ mês</span>
+                </dd>
+              </div>
+              <div>
+                <dt>Fim do período confirmado</dt>
+                <dd>
+                  {{
+                    atual.periodoTerminaEm
+                      ? (atual.periodoTerminaEm | date: 'dd/MM/yyyy, HH:mm')
+                      : 'Aguardando confirmação'
+                  }}
+                  @if (atual.periodoTerminaEm) {
+                    <span class="legenda block">{{ prazoAssinatura() }}</span>
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Renovação automática</dt>
+                <dd>
+                  {{
+                    atual.status === 'Cancelada' || atual.status === 'Expirada'
+                      ? 'Desativada'
+                      : atual.cancelamentoSolicitado
+                        ? 'Cancelamento solicitado'
+                        : atual.status === 'Ativa'
+                          ? 'Mensal, sujeita à confirmação da cobrança'
+                          : 'Aguardando confirmação do pagamento'
+                  }}
+                </dd>
+              </div>
+            </dl>
+            <p class="nota">
+              O fim do período não garante uma nova cobrança aprovada. Seu acesso é liberado somente
+              após a confirmação do pagamento. Cancelar a renovação preserva o período já pago
+              enquanto a concessão estiver válida.
+            </p>
+            @if (atual.status === 'Inadimplente') {
+              <p class="alerta" role="status">
+                Há uma pendência de pagamento. A validade acima mostra o acesso efetivamente
+                confirmado.
+              </p>
+            }
+            @if (checkoutSeguro(atual.urlCheckout); as url) {
+              <a class="botao primario" [href]="url" rel="noopener noreferrer"
+                >Continuar no Mercado Pago <svg lucideArrowUpRight [size]="16"></svg
+              ></a>
+            }
+            @if (
+              atual.status !== 'Cancelada' &&
+              atual.status !== 'Expirada' &&
+              !atual.cancelamentoSolicitado
+            ) {
+              @if (confirmarCancelamento()) {
+                <div class="confirmacao" role="region" aria-label="Confirmar cancelamento">
+                  <h3>Cancelar a renovação?</h3>
+                  <p>
+                    Você não terá novas renovações após a confirmação do cancelamento. O período
+                    pago permanece conforme a validade do acesso.
+                  </p>
+                  <div class="acoes">
+                    <button
+                      class="botao secundario"
+                      (click)="confirmarCancelamento.set(false)"
+                      [disabled]="processando()"
+                    >
+                      Manter assinatura</button
+                    ><button class="botao perigo" (click)="cancelar()" [disabled]="processando()">
+                      {{ processando() ? 'Solicitando…' : 'Confirmar cancelamento' }}
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <button
+                  class="link cancelar"
+                  (click)="confirmarCancelamento.set(true)"
+                  [disabled]="processando()"
+                >
+                  Cancelar renovação
+                </button>
+              }
+            }
+          } @else {
+            <div class="py-3">
+              <h3>
+                {{
+                  acesso()?.contexto === 'Pago'
+                    ? 'Nenhuma assinatura recorrente'
+                    : 'Você está no plano gratuito'
+                }}
+              </h3>
+              <p>
+                {{
+                  acesso()?.contexto === 'Pago'
+                    ? 'Seu acesso atual não está vinculado a uma assinatura recorrente listada. Consulte a validade acima.'
+                    : planos().length
+                      ? 'Sem cobranças de assinatura. Você pode consultar os planos disponíveis abaixo.'
+                      : 'Seu acesso gratuito continua disponível conforme o limite diário.'
+                }}
+              </p>
+            </div>
+          }
+        </section>
+
+        @if (planos().length) {
+          <div class="secao-titulo mt-8 mb-5">
+            <div>
+              <h2>Encontre o plano para você</h2>
+              <p>Valores mensais. Contratação segura no Mercado Pago.</p>
+            </div>
+          </div>
+          <div class="planos">
+            @for (plano of planos(); track plano.codigo) {
+              <section class="painel">
+                <span class="selo">Mensal</span>
+                <h3>{{ nomePlano(plano.codigo) }}</h3>
+                <p class="numero">
+                  {{ plano.valorMensal | currency: plano.moeda }}<span> / mês</span>
+                </p>
+                <p>
+                  @if (plano.limiteRadares) {
+                    {{ plano.limiteRadares }} radares, checagem a cada
+                    {{ plano.intervaloRadarMinutos }} minutos. Avisos por e-mail quando o canal
+                    estiver disponível. Preço-alvo por anúncio confirmado; frete não incluído.
+                  } @else {
+                    Busca de produtos. Não inclui Radar.
+                  }
+                </p>
+                <button
+                  class="botao primario"
+                  [disabled]="possuiContratacao() || processando()"
+                  (click)="planoSelecionado.set(plano)"
+                >
+                  {{ possuiContratacao() ? 'Você já possui uma contratação' : 'Escolher plano' }}
+                </button>
+              </section>
+            }
+          </div>
+        } @else {
+          <section class="painel mt-6">
+            <h2>Planos indisponíveis no momento</h2>
+            <p>
+              Novas contratações estão temporariamente indisponíveis. Sua conta e os acessos já
+              confirmados continuam disponíveis conforme a validade.
+            </p>
+          </section>
+        }
+        @if (planoSelecionado(); as plano) {
+          <section class="painel confirmacao" role="region" aria-label="Confirmar contratação">
+            <h3>Assinar {{ nomePlano(plano.codigo) }}?</h3>
+            <p>
+              {{ plano.valorMensal | currency: plano.moeda }} por mês, com renovação automática.
+              Você será direcionado ao Mercado Pago. Nenhum dado de cartão é coletado pelo Verum.
+            </p>
+            <div class="acoes">
+              <button
+                class="botao secundario"
+                (click)="planoSelecionado.set(null)"
+                [disabled]="processando()"
+              >
+                Voltar</button
+              ><button class="botao primario" (click)="contratar()" [disabled]="processando()">
+                {{ processando() ? 'Preparando…' : 'Ir para o pagamento' }}
+              </button>
+            </div>
+          </section>
+        }
+
+        @if (assinaturas().length > 1) {
+          <section class="painel mt-6">
+            <h2>Histórico de assinaturas</h2>
+            <p>
+              Últimas contratações registradas. Este histórico não substitui comprovantes de
+              cobrança.
+            </p>
+            <div class="mt-5 overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Plano</th>
+                    <th>Situação</th>
+                    <th>Valor mensal</th>
+                    <th>Fim do período</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of assinaturas(); track item.id) {
+                    <tr>
+                      <td>{{ nomePlano(item.plano) }}</td>
+                      <td>{{ nomeStatus(item) }}</td>
+                      <td>{{ item.valor | currency: item.moeda }}</td>
+                      <td>
+                        {{
+                          item.periodoTerminaEm
+                            ? (item.periodoTerminaEm | date: 'dd/MM/yyyy')
+                            : 'Não confirmado'
+                        }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        }
+      }
+      <p class="mt-8! flex items-center justify-center gap-2 text-xs!">
+        <svg lucideShieldCheck [size]="16"></svg> Seus dados protegidos. Você no controle.
+      </p>
+    }
+  </div>
+</main>
+<verum-navegacao-mobile />

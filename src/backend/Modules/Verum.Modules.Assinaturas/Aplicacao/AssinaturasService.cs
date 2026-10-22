@@ -10,15 +10,18 @@ using Verum.Modules.Assinaturas.Contratos;
 using Verum.Modules.Assinaturas.Contratos.DTOs;
 using Verum.Modules.Assinaturas.Dominio;
 using Verum.Modules.Assinaturas.Infraestrutura.Persistencia;
+using Verum.Modules.Radar.Contratos.Configuracoes;
 
 namespace Verum.Modules.Assinaturas.Aplicacao;
 
 internal sealed class AssinaturasService(AssinaturasDbContext db, IOptions<AssinaturasOptions> options,
-  SelecionadorGateway gateways, IAcessoBuscaService acesso) : IAssinaturasService
+  SelecionadorGateway gateways, IAcessoBuscaService acesso, IOptions<RadarOptions> radar) : IAssinaturasService
 {
   public Task<IReadOnlyList<PlanoConsulta>> ListarPlanosAsync(CancellationToken cancellationToken) =>
     Task.FromResult<IReadOnlyList<PlanoConsulta>>(options.Value.Habilitado
-      ? options.Value.PrecosMensais.Where(x => x.Value > 0).Select(x => new PlanoConsulta(x.Key, x.Value, "BRL")).ToArray() : []);
+      ? options.Value.PrecosMensais.Where(x => x.Value > 0 && (x.Key != "VERUM_PLUS" || radar.Value.Habilitado))
+        .Select(x => new PlanoConsulta(x.Key, x.Value, "BRL", x.Key == "VERUM_PLUS" ? radar.Value.LimiteMonitoramentos : null,
+          x.Key == "VERUM_PLUS" ? radar.Value.IntervaloVerificacaoMinutos : null)).ToArray() : []);
 
   public async Task<AssinaturaConsulta> CriarAsync(Guid contaId, string email, SolicitarAssinatura pedido, CancellationToken cancellationToken)
   {
@@ -35,6 +38,9 @@ internal sealed class AssinaturasService(AssinaturasDbContext db, IOptions<Assin
 
     if (!options.Value.Habilitado)
       throw new ErroAplicacaoException("PAGAMENTOS_DESABILITADOS", "As contratações estão temporariamente indisponíveis.", TipoErro.Indisponivel);
+
+    if (pedido.Plano == "VERUM_PLUS" && !radar.Value.Habilitado)
+      throw new ErroAplicacaoException("PLANO_INDISPONIVEL", "O Radar ainda não está disponível neste ambiente.", TipoErro.Indisponivel);
 
     await acesso.PrepararAsync(AtorBusca.Conta(contaId), cancellationToken);
 

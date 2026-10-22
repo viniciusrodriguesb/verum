@@ -1,0 +1,61 @@
+<div class="mt-3 text-left text-sm leading-6" aria-live="polite">
+  @if (inicio.acesso(); as acesso) {
+    <div
+      [class]="
+        inicio.limiteAtingido()
+          ? 'rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900'
+          : 'text-slate-600'
+      "
+    >
+      @if (inicio.limiteAtingido()) {
+        <p class="font-semibold">
+          Você utilizou as {{ acesso.limite }} buscas disponíveis neste período.
+        </p>
+        <p>
+          Novas buscas em {{ acesso.reiniciaEm | date: 'dd/MM/yyyy, HH:mm' }} (seu horário local).
+        </p>
+        <div class="mt-2 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            class="min-h-11 rounded-lg px-2 font-semibold underline underline-offset-4 focus-visible:outline-2 disabled:opacity-60"
+            (click)="inicio.consultarAcesso()"
+            [disabled]="inicio.atualizandoAcesso()"
+          >
+            Atualizar disponibilidade
+          </button>
+          @if (autenticacao.autenticado()) {
+            <a
+              routerLink="/conta"
+              class="inline-flex min-h-11 items-center rounded-lg px-2 font-semibold underline underline-offset-4"
+              >Consultar meu plano</a
+            >
+          }
+        </div>
+      } @else {
+        <p>
+          {{ acesso.restante }}
+          {{ acesso.restante === 1 ? 'busca restante' : 'buscas restantes' }} de
+          {{ acesso.limite }} · Reposição em {{ acesso.reiniciaEm | date: 'dd/MM, HH:mm' }}
+        </p>
+      }
+    </div>
+  }
+  @if (inicio.erro() && (!inicio.limiteAtingido() || inicio.respostaIncerta())) {
+    <p role="alert" class="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900">
+      {{ inicio.erro() }}
+    </p>
+  }
+</div>
+@if (!autenticacao.autenticado()) {
+  <p class="mt-3 text-sm text-slate-600 lg:hidden">
+    Crie uma conta Free para ter até 3 buscas por dia e consultar seu histórico. O Radar exige Verum
+    Plus.
+  </p>
+  <button
+    type="button"
+    class="min-h-11 text-sm font-semibold text-blue-700 underline lg:hidden"
+    (click)="autenticacao.cadastrar()"
+  >
+    Criar conta gratuita
+  </button>
+}

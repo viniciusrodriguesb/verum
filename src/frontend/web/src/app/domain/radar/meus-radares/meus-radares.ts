@@ -1,245 +1,359 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+import { AutenticacaoService } from '@core/autenticacao/services/autenticacao.service';
 import { Header } from '@core/components/header/header';
 import { NavegacaoMobileComponent } from '@core/components/navegacao-mobile/navegacao-mobile';
+import { ValorBrlDirective } from '@shared/directives/valor-brl.directive';
+import { mensagemErroApi } from '@shared/utils/mensagem-erro-api';
 import {
-  LucideArrowRight,
-  LucideBadgeCheck,
-  LucideBell,
-  LucideBookmark,
-  LucideChartNoAxesColumnIncreasing,
-  LucideCheck,
-  LucideChevronDown,
-  LucideLaptop,
-  LucidePackage,
-  LucidePencil,
-  LucideRadar,
-  LucideRefreshCw,
-  LucideShieldCheck,
-  LucideSmartphone,
-  LucideStar,
-  LucideTag,
-} from '@lucide/angular';
-import { GraficoPrecoComponent } from '../components/grafico-preco/grafico-preco';
-
-type EstadoRadar = 'preco-atingido' | 'monitorando' | 'sem-estoque' | 'pausado';
-
-type FiltroRadar = 'todos' | 'ativos' | 'preco-atingido' | 'pausados';
-
-type OrdenacaoRadar = 'mais-recentes' | 'mais-antigos' | 'maior-economia';
-
-type IconeProduto = 'celular' | 'notebook' | 'eletrodomestico';
-type CorGrafico = 'verde' | 'azul' | 'cinza';
-
-interface OpcaoFiltro {
-  readonly valor: FiltroRadar;
-  readonly rotulo: string;
-}
-
-interface RadarMonitorado {
-  readonly id: string;
-  readonly produtoSlug: string;
-  readonly produto: string;
-  readonly loja: string;
-  readonly criadoEm: string;
-  readonly criadoEmOrdem: number;
-  readonly precoAtual: string;
-  readonly precoAlvo: string;
-  readonly estado: EstadoRadar;
-  readonly atualizadoEm: string;
-  readonly economiaPotencial: number;
-  readonly iconeProduto: IconeProduto;
-  readonly corGrafico: CorGrafico;
-  readonly pontosGrafico: string;
-}
-
-const FILTROS: readonly OpcaoFiltro[] = [
-  {
-    valor: 'todos',
-    rotulo: 'Todos',
-  },
-  {
-    valor: 'ativos',
-    rotulo: 'Ativos',
-  },
-  {
-    valor: 'preco-atingido',
-    rotulo: 'Preço atingido',
-  },
-  {
-    valor: 'pausados',
-    rotulo: 'Pausados',
-  },
-];
+  CapacidadeRadar,
+  MonitoramentoConsulta,
+  NotificacaoRadar,
+  OfertaRadar,
+} from '../dtos/radar.dto';
+import { FUSOS_AVISO, HORAS_AVISO } from '../configuracoes/horarios-aviso';
+import { RadarService } from '../services/radar.service';
+import { IntencaoRadarService } from '../services/intencao-radar.service';
 
 @Component({
   selector: 'verum-meus-radares',
-  standalone: true,
   imports: [
     RouterLink,
     Header,
-    GraficoPrecoComponent,
     NavegacaoMobileComponent,
-    LucideArrowRight,
-    LucideBadgeCheck,
-    LucideBell,
-    LucideBookmark,
-    LucideChartNoAxesColumnIncreasing,
-    LucideCheck,
-    LucideLaptop,
-    LucidePackage,
-    LucidePencil,
-    LucideRadar,
-    LucideRefreshCw,
-    LucideShieldCheck,
-    LucideSmartphone,
-    LucideChevronDown,
-    LucideStar,
-    LucideTag,
-    Header,
+    CurrencyPipe,
+    DatePipe,
+    ReactiveFormsModule,
+    ValorBrlDirective,
   ],
   templateUrl: './meus-radares.html',
   styleUrl: './meus-radares.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MeusRadaresComponent {
-  private readonly roteador = inject(Router);
+export class MeusRadaresComponent implements OnInit {
+  protected readonly autenticacao = inject(AutenticacaoService);
 
-  private readonly radares = signal<readonly RadarMonitorado[]>([]);
+  private readonly api = inject(RadarService);
 
-  protected readonly filtros = FILTROS;
+  private readonly rota = inject(ActivatedRoute);
 
-  protected readonly filtroSelecionado = signal<FiltroRadar>('todos');
+  private readonly intencao = inject(IntencaoRadarService);
 
-  protected readonly ordenacaoSelecionada = signal<OrdenacaoRadar>('mais-recentes');
+  protected readonly capacidade = signal<CapacidadeRadar | null>(null);
 
-  protected readonly resumo = {
-    radaresAtivos: 0,
-    oportunidades: 0,
-    economiaPotencial: '—',
-  } as const;
+  protected readonly radares = signal<readonly MonitoramentoConsulta[]>([]);
 
-  protected readonly radaresFiltrados = computed(() => {
-    const radaresFiltrados = this.radares().filter((radar) =>
-      this.correspondeAoFiltro(radar, this.filtroSelecionado()),
-    );
+  protected readonly notificacoes = signal<readonly NotificacaoRadar[]>([]);
 
-    return this.ordenarRadares(radaresFiltrados, this.ordenacaoSelecionada());
+  protected readonly oferta = signal<OfertaRadar | null>(null);
+
+  protected readonly erroAvisos = signal<string | null>(null);
+
+  protected readonly erroLista = signal<string | null>(null);
+
+  protected readonly erroOferta = signal<string | null>(null);
+
+  protected readonly erroPreferencias = signal<string | null>(null);
+
+  protected readonly confirmandoEncerramento = signal<string | null>(null);
+
+  private retornoFoco: HTMLElement | null = null;
+
+  protected readonly silencioAtivo = signal(true);
+
+  protected readonly horas = HORAS_AVISO;
+
+  protected readonly fusos = FUSOS_AVISO;
+
+  protected readonly erro = signal<string | null>(null);
+
+  protected readonly aviso = signal<string | null>(null);
+
+  protected readonly carregando = signal(true);
+
+  protected readonly salvando = signal(false);
+
+  protected readonly preferenciasAbertas = signal(false);
+
+  protected readonly preferenciasCarregadas = signal(false);
+
+  protected readonly editando = signal<MonitoramentoConsulta | null>(null);
+
+  protected readonly inverter = (aberto: boolean) => !aberto;
+
+  private chave: string = crypto.randomUUID();
+
+  protected readonly meta = new FormGroup({
+    preco: new FormControl<number | null>(null, {
+      validators: [Validators.required, Validators.min(0.01)],
+    }),
+    confirmado: new FormControl(false, { nonNullable: true, validators: Validators.requiredTrue }),
   });
 
-  protected readonly oportunidadeDestaque = computed(() =>
-    this.radares().find((radar) => radar.estado === 'preco-atingido'),
-  );
+  protected readonly edicao = new FormControl(1, {
+    nonNullable: true,
+    validators: [Validators.required, Validators.min(0.01)],
+  });
 
-  protected selecionarFiltro(filtro: FiltroRadar): void {
-    this.filtroSelecionado.set(filtro);
+  protected readonly preferencias = new FormGroup({
+    emailHabilitado: new FormControl(false, { nonNullable: true }),
+    silencioInicio: new FormControl(22, {
+      nonNullable: true,
+      validators: [Validators.min(0), Validators.max(23)],
+    }),
+    silencioFim: new FormControl(8, {
+      nonNullable: true,
+      validators: [Validators.min(0), Validators.max(23)],
+    }),
+    fuso: new FormControl('America/Sao_Paulo', {
+      nonNullable: true,
+      validators: Validators.required,
+    }),
+  });
+
+  ngOnInit(): void {
+    void this.carregar();
   }
 
-  protected alterarOrdenacao(ordenacao: string): void {
-    if (!this.ehOrdenacaoValida(ordenacao)) {
-      return;
+  protected async carregar(): Promise<void> {
+    this.carregando.set(true);
+    this.preferenciasCarregadas.set(false);
+    this.erro.set(null);
+    this.aviso.set(null);
+
+    const carregamentos: Promise<void>[] = [
+      this.carregarSecao(async () => {
+        this.capacidade.set(await firstValueFrom(this.api.capacidade()));
+      }, this.erro).finally(() => this.carregando.set(false)),
+    ];
+
+    if (this.autenticacao.autenticado()) {
+      carregamentos.push(
+        this.carregarSecao(
+          async () => this.radares.set(await firstValueFrom(this.api.listar())),
+          this.erroLista,
+        ),
+      );
+      carregamentos.push(
+        this.carregarSecao(async () => {
+          const preferencias = await firstValueFrom(this.api.preferencias());
+
+          this.preferencias.setValue(preferencias);
+          this.preferenciasCarregadas.set(true);
+          this.silencioAtivo.set(preferencias.silencioInicio !== preferencias.silencioFim);
+        }, this.erroPreferencias),
+      );
+      carregamentos.push(
+        this.carregarSecao(
+          async () => this.notificacoes.set(await firstValueFrom(this.api.notificacoes())),
+          this.erroAvisos,
+        ),
+      );
     }
 
-    this.ordenacaoSelecionada.set(ordenacao);
-  }
+    const guardada = this.intencao.obter();
 
-  protected criarRadar(): void {
-    void this.roteador.navigate(['/radar/criar']);
-  }
+    const id = this.rota.snapshot.queryParamMap.get('oferta') ?? guardada?.ofertaId;
 
-  protected editarRadar(radarId: string): void {
-    void this.roteador.navigate(['/radar', radarId, 'editar']);
-  }
+    if (id && /^[0-9a-f-]{36}$/i.test(id))
+      carregamentos.push(
+        this.carregarSecao(async () => {
+          this.oferta.set(await firstValueFrom(this.api.oferta(id)));
+          this.chave = guardada?.ofertaId === id ? guardada.chave : crypto.randomUUID();
+          this.meta.controls.preco.setValue(
+            guardada?.ofertaId === id && guardada.precoAlvo > 0 ? guardada.precoAlvo : null,
+          );
+        }, this.erroOferta),
+      );
 
-  protected executarAcaoPrincipal(radar: RadarMonitorado): void {
-    if (radar.estado === 'preco-atingido') {
-      void this.roteador.navigate(['/busca/resultados'], {
-        queryParams: {
-          produto: radar.produtoSlug,
-        },
-      });
+    await Promise.all(carregamentos);
 
-      return;
+    if (id && this.radares().some((radar) => radar.ofertaId === id)) {
+      this.oferta.set(null);
+      this.intencao.limpar();
     }
-
-    this.editarRadar(radar.id);
   }
 
-  protected alternarPausa(radarId: string): void {
-    this.radares.update((radaresAtuais) =>
-      radaresAtuais.map((radar) => {
-        if (radar.id !== radarId) {
-          return radar;
-        }
+  private async carregarSecao(
+    acao: () => Promise<void>,
+    erro: { set(valor: string | null): void },
+  ): Promise<void> {
+    erro.set(null);
+    try {
+      await acao();
+    } catch (falha) {
+      erro.set(mensagemErroApi(falha));
+    }
+  }
 
-        return {
-          ...radar,
-          estado: radar.estado === 'pausado' ? 'monitorando' : 'pausado',
-        };
-      }),
+  protected guardarIntencao(): void {
+    const oferta = this.oferta();
+
+    if (oferta) this.intencao.salvar(oferta.id, this.meta.controls.preco.value ?? 0, this.chave);
+  }
+
+  protected ofertaExpirada(): boolean {
+    return Date.parse(this.oferta()?.validaAte ?? '') <= Date.now();
+  }
+
+  protected entrar(): void {
+    this.guardarIntencao();
+    void this.autenticacao.entrar(location.origin + '/radar');
+  }
+
+  protected async criar(): Promise<void> {
+    this.meta.markAllAsTouched();
+
+    const oferta = this.oferta();
+
+    if (this.meta.invalid || !oferta || this.meta.controls.preco.value === null) return;
+    this.guardarIntencao();
+    await this.executar(async () => {
+      await firstValueFrom(this.api.criar(oferta, this.meta.controls.preco.value!, this.chave));
+      this.intencao.limpar();
+      this.oferta.set(null);
+      this.chave = crypto.randomUUID();
+      this.radares.set(await firstValueFrom(this.api.listar()));
+      this.capacidade.set(await firstValueFrom(this.api.capacidade()));
+      this.aviso.set('Radar criado. Sua meta está salva e será verificada periodicamente.');
+    });
+  }
+
+  protected ajustar(item: MonitoramentoConsulta): void {
+    this.editando.set(item);
+    this.edicao.setValue(item.precoAlvo);
+  }
+
+  protected async salvarMeta(): Promise<void> {
+    const item = this.editando();
+
+    if (!item || this.edicao.invalid || this.edicao.value === null) return;
+    if (await this.acao(item, 'editar', this.edicao.value)) this.editando.set(null);
+  }
+
+  protected async acao(
+    item: MonitoramentoConsulta,
+    acao: string,
+    preco = item.precoAlvo,
+  ): Promise<boolean> {
+    return this.executar(async () => {
+      await firstValueFrom(this.api.alterar(item.id, preco, acao));
+      this.radares.set(await firstValueFrom(this.api.listar()));
+      this.capacidade.set(await firstValueFrom(this.api.capacidade()));
+      this.aviso.set('Radar atualizado.');
+    });
+  }
+
+  protected alterarSilencio(evento: Event): void {
+    this.silencioAtivo.set((evento.target as HTMLInputElement).checked);
+    if (
+      this.silencioAtivo() &&
+      this.preferencias.controls.silencioInicio.value ===
+        this.preferencias.controls.silencioFim.value
+    )
+      this.preferencias.patchValue({ silencioInicio: 22, silencioFim: 8 });
+  }
+
+  protected resumoSilencio(): string {
+    const fuso =
+      this.fusos.find((x) => x.valor === this.preferencias.controls.fuso.value)?.nome ??
+      this.preferencias.controls.fuso.value;
+
+    return this.silencioAtivo()
+      ? 'Não enviar entre ' +
+          this.preferencias.controls.silencioInicio.value +
+          'h e ' +
+          this.preferencias.controls.silencioFim.value +
+          'h — ' +
+          fuso
+      : 'Horário silencioso desativado — ' + fuso;
+  }
+
+  protected async salvarPreferencias(): Promise<void> {
+    if (this.preferencias.invalid || !this.preferenciasCarregadas() || this.horariosInvalidos())
+      return;
+    await this.executar(async () => {
+      await firstValueFrom(
+        this.api.salvarPreferencias({
+          ...this.preferencias.getRawValue(),
+          ...(!this.silencioAtivo() ? { silencioInicio: 0, silencioFim: 0 } : {}),
+        }),
+      );
+      this.aviso.set('Preferências salvas.');
+    });
+  }
+
+  protected horariosInvalidos(): boolean {
+    return (
+      this.silencioAtivo() &&
+      this.preferencias.controls.silencioInicio.value ===
+        this.preferencias.controls.silencioFim.value
     );
   }
 
-  protected abrirNotificacoes(): void {
-    void this.roteador.navigate(['/radar/notificacoes']);
+  protected pedirEncerramento(id: string, evento: Event): void {
+    this.confirmandoEncerramento.set(id);
+    this.retornoFoco = evento.currentTarget as HTMLElement;
   }
 
-  protected obterRotuloEstado(estado: EstadoRadar): string {
-    const rotulos: Readonly<Record<EstadoRadar, string>> = {
-      'preco-atingido': 'Preço atingido',
-      monitorando: 'Monitorando',
-      'sem-estoque': 'Sem estoque',
-      pausado: 'Pausado',
-    };
-
-    return rotulos[estado];
+  protected cancelarEncerramento(): void {
+    this.confirmandoEncerramento.set(null);
+    this.retornoFoco?.focus();
   }
 
-  protected obterRotuloAcao(radar: RadarMonitorado): string {
-    return radar.estado === 'preco-atingido' ? 'Ver oferta' : 'Editar';
-  }
-
-  private correspondeAoFiltro(radar: RadarMonitorado, filtro: FiltroRadar): boolean {
-    switch (filtro) {
-      case 'ativos':
-        return radar.estado !== 'pausado';
-
-      case 'preco-atingido':
-        return radar.estado === 'preco-atingido';
-
-      case 'pausados':
-        return radar.estado === 'pausado';
-
-      default:
-        return true;
+  protected async encerrar(item: MonitoramentoConsulta): Promise<void> {
+    if (await this.acao(item, 'encerrar')) {
+      this.confirmandoEncerramento.set(null);
+      document.getElementById('atualizar-radar')?.focus();
     }
   }
 
-  private ordenarRadares(
-    radares: readonly RadarMonitorado[],
-    ordenacao: OrdenacaoRadar,
-  ): readonly RadarMonitorado[] {
-    const radaresOrdenados = [...radares];
-
-    switch (ordenacao) {
-      case 'mais-antigos':
-        return radaresOrdenados.sort(
-          (radarA, radarB) => radarA.criadoEmOrdem - radarB.criadoEmOrdem,
-        );
-
-      case 'maior-economia':
-        return radaresOrdenados.sort(
-          (radarA, radarB) => radarB.economiaPotencial - radarA.economiaPotencial,
-        );
-
-      default:
-        return radaresOrdenados.sort(
-          (radarA, radarB) => radarB.criadoEmOrdem - radarA.criadoEmOrdem,
-        );
-    }
+  protected rotuloEntrega(codigo: string): string {
+    return (
+      (
+        {
+          Pendente: 'Aguardando envio',
+          Processando: 'Enviando',
+          Entregue: 'Enviado ao servidor de e-mail',
+          AguardandoNovaTentativa: 'Aguardando nova tentativa',
+          FalhouDefinitivamente: 'Não foi possível enviar; aviso disponível aqui',
+          Cancelada: 'Não enviado por preferência ou oferta vencida',
+        } as Record<string, string>
+      )[codigo] ?? 'Consulte o estado do envio'
+    );
   }
 
-  private ehOrdenacaoValida(ordenacao: string): ordenacao is OrdenacaoRadar {
-    return ['mais-recentes', 'mais-antigos', 'maior-economia'].includes(ordenacao);
+  protected estado(codigo: string): string {
+    return (
+      (
+        {
+          Aguardando: 'Aguardando primeira checagem',
+          Monitorando: 'Monitorando',
+          MetaAtingida: 'Meta atingida',
+          Pausado: 'Pausado por você',
+          SuspensoPorAcesso: 'Acompanhamento suspenso por acesso',
+          VerificacaoIndisponivel: 'Verificação indisponível',
+        } as Record<string, string>
+      )[codigo] ?? codigo
+    );
+  }
+
+  private async executar(acao: () => Promise<void>): Promise<boolean> {
+    if (this.salvando()) return false;
+    this.salvando.set(true);
+    this.erro.set(null);
+    this.aviso.set(null);
+    try {
+      await acao();
+      return true;
+    } catch (erro) {
+      this.erro.set(mensagemErroApi(erro));
+      return false;
+    } finally {
+      this.salvando.set(false);
+    }
   }
 }

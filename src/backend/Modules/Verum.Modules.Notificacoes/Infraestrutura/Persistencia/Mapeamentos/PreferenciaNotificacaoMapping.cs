@@ -53,5 +53,16 @@ internal sealed class PreferenciaNotificacaoMapping : IEntityTypeConfiguration<E
 
     builder.HasIndex(x => new { x.ContaId, x.Canal })
            .IsUnique();
+
+    builder.Property(x => x.SilencioInicio)
+           .HasColumnName("SILENCIO_INICIO");
+
+    builder.Property(x => x.SilencioFim)
+           .HasColumnName("SILENCIO_FIM");
+
+    builder.Property(x => x.Fuso)
+           .HasColumnName("FUSO")
+           .HasMaxLength(100);
+
   }
 }

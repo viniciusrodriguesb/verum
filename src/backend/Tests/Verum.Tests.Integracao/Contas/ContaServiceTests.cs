@@ -60,11 +60,27 @@ public sealed class ContaServiceTests
 
       Assert.Equal("Novo nome", atualizada.NomeExibicao);
 
+      verificar.ChangeTracker.Clear();
+
+      var consultada = await service.ObterAsync(sujeito, default);
+
+      Assert.Equal(atualizada, consultada);
+
+      Assert.Empty(verificar.ChangeTracker.Entries());
+
+      var ausente = await Assert.ThrowsAsync<ErroAplicacaoException>(() => service.ObterAsync("outra-identidade", default));
+
+      Assert.Equal(TipoErro.NaoEncontrado, ausente.Tipo);
+
       var conta = await verificar.Contas.SingleAsync();
 
       verificar.Entry(conta).Property(x => x.Status).CurrentValue = StatusConta.Bloqueada;
 
       await verificar.SaveChangesAsync();
+
+      var consultaBloqueada = await Assert.ThrowsAsync<ErroAplicacaoException>(() => service.ObterAsync(sujeito, default));
+
+      Assert.Equal(TipoErro.AcessoNegado, consultaBloqueada.Tipo);
 
       var erro = await Assert.ThrowsAsync<ErroAplicacaoException>(() =>
         service.SincronizarAsync(sujeito, "novo@example.test", "Novo nome", default));

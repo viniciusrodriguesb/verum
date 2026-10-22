@@ -1,8 +1,8 @@
-using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
 using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
+using Verum.Modules.Ofertas.Contratos.Descoberta;
 
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
@@ -13,10 +13,12 @@ internal static class NormalizacaoOferta
       .Normalize(NormalizationForm.FormC), @"\bps\s*5\b", "playstation 5"), @"\b(televisao|televisor|televisores)\b", "tv");
 
   private static string[] Tokens(string texto) =>
-    Regex.Matches(Regex.Replace(Normalizar(texto), @"\b(\d+)\s+(tb|gb|mb|mhz|ghz|hz|mm|cm|k)\b", "$1$2"), @"[a-z0-9]+")
+    Regex.Matches(Regex.Replace(Regex.Replace(Normalizar(texto), @"\b(playstation|iphone)\s*(\d{1,2})\b", "$1$2"),
+      @"\b(\d+)\s+(tb|gb|mb|mhz|ghz|hz|mm|cm|k)\b", "$1$2"), @"[a-z0-9]+")
       .Select(x => x.Value).ToArray();
 
-  public static bool ConsultaEspecifica(string consulta) => Tokens(consulta).Length >= 2;
+  public static bool ConsultaEspecifica(string consulta) => Tokens(consulta).Length >= 2
+    || Regex.IsMatch(Normalizar(consulta), @"\b(?:playstation|iphone)\s*\d{1,2}\b");
 
   public static bool Corresponde(string consulta, string nome)
   {
@@ -31,9 +33,23 @@ internal static class NormalizacaoOferta
   {
     if (!Corresponde(consulta, nome)) return 0m;
 
-    const string acessorios = @"\b(capa|capinha|pelicula|controle|suporte|cabo|adaptador|case|carregador|fone|caneta|protetor)\b";
+    const string acessorios = @"\b(capas?|capinhas?|peliculas?|controles?|suportes?|cabos?|adaptadores?|case|carregador|fone|caneta|protetor|pen\s*drive|pendrive|cartao\s+de\s+memoria|stand|bases?|disc\s+drive|disk\s+drive|coolers?|ventoinhas?|tampas?|leitor(?:es)?(?:\s+(?:de\s+)?disco)?|unidade\s+de\s+disco|drive\s+de\s+disco|fontes?(?:\s+(?:de\s+)?alimentacao)?)\b";
 
     var titulo = Normalizar(nome);
+
+    var pedido = Normalizar(consulta);
+
+    // Compatibilidade não prova identidade. Não mistura condição ou edição não solicitada.
+    if (Regex.IsMatch(pedido, @"\b(iphone|smartphone|celular)\b")
+      && Regex.IsMatch(titulo, @"\b(pen\s*drive|pendrive|capinha|pelicula|capa|adaptador)\b")
+      && !Regex.IsMatch(pedido, @"\b(pen\s*drive|pendrive|capinha|pelicula|capa|adaptador)\b")) return 0m;
+
+    if (Regex.IsMatch(titulo, @"\b(seminovo|usado|recondicionado|vitrine)\b")
+      && !Regex.IsMatch(pedido, @"\b(seminovo|usado|recondicionado|vitrine)\b")) return 0m;
+
+    if (Regex.IsMatch(pedido, @"\b(iphone|samsung)\b")
+      && new[] { "pro", "plus", "max", "mini", "ultra", "fe", "air" }.Any(x => Regex.IsMatch(titulo, $@"\b{x}\b")
+        && !Regex.IsMatch(pedido, $@"\b{x}\b"))) return 0m;
 
     var acessorio = Regex.Match(titulo, acessorios);
 
@@ -70,28 +86,12 @@ internal static class NormalizacaoOferta
 
     var url = UrlCanonica(item.Url);
 
-    if (url is null || string.IsNullOrWhiteSpace(nome) || nome.Length > 300 || !Corresponde(consulta, nome)
-      || !TentarPreco(texto, out var preco)
+    if (url is null || string.IsNullOrWhiteSpace(nome) || nome.Length > 300 || Relevancia(consulta, nome) <= 30m
+      || !NormalizacaoPreco.Tentar(texto, out var preco)
       || preco <= 0 || preco > 9999999999.99m) return null;
 
     return new(nome, url, preco, pix ? "À vista no PIX; confirme as condições na loja." : "Preço anunciado; confirme vendedor e condições na loja.",
       UrlCanonica(imagem), fonte, false, pix ? "Preço PIX observado no card público da loja." : "Preço total anunciado no card público da loja.", observadaEm);
-  }
-
-  private static bool TentarPreco(string? texto, out decimal preco)
-  {
-    preco = 0;
-
-    if (texto is null) return false;
-
-    texto = Regex.Replace(texto.Trim(), @"^R\$\s*", "");
-
-    var brasileiro = Regex.IsMatch(texto, @"^(?:\d{1,3}(?:\.\d{3})*|\d+),\d{2}$");
-
-    var internacional = Regex.IsMatch(texto, @"^(?:\d{1,3}(?:,\d{3})*|\d+)\.\d{2}$");
-
-    return (brasileiro || internacional) && decimal.TryParse(texto, NumberStyles.Number,
-      CultureInfo.GetCultureInfo(brasileiro ? "pt-BR" : "en-US"), out preco);
   }
 
   public static OfertaDescoberta? DaIa(ProdutoCandidatoIa item, string consulta, DateTimeOffset observadaEm)
@@ -100,7 +100,7 @@ internal static class NormalizacaoOferta
 
     var preco = item.PrecoPix ?? item.Preco;
 
-    if (url is null || item.Nome.Length > 300 || !Corresponde(consulta, item.Nome)
+    if (url is null || item.Nome.Length > 300 || Relevancia(consulta, item.Nome) <= 30m
       || preco is null or <= 0 or > 9999999999.99m || decimal.Round(preco.Value, 2) != preco.Value
       || item.Moeda != "BRL" || item.Disponibilidade != "disponivel"
       || item.CondicaoProduto != "novo" || item.Correspondencia != "exata"

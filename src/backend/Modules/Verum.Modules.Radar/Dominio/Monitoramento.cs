@@ -40,6 +40,17 @@ internal sealed class Monitoramento
 
   public decimal? UltimoPrecoAlertado { get; private set; }
 
+  public Guid OfertaId { get; private set; }
+
+  public string ChaveIdempotencia { get; private set; } = null!;
+
+  public string Condicao { get; private set; } = null!;
+
+  public string EstadoVerificacao { get; private set; } = "Aguardando";
+
+  public bool Rearmado { get; private set; } = true;
+
+
   private readonly List<Oportunidade> _oportunidades = [];
 
   public IReadOnlyCollection<Oportunidade> Oportunidades => _oportunidades.AsReadOnly();
@@ -96,6 +107,75 @@ internal sealed class Monitoramento
     UltimoPrecoAlertado = ValidarUltimoPrecoAlertado(null);
   }
 
+public void ConfigurarOrigem(Guid ofertaId, string chave, string condicao)
+  {
+    OfertaId = Validacao.Identificador(ofertaId, nameof(OfertaId));
+
+    ChaveIdempotencia = Validacao.Texto(chave, nameof(ChaveIdempotencia), 100);
+
+    Condicao = Validacao.Texto(condicao, nameof(Condicao), 300);
+
+    ProximaVerificacaoEm = DateTimeOffset.UtcNow;
+  }
+
+  public void Alterar(decimal precoAlvo, string acao)
+  {
+    if (acao == "editar") PrecoAlvo = ValidarPrecoAlvo(precoAlvo);
+
+    Status = acao switch
+    {
+      "pausar" => StatusMonitoramento.Pausado,
+      "encerrar" => StatusMonitoramento.Excluido,
+      "retomar" => StatusMonitoramento.Ativo,
+      "editar" => Status,
+      _ => throw Verum.BuildingBlocks.Erros.ErroAplicacaoException.Validacao("Ação inválida.")
+    };
+
+    PausadoEm = Status == StatusMonitoramento.Pausado ? DateTimeOffset.UtcNow : null;
+
+    ExcluidoEm = Status == StatusMonitoramento.Excluido ? DateTimeOffset.UtcNow : null;
+
+    AtualizadoEm = DateTimeOffset.UtcNow;
+
+    if (acao == "retomar") ProximaVerificacaoEm = AtualizadoEm;
+  }
+
+  public bool Avaliar(decimal? preco, Guid? ofertaId, long? observacaoId, DateTimeOffset agora,
+    int intervaloMinutos, int cooldownMinutos, decimal histerese)
+  {
+    UltimaVerificacaoEm = agora;
+
+    ProximaVerificacaoEm = agora.AddMinutes(intervaloMinutos);
+
+    AtualizadoEm = agora;
+
+    EstadoVerificacao = preco.HasValue ? "Monitorando" : "VerificacaoIndisponivel";
+
+    if (!preco.HasValue) return false;
+
+    MenorPrecoAtual = ValidarMenorPrecoAtual(preco);
+
+    UltimaOfertaId = ofertaId;
+
+    UltimaObservacaoId = observacaoId;
+
+    if (preco > PrecoAlvo * (1 + histerese / 100)) Rearmado = true;
+
+    if (preco > PrecoAlvo) return false;
+
+    EstadoVerificacao = "MetaAtingida";
+
+    if (UltimoAlertaEm.HasValue && (!Rearmado || agora < UltimoAlertaEm.Value.AddMinutes(cooldownMinutos))) return false;
+
+    Rearmado = false;
+
+    UltimoAlertaEm = agora;
+
+    UltimoPrecoAlertado = preco;
+
+    return true;
+  }
+
   private static Guid ValidarId(Guid valor) =>
     Validacao.Identificador(valor, nameof(Id));
 
@@ -109,7 +189,7 @@ internal sealed class Monitoramento
     valor is null ? null : Validacao.Identificador(valor.Value, nameof(ProdutoVarianteId));
 
   private static string ValidarNome(string valor) =>
-    Validacao.Texto(valor, nameof(Nome), 250);
+    Validacao.Texto(valor, nameof(Nome), 300);
 
   private static decimal ValidarPrecoInicial(decimal valor) =>
     Validacao.Numero(valor, nameof(PrecoInicial), 0.01m, 999999999999.99m, 2);

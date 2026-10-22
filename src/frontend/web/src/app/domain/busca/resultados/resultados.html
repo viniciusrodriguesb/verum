@@ -7,7 +7,7 @@
 >
   <button
     type="button"
-    class="text-verum-navy inline-flex size-9 shrink-0 items-center justify-center rounded-lg hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
+    class="text-verum-navy inline-flex size-11 shrink-0 items-center justify-center rounded-lg hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
     aria-label="Voltar para a busca"
     (click)="voltarParaBusca()"
   >
@@ -16,7 +16,7 @@
 
   <button
     type="button"
-    class="flex min-h-10 min-w-0 flex-1 items-center gap-2.5 rounded-lg border border-slate-300 bg-white px-3 text-slate-500 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
+    class="flex min-h-11 min-w-0 flex-1 items-center gap-2.5 rounded-lg border border-slate-300 bg-white px-3 text-slate-500 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
     aria-label="Alterar produto pesquisado"
     (click)="voltarParaBusca()"
   >
@@ -66,18 +66,19 @@
 
           <button
             type="submit"
-            [disabled]="inicioBusca.enviando()"
+            [disabled]="inicioBusca.enviando() || buscaBloqueada"
             [attr.aria-busy]="inicioBusca.enviando()"
-            class="bg-verum-blue min-w-[186px] self-stretch rounded-[9px] px-8 font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none focus-visible:ring-inset"
+            class="bg-verum-blue min-w-[186px] self-stretch rounded-[9px] px-8 font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none focus-visible:ring-inset disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-700"
           >
             Buscar
           </button>
         </div>
+        <verum-cota-busca />
       </form>
 
       <div class="lg:mt-5">
         <h1 class="text-verum-navy text-xl font-bold lg:hidden">
-          {{ ofertasExibidas().length }} melhores ofertas
+          {{ ofertasExibidas().length }} ofertas correspondentes
         </h1>
 
         <div class="hidden items-center justify-between gap-8 text-sm text-[#536789] lg:flex">
@@ -118,7 +119,7 @@
   }
   @if (resultado()?.parcial) {
     <p role="status" class="mx-auto max-w-7xl px-5 py-3 text-sm text-amber-800">
-      Resultado parcial: alguma fonte estava indisponível ou atingiu seus limites.
+      Resultado parcial: algumas ofertas ou fontes não puderam ser aproveitadas nesta busca.
     </p>
   }
   @if (resultado()?.status === 'Expirada') {
@@ -137,8 +138,19 @@
     <div
       class="mx-auto grid max-w-7xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[272px_minmax(0,1fr)] lg:px-8 lg:py-5"
     >
+      <button
+        type="button"
+        class="min-h-11 rounded-lg border border-slate-300 px-4 text-sm font-semibold lg:hidden"
+        [attr.aria-expanded]="filtrosAbertos()"
+        aria-controls="painel-filtros"
+        (click)="filtrosAbertos.update(inverterFiltros)"
+      >
+        Filtros {{ possuiFiltrosAtivos() ? '· faixa de preço ativa' : '' }}
+      </button>
       <aside
-        class="hidden self-start overflow-hidden rounded-xl border border-slate-200 bg-white lg:block"
+        id="painel-filtros"
+        [ngClass]="{ 'hidden lg:block': !filtrosAbertos() }"
+        class="self-start overflow-hidden rounded-xl border border-slate-200 bg-white"
         aria-labelledby="titulo-filtros"
       >
         <form [formGroup]="formularioFiltros">
@@ -199,14 +211,11 @@
       </aside>
 
       <div class="min-w-0">
-        <div
-          class="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:px-0"
-          aria-label="Ordenar resultados"
-        >
+        <div class="flex flex-wrap gap-2 pb-1" aria-label="Ordenar resultados">
           @for (opcao of opcoesOrdenacao; track opcao.codigo) {
             <button
               type="button"
-              class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border px-3.5 text-xs font-semibold transition-colors sm:text-sm"
+              class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border px-3.5 text-sm font-semibold transition-colors"
               [ngClass]="
                 ordemSelecionada() === opcao.codigo
                   ? 'border-verum-blue bg-verum-blue text-white shadow-sm'
@@ -242,11 +251,7 @@
         @if (ofertasExibidas().length > 0) {
           <div class="mt-3 grid items-start gap-3 md:grid-cols-2 xl:grid-cols-3">
             @for (oferta of ofertasExibidas(); track oferta.id) {
-              <verum-cartao-oferta
-                [oferta]="oferta"
-                [favorita]="ofertaFavorita(oferta.id)"
-                (favoritoAlterado)="alternarFavorito($event)"
-              />
+              <verum-cartao-oferta [oferta]="oferta" />
             }
           </div>
         } @else {
@@ -275,17 +280,29 @@
               {{
                 resultado()?.status === 'Falhou'
                   ? 'As fontes ficaram indisponíveis. Tente novamente mais tarde.'
-                  : 'Refine sua busca ou limpe os filtros para consultar as ofertas disponíveis.'
+                  : possuiFiltrosAtivos()
+                    ? 'Nenhuma oferta corresponde a esta faixa de preço. Ajuste ou limpe os filtros.'
+                    : 'Não encontramos ofertas nas fontes consultadas. Tente outro produto ou detalhe a marca e o modelo.'
               }}
             </p>
 
-            <button
-              type="button"
-              class="bg-verum-blue mt-5 min-h-10 rounded-lg px-5 text-sm font-semibold text-white"
-              (click)="limparFiltros()"
-            >
-              Limpar filtros
-            </button>
+            @if (possuiFiltrosAtivos()) {
+              <button
+                type="button"
+                class="bg-verum-blue mt-5 min-h-10 rounded-lg px-5 text-sm font-semibold text-white"
+                (click)="limparFiltros()"
+              >
+                Limpar filtros
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="bg-verum-blue mt-5 min-h-11 rounded-lg px-5 text-sm font-semibold text-white"
+                (click)="voltarParaBusca()"
+              >
+                Fazer outra busca
+              </button>
+            }
           </div>
         }
 

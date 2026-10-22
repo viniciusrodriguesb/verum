@@ -9,6 +9,10 @@ namespace Verum.Modules.Catalogo.Aplicacao;
 
 internal sealed class CatalogoDescobertaService(CatalogoDbContext db) : ICatalogoDescobertaService
 {
+  public Task<Guid?> ObterProdutoAsync(Guid varianteId, CancellationToken cancellationToken) =>
+    db.Variantes.AsNoTracking().Where(x => x.Id == varianteId && x.Status == StatusProduto.Ativo)
+      .Select(x => (Guid?)x.ProdutoId).SingleOrDefaultAsync(cancellationToken);
+
   public Task<Guid[]> ResolverAsync(string consulta, CancellationToken cancellationToken) =>
     db.TermosBusca.AsNoTracking()
       .Where(x => x.TermoNormalizado == consulta.ToLowerInvariant() && x.ProdutoVarianteId != null

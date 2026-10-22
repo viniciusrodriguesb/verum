@@ -18,7 +18,7 @@ export function apresentarOferta(dto: OfertaDto, agora = Date.now()): OfertaResu
     produtoNovo: null,
     verificadaHaMinutos: Math.max(0, Math.floor((agora - Date.parse(dto.observadaEm)) / 60000)),
     pontuacaoRanking: dto.pontuacao / 10,
-    destaque: 'melhor-escolha',
+    destaque: 'comum',
     loja: {
       codigo: host === 'www.kabum.com.br' ? 'kabum' : host,
       nome: host === 'www.kabum.com.br' ? 'KaBuM!' : host,
@@ -29,6 +29,7 @@ export function apresentarOferta(dto: OfertaDto, agora = Date.now()): OfertaResu
       confianca: dto.pontuacaoConfianca / 10,
       atualizacao: dto.pontuacaoAtualizacao / 10,
       resumo: dto.explicacao,
+      fundamentos: dto.fundamentos,
     },
     imagemUrl: dto.imagemUrl,
     urlOferta: dto.url,

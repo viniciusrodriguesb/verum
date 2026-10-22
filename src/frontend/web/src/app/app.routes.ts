@@ -3,6 +3,21 @@ import { autenticadoGuard } from './core/autenticacao/guards/autenticado.guard';
 
 export const routes: Routes = [
   {
+    path: 'institucional/:pagina',
+    title: 'Informações — Verum',
+    loadComponent: () =>
+      import('./domain/institucional/institucional').then((m) => m.InstitucionalComponent),
+  },
+  {
+    path: 'conta',
+    title: 'Minha conta — Verum',
+    canActivate: [autenticadoGuard],
+    loadComponent: () =>
+      import('./domain/conta/minha-conta/minha-conta').then(
+        (componente) => componente.MinhaContaComponent,
+      ),
+  },
+  {
     path: '',
     pathMatch: 'full',
     title: 'Verum — Encontre o preço justo',
@@ -25,7 +40,6 @@ export const routes: Routes = [
   },
   {
     path: 'radar',
-    canActivate: [autenticadoGuard],
     loadChildren: () => import('@domain/radar/radar.routes').then((rotas) => rotas.ROTAS_RADAR),
   },
   { path: 'busca', pathMatch: 'full', redirectTo: '' },

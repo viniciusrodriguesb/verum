@@ -111,5 +111,12 @@ internal sealed class OportunidadeMapping : IEntityTypeConfiguration<Entidade>
 
     builder.HasIndex(x => new { x.MonitoramentoId, x.OfertaObservacaoId })
            .IsUnique();
+
+    builder.Property(x => x.AvisoEncaminhadoEm)
+           .HasColumnName("AVISO_ENCAMINHADO_EM");
+
+    builder.HasIndex(x => x.DetectadaEm)
+           .HasFilter("\"AVISO_ENCAMINHADO_EM\" IS NULL");
+
   }
 }
