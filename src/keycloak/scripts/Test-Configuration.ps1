@@ -45,6 +45,20 @@ if ($realm.browserFlow -ne 'browser' -or $realm.registrationFlow -ne 'registrati
   throw 'O Verum deve utilizar os fluxos nativos de browser e cadastro.'
 }
 
+$registrationExecutions = Invoke-RestMethod -Headers $headers -Uri ($address + '/admin/realms/verum/authentication/flows/registration/executions')
+
+if (!($registrationExecutions | Where-Object { $_.providerId -eq 'registration-password-action' -and $_.requirement -eq 'REQUIRED' })) {
+  throw 'A validação nativa de senha deve permanecer obrigatória no cadastro.'
+}
+
+if (!$realm.internationalizationEnabled -or $realm.defaultLocale -ne 'pt-BR' -or $realm.supportedLocales -notcontains 'pt-BR') {
+  throw 'O login, cadastro e recuperação devem usar português do Brasil.'
+}
+
+if ($realm.loginTheme -ne 'verum') {
+  throw 'Use o tema verum, herdado do tema oficial, para o cadastro nativo nesta versão.'
+}
+
 if (!$client.publicClient -or !$client.standardFlowEnabled -or $client.directAccessGrantsEnabled -or
   $client.implicitFlowEnabled -or $client.serviceAccountsEnabled -or
   $client.attributes.'pkce.code.challenge.method' -ne 'S256') {

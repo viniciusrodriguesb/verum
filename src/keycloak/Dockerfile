@@ -11,6 +11,7 @@ RUN /opt/keycloak/bin/kc.sh build
 FROM quay.io/keycloak/keycloak:26.8.0
 COPY --from=build /opt/keycloak/ /opt/keycloak/
 COPY --from=realm --chown=keycloak:keycloak /realm/verum-realm.json /opt/keycloak/data/import/verum-realm.json
+COPY --chown=keycloak:keycloak src/keycloak/themes/ /opt/keycloak/themes/
 ENV KC_DB=postgres KC_HEALTH_ENABLED=true KC_METRICS_ENABLED=true
 USER 1000
 EXPOSE 8080

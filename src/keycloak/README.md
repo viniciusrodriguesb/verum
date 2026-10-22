@@ -20,6 +20,7 @@ O script cria `.env` com senhas aleatórias e preserva um arquivo já existente.
 | Conta do usuário | http://localhost:8081/realms/verum/account/ |
 | OpenID Connect | http://localhost:8081/realms/verum/.well-known/openid-configuration |
 | E-mails locais | http://localhost:8025/ |
+| SMTP local para aplicações | localhost:1025 (somente loopback) |
 
 Use `localhost` consistentemente. As portas publicadas são vinculadas somente à máquina local. Banco, SMTP e porta de gerenciamento do Keycloak não são publicados. O projeto Compose, a rede e os volumes são exclusivos do Verum.
 
@@ -46,3 +47,9 @@ O runtime usa init para encaminhar sinais e recolher processos, prazo de 30 segu
 A implantação de produção usa imagens e pipelines independentes para frontend, API, workers e Keycloak. Consulte o [guia de implantação](../../deploy/README.md). Este Compose permanece exclusivo para desenvolvimento local.
 
 Este Compose usa `start-dev` e HTTP para desenvolvimento. Produção exige hostname público HTTPS, configuração de proxy conforme a implantação, SMTP real e gestão de segredos. Não reutilize o `.env` local em produção. Observabilidade completa fica para a entrega correspondente; o health check aqui apenas valida a prontidão do container.
+
+## Idioma e tema
+
+O realm usa pt-BR e o tema verum, herdado de keycloak.v2. Apenas o template de cadastro possui uma correção pontual para a versão 26.8.0: a validação de senha só inicia quando o campo existe. A confirmação de e-mail e a senha após verificação continuam nativas. Consulte [a origem e manutenção do tema](themes/verum/README.md).
+
+Em um realm local já criado, execute `./scripts/Set-LocalPresentation.ps1` e depois `./scripts/Test-Configuration.ps1`. O script aplica somente idioma e tema, sem reimportar usuários ou fluxos. O Compose monta o tema somente para leitura; a imagem de produção o incorpora. Alterar arquivos de import não atualiza um realm já existente.

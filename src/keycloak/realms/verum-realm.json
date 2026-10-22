@@ -1,6 +1,10 @@
 {
   "realm": "verum",
   "displayName": "Verum",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["pt-BR"],
+  "defaultLocale": "pt-BR",
+  "loginTheme": "verum",
   "enabled": true,
   "sslRequired": "external",
   "registrationAllowed": true,

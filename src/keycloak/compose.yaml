@@ -56,6 +56,7 @@ services:
       - 127.0.0.1:${KEYCLOAK_PORT:-8081}:8080
     volumes:
       - ./realms:/opt/keycloak/data/import:ro
+      - ./themes:/opt/keycloak/themes:ro
     healthcheck:
       test:
         - CMD
@@ -78,6 +79,7 @@ services:
       MP_LABEL: Verum local
     ports:
       - 127.0.0.1:${MAILPIT_PORT:-8025}:8025
+      - 127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025
     volumes:
       - mailpit-data:/data
 
