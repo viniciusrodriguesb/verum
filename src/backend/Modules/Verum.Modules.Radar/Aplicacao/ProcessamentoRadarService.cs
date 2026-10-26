@@ -7,8 +7,8 @@ using Verum.Modules.Notificacoes.Contratos;
 using Verum.Modules.Notificacoes.Contratos.DTOs;
 using Verum.Modules.Ofertas.Contratos.Radar;
 using Verum.Modules.Ofertas.Contratos.Radar.DTOs;
-using Verum.Modules.Radar.Contratos.Configuracoes;
 using Verum.Modules.Radar.Contratos;
+using Verum.Modules.Radar.Contratos.Configuracoes;
 using Verum.Modules.Radar.Dominio;
 using Verum.Modules.Radar.Infraestrutura.Persistencia;
 

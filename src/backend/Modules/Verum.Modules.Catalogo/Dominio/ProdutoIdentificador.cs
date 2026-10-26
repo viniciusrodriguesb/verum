@@ -15,7 +15,6 @@ internal sealed class ProdutoIdentificador
 
   public ProdutoVariante Variante { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private ProdutoIdentificador() { }
 
   public ProdutoIdentificador(

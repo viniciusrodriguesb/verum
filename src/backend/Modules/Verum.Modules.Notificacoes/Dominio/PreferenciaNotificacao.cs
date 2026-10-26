@@ -41,7 +41,6 @@ internal sealed class PreferenciaNotificacao
     AtualizadaEm = DateTimeOffset.UtcNow;
   }
 
-  // Materialização pelo EF Core.
   private PreferenciaNotificacao() { }
 
   public PreferenciaNotificacao(

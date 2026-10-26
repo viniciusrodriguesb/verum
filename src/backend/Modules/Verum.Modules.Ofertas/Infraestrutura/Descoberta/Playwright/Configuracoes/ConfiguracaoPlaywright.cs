@@ -11,6 +11,9 @@ internal static class ConfiguracaoPlaywright
     services.AddOptions<PlaywrightOptions>()
       .Configure(options => options.Lojas[Provedores.KabumProvider.Nome] = Provedores.KabumProvider.CriarConfiguracao())
       .Configure(options => options.Lojas[Provedores.AmazonProvider.Nome] = Provedores.AmazonProvider.CriarConfiguracao())
+      .Configure(options => options.Lojas[Provedores.CarrefourProvider.Nome] = Provedores.CarrefourProvider.CriarConfiguracao())
+      .Configure(options => options.Lojas[Provedores.KalungaProvider.Nome] = Provedores.KalungaProvider.CriarConfiguracao())
+      .Configure(options => options.Lojas[Provedores.DecathlonProvider.Nome] = Provedores.DecathlonProvider.CriarConfiguracao())
       .Bind(configuration.GetSection("Playwright"))
       .Validate(x => x.ConsultasSimultaneas is >= 1 and <= 16
         && x.TimeoutTotalSegundos is >= 1 and <= 300

@@ -4,14 +4,14 @@ O destino inicial é uma VPS Linux com Docker Engine e Compose, arquitetura x86_
 
 ## Unidades de implantação
 
-| Unidade | Imagem GHCR | Build | Deploy no Actions |
-| --- | --- | --- | --- |
-| Frontend | web | Frontend CI, após testes/auditoria | Deploy Frontend |
-| API | api | Backend CI | Deploy API |
-| Descoberta | worker-descoberta | Backend CI | Deploy Worker Descoberta |
-| Radar | worker-radar | Backend CI | Deploy Worker Radar |
-| Keycloak | keycloak | Keycloak CI | Deploy Keycloak |
-| Migrations EF | migrations | Backend CI | Deploy Migrations ou etapa anterior ao serviço backend |
+| Unidade       | Imagem GHCR       | Build                              | Deploy no Actions                                      |
+| ------------- | ----------------- | ---------------------------------- | ------------------------------------------------------ |
+| Frontend      | web               | Frontend CI, após testes/auditoria | Deploy Frontend                                        |
+| API           | api               | Backend CI                         | Deploy API                                             |
+| Descoberta    | worker-descoberta | Backend CI                         | Deploy Worker Descoberta                               |
+| Radar         | worker-radar      | Backend CI                         | Deploy Worker Radar                                    |
+| Keycloak      | keycloak          | Keycloak CI                        | Deploy Keycloak                                        |
+| Migrations EF | migrations        | Backend CI                         | Deploy Migrations ou etapa anterior ao serviço backend |
 
 Cada aplicação possui manifesto próprio. Uma implantação usa compose up --no-deps somente no serviço escolhido; não derruba os demais projetos. Não há container_name fixo, imagem latest da aplicação, segredos no build ou migrations na inicialização das réplicas. Bibliotecas internas .NET continuam distribuídas com os executáveis, sem deploy individual.
 
@@ -25,11 +25,11 @@ A referência fica no resumo do job e em ghcr.io/OWNER/REPOSITORY/SERVICE:sha-CO
 
 Configure o Environment production e, se disponível no seu plano GitHub, proteção da branch main e revisores para produção. O deploy rejeita execução fora de main. No Environment, configure:
 
-| Secret | Valor |
-| --- | --- |
-| VPS_HOST | IP ou hostname da VPS |
-| VPS_USER | Usuário Linux dedicado ao deploy |
-| VPS_SSH_KEY | Chave SSH privada desse usuário |
+| Secret          | Valor                                                                            |
+| --------------- | -------------------------------------------------------------------------------- |
+| VPS_HOST        | IP ou hostname da VPS                                                            |
+| VPS_USER        | Usuário Linux dedicado ao deploy                                                 |
+| VPS_SSH_KEY     | Chave SSH privada desse usuário                                                  |
 | VPS_KNOWN_HOSTS | Chave de host SSH verificada fora do pipeline, incluindo porta quando não for 22 |
 
 Variáveis opcionais: VPS_PORT (22) e VPS_ROOT (/opt/verum). Não use ssh-keyscan durante o deploy para confiar automaticamente na primeira resposta. Confirme o fingerprint pelo painel/console confiável da VPS antes de cadastrar known_hosts.
@@ -79,3 +79,9 @@ Não há deploy automático do banco, do proxy ou de outra aplicação como efei
 Execute bash deploy/scripts/validate.sh para validar todos os manifests com valores fictícios, sem subir containers. O CI verifica também os scripts. Builds locais usam o contexto da raiz: docker build -f src/backend/Dockerfile --target api -t verum-api:local .; os demais targets são worker-descoberta, worker-radar e migrations. Frontend e Keycloak têm Dockerfiles próprios.
 
 Ao criar nova aplicação: inclua target/Dockerfile, manifesto, exemplos de configuração, validação CI e ação de deploy exclusiva, reaproveitando container-image.yml e deploy-vps.yml. Atualize as listas permitidas do deploy-service.sh, do workflow reutilizável, do validador e esta tabela. Essa decisão está registrada em AGENTS.md.
+
+### Radar e SMTP
+
+A API e o Worker Radar compartilham a política de Radar (`Radar__*`) e a habilitação do canal de e-mail. O worker recebe as credenciais SMTP em runtime; não usa o SMTP do Keycloak. Ative `Playwright__Enabled=true` no Worker Radar para renovar observações com os providers já existentes. A imagem do worker já inclui o runtime de navegador e segue com deploy independente.
+
+Os exemplos começam com Radar e e-mail desabilitados. Antes de liberar Verum Plus: configure preços, confirme a capacidade do worker e habilite a política nos dois executáveis. Migrations de Radar/Notificações são aplicadas pelo processo de migrations existente, nunca ao subir réplicas. Veja [decisões do Radar](../docs/arquitetura.md#radar-e-notificações).

@@ -37,7 +37,7 @@ O produto tem como objetivo oferecer transparência na comparação de preços, 
 | Programação reativa    | RxJS e Signals do Angular                            |
 | Testes unitários       | Vitest                                               |
 | Qualidade              | ESLint e Prettier                                    |
-| Integração contínua    | GitLab CI/CD                                         |
+| Integração contínua    | GitHub Actions                                       |
 
 As versões exatas e reproduzíveis estão registradas em `package-lock.json`.
 
@@ -70,7 +70,7 @@ Os resultados preservam o snapshot da busca. A interface usa `validaAte` para si
 
 Para testar localmente, inicie PostgreSQL, RabbitMQ, Redis e Chromium, aplique as migrations e execute API (perfil `http`, porta 5099) e worker Descoberta conforme o README do backend. Execute `npm start` aqui e abra `http://localhost:4200`. `proxy.conf.json` encaminha `/api/**` à API; os pedidos enviam credenciais e preservam o cookie HttpOnly. Use sempre o mesmo hostname: alternar localhost e 127.0.0.1 muda a identificação do visitante. A cota padrão é uma busca diária; 429 será exibido na tela.
 
-Pesquise um produto específico, como `ssd kingston`, e aguarde o resultado. IA sem chave é ignorada pelo backend. Os estados vazio, falha, expiração, resultado parcial e indisponibilidade HTTP têm apresentação própria. Radar, favoritos, histórico, frete e parcelamento não possuem endpoints disponíveis nesta entrega; não são simulados. A classificação não presume equivalência entre variantes.
+Pesquise um produto específico, como `ssd kingston`, e aguarde o resultado. IA sem chave é ignorada pelo backend. Os estados vazio, falha, expiração, resultado parcial e indisponibilidade HTTP têm apresentação própria. Conta, histórico e Radar usam os serviços reais, respeitando autenticação e concessões de acesso. Frete, favoritos e parcelamento não são simulados. A classificação não presume equivalência entre variantes.
 
 Em produção, encaminhe `/api` ao backend no mesmo domínio pelo reverse proxy e configure o fallback de rotas do Angular. O proxy do Angular serve somente para desenvolvimento. Nenhuma credencial de PostgreSQL, RabbitMQ ou OpenAI pertence ao frontend.
 
@@ -272,7 +272,7 @@ O `keycloak-js` integra login, cadastro, logout e gerenciamento da identidade co
 
 `AutenticacaoService`, em `core/autenticacao/services`, expõe signals de usuário, nome e estado autenticado, além dos métodos de login e renovação de token. Os dados disponíveis são `sub`, e-mail, username, nome e confirmação de e-mail; CPF não está configurado. O cabeçalho e a navegação ficam em `core/components` e usam esse serviço sem alterar o estilo da tela.
 
-A inicialização verifica a sessão SSO antes de iniciar a navegação e depois sincroniza a conta real por `POST /api/v1/contas/me`. `ContaService` expõe a conta comercial separadamente da identidade. A falha da API é apresentada pelo aviso padrão sem bloquear as páginas públicas. O interceptor renova o access token antes dos pedidos e o envia somente a `/api/` na mesma origem. Uma renovação rejeitada limpa a sessão e exige novo login. O Radar exige autenticação na navegação, mas seu processamento e endpoints ainda não estão implementados; a lista permanece vazia. Buscas autenticadas pertencem à conta e usam FREE ou concessão paga válida; visitantes têm identidade e cota próprias. As decisões visuais de contexto, saldo, bloqueio e histórico estão documentadas em [contas-acesso-ranking.md](docs/contas-acesso-ranking.md). Nenhuma tela nova foi implementada.
+A inicialização verifica a sessão SSO antes de iniciar a navegação e depois sincroniza a conta real por `POST /api/v1/contas/me`. `ContaService` expõe a conta comercial separadamente da identidade. A falha da API é apresentada pelo aviso padrão sem bloquear as páginas públicas. O interceptor renova o access token antes dos pedidos e o envia somente a `/api/` na mesma origem. Uma renovação rejeitada limpa a sessão e exige novo login. A apresentação do Radar é pública; criação e gestão exigem autenticação e concessão vigente de Verum Plus. O processamento e os avisos usam os serviços reais. Buscas autenticadas pertencem à conta e usam FREE ou concessão paga válida; visitantes têm identidade e cota próprias. As decisões de contexto, acesso, ranking e notificações estão no [documento de arquitetura](../../../docs/arquitetura.md).
 
 Regras da integração:
 
@@ -299,7 +299,7 @@ npm run check
 
 ## Integração contínua
 
-O `.gitlab-ci.yml` executa as verificações em uma imagem Node.js compatível com Angular 22 e utiliza `package-lock.json` como chave do cache npm.
+Os workflows em `.github/workflows`, na raiz do monorepo, validam o frontend usando a versão de Node.js definida no projeto e o lockfile npm.
 
 O pipeline possui barreiras independentes para:
 
@@ -308,9 +308,9 @@ O pipeline possui barreiras independentes para:
 3. auditoria de vulnerabilidades das dependências de produção;
 4. build com configuração de produção.
 
-Pipelines de branch são evitados quando já existe um Merge Request aberto para o mesmo trabalho. Jobs obsoletos podem ser interrompidos por commits mais recentes, e o build gerado é armazenado como artefato temporário.
+As verificações do frontend são independentes das demais aplicações. O build gerado é armazenado como artefato temporário conforme os workflows.
 
-Publicação de imagem e deploy serão adicionados quando hospedagem, registro de imagens e ambientes estiverem definidos. O artefato validado deverá ser promovido entre ambientes sem recompilação.
+Publicação de imagem e deploy independente já possuem workflows próprios. A infraestrutura remota ainda precisa ser configurada; siga o [guia de implantação](../../../deploy/README.md). O artefato validado é promovido entre ambientes sem recompilação.
 
 ## Convenções Git
 
@@ -348,4 +348,4 @@ docs(readme): atualiza convenções do projeto
 - [Angular Material](https://material.angular.dev/guide/getting-started)
 - [Keycloak JavaScript Adapter](https://www.keycloak.org/securing-apps/javascript-adapter)
 - [Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/)
-- [GitLab CI/CD](https://docs.gitlab.com/ci/)
+- [Pipelines e implantação do monorepo](../../../deploy/README.md)

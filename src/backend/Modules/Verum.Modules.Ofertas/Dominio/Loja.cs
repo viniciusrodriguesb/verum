@@ -26,7 +26,6 @@ internal sealed class Loja
 
   public IReadOnlyCollection<Oferta> Ofertas => _ofertas.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Loja() { }
 
   public Loja(

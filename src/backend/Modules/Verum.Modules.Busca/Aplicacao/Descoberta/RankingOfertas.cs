@@ -1,11 +1,12 @@
 using Verum.Modules.Busca.Contratos.DTOs;
 using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
+using static Verum.Modules.Busca.Contratos.Configuracoes.CriteriosRanking;
 
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
 internal static class RankingOfertas
 {
-  public const string Versao = "ranking-v1.2";
+  public const string Versao = "ranking-v1.3";
 
   public static IReadOnlyList<OfertaResultado> Classificar(IEnumerable<OfertaConsultada> candidatas, int limite, string consulta)
   {
@@ -28,11 +29,12 @@ internal static class RankingOfertas
 
     var idade = Math.Max(0, (agora - x.ObservadaEm).TotalMinutes);
 
-    var atualizacao = (decimal)(100d * Math.Pow(2, -idade / 60d));
+    var atualizacao = (decimal)(100d * Math.Pow(2, -idade / MeiaVidaMinutos));
 
-    var confianca = Math.Clamp((x.ConfiancaLoja ?? x.Confianca) * 0.7m + (x.ConfiancaDado ?? x.Confianca) * 0.3m, 0m, 100m);
+    var confianca = Math.Clamp((x.ConfiancaLoja ?? x.Confianca) * PesoConfiancaLoja
+      + (x.ConfiancaDado ?? x.Confianca) * PesoConfiancaDado, 0m, 100m);
 
-    var pontuacao = decimal.Round(calculo.Nota * 0.45m + confianca * 0.35m + atualizacao * 0.20m, 2);
+    var pontuacao = decimal.Round(calculo.Nota * PesoPreco + confianca * PesoConfianca + atualizacao * PesoAtualizacao, 2);
 
     return new OfertaResultado(x.Id, x.VarianteId, x.Nome, x.Url, x.Preco, x.CondicaoPreco, x.ImagemUrl,
       x.Fonte, x.ObservadaEm, x.ValidaAte, 0, pontuacao,
@@ -57,7 +59,7 @@ internal static class RankingOfertas
       && y.CondicaoPreco.Contains("PIX", StringComparison.OrdinalIgnoreCase) == pix)
       .GroupBy(y => y.LojaId == Guid.Empty ? y.Fonte : y.LojaId.ToString()).Select(y => y.Min(z => z.Preco)).ToArray();
 
-    var historico = x.Historico.Where(y => y.Pix == pix && y.Preco > 0 && y.ObservadaEm >= agora.AddDays(-30)
+    var historico = x.Historico.Where(y => y.Pix == pix && y.Preco > 0 && y.ObservadaEm >= agora.AddDays(-JanelaHistoricoDias)
       && y.ObservadaEm <= agora).GroupBy(y => new { y.LojaId, Dia = y.ObservadaEm.UtcDateTime.Date })
       .Select(y => y.MinBy(z => z.Preco)!).ToArray();
 
@@ -65,20 +67,20 @@ internal static class RankingOfertas
 
     var lojas = historico.Select(y => y.LojaId).Distinct().Count();
 
-    var suficiente = historico.Length >= 10 && lojas >= 3;
+    var suficiente = historico.Length >= MinimoObservacoesHistorico && lojas >= MinimoLojasHistorico;
 
-    var precoMercado = mercado.Length >= 3 ? 100m * (1m - EstatisticasRanking.Percentil(x.Preco, mercado)) : 50m;
+    var precoMercado = mercado.Length >= MinimoLojasMercado ? 100m * (1m - EstatisticasRanking.Percentil(x.Preco, mercado)) : NotaProvisoria;
 
     var percentil = historico.Length == 0 ? (decimal?)null : EstatisticasRanking.Percentil(x.Preco, historico.Select(y => y.Preco).ToArray());
 
     var preco = suficiente ? 100m * (1m - percentil!.Value) : precoMercado;
 
-    if (suficiente && mercado.Length >= 3) preco = preco * 0.6m + precoMercado * 0.4m;
+    if (suficiente && mercado.Length >= MinimoLojasMercado) preco = preco * PesoHistorico + precoMercado * PesoMercado;
 
     var idade = Math.Max(0, (agora - x.ObservadaEm).TotalMinutes);
 
-    var fundamentos = new FundamentosRanking(Versao, historico.Length >= 30 && dias >= 14 && lojas >= 5 ? "Alta"
-      : suficiente ? "Media" : "Baixa", !suficiente && mercado.Length < 3, mercado.Length, historico.Length, dias, lojas,
+    var fundamentos = new FundamentosRanking(Versao, historico.Length >= ObservacoesConfiancaAlta && dias >= DiasConfiancaAlta && lojas >= LojasConfiancaAlta ? "Alta"
+      : suficiente ? "Media" : "Baixa", !suficiente && mercado.Length < MinimoLojasMercado, mercado.Length, historico.Length, dias, lojas,
       mercado.Length > 0 ? EstatisticasRanking.Mediana(mercado) : null,
       historico.Length > 0 ? EstatisticasRanking.Mediana(historico.Select(y => y.Preco)) : null, percentil, Math.Round(idade, 2));
 

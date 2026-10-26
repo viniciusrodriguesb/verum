@@ -28,7 +28,6 @@ internal sealed class FonteOferta
 
   public IReadOnlyCollection<ExecucaoConsultaFonte> Execucoes => _execucoes.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private FonteOferta() { }
 
   public FonteOferta(

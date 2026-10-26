@@ -52,7 +52,6 @@ internal sealed class Busca
 
   public ResultadoBusca? Resultado { get; private set; }
 
-  // Materialização pelo EF Core.
   private Busca() { }
 
   public Busca(

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Verum.Modules.Radar.Infraestrutura.Persistencia;
 
-// Utilizado apenas pelo dotnet ef, sem inicializar API, filas ou serviços externos.
 internal sealed class RadarDbContextFactory : IDesignTimeDbContextFactory<RadarDbContext>
 {
   public RadarDbContext CreateDbContext(string[] args)

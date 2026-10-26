@@ -23,7 +23,6 @@ internal sealed class ProdutoImagem
 
   public ProdutoVariante? Variante { get; private set; }
 
-  // Materialização pelo EF Core.
   private ProdutoImagem() { }
 
   public ProdutoImagem(

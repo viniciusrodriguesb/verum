@@ -27,7 +27,6 @@ internal sealed class EntregaNotificacao
 
   public Notificacao Notificacao { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private EntregaNotificacao() { }
 
   public EntregaNotificacao(

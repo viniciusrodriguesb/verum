@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Verum.Modules.Assinaturas.Infraestrutura.Persistencia;
 
-// Utilizado apenas pelo dotnet ef, sem inicializar API, filas ou serviços externos.
 internal sealed class AssinaturasDbContextFactory : IDesignTimeDbContextFactory<AssinaturasDbContext>
 {
   public AssinaturasDbContext CreateDbContext(string[] args)

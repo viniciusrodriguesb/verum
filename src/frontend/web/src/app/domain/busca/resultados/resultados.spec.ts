@@ -1,3 +1,4 @@
+import { AUTENTICACAO_CONFIG } from '@core/autenticacao/configuracoes/autenticacao.config';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -51,6 +52,10 @@ describe('validade das ofertas na listagem', () => {
     TestBed.configureTestingModule({
       imports: [ResultadosComponent],
       providers: [
+        {
+          provide: AUTENTICACAO_CONFIG,
+          useValue: { url: 'https://login.example.test', realm: 'teste', clientId: 'teste-web' },
+        },
         provideRouter([]),
         {
           provide: ActivatedRoute,

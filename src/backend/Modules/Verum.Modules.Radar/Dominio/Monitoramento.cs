@@ -55,7 +55,6 @@ internal sealed class Monitoramento
 
   public IReadOnlyCollection<Oportunidade> Oportunidades => _oportunidades.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Monitoramento() { }
 
   public Monitoramento(

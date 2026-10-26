@@ -12,7 +12,6 @@ using Verum.Modules.Catalogo.Contratos;
 using Verum.Modules.Contas.Contratos;
 using Verum.Modules.Notificacoes;
 using Verum.Modules.Notificacoes.Contratos;
-using Verum.Modules.Notificacoes.Contratos.DTOs;
 using Verum.Modules.Notificacoes.Dominio;
 using Verum.Modules.Notificacoes.Infraestrutura.Persistencia;
 using Verum.Modules.Ofertas.Contratos.Radar;

@@ -17,4 +17,8 @@ public sealed class EmailOptions
   public string Remetente { get; set; } = "";
 
   public int MaximoTentativas { get; set; } = 5;
+
+  public int LoteEnvio { get; set; } = 20;
+
+  public int AdiamentoSilencioMinutos { get; set; } = 15;
 }

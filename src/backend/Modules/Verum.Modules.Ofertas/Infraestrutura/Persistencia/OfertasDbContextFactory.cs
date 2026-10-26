@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Verum.Modules.Ofertas.Infraestrutura.Persistencia;
 
-// Utilizado apenas pelo dotnet ef, sem inicializar API, filas ou serviços externos.
 internal sealed class OfertasDbContextFactory : IDesignTimeDbContextFactory<OfertasDbContext>
 {
   public OfertasDbContext CreateDbContext(string[] args)

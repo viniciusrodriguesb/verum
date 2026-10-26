@@ -35,7 +35,7 @@ internal sealed class PagamentosWorker(IServiceScopeFactory scopes, IOptions<Ass
             proximaReconciliacao = DateTimeOffset.UtcNow.AddSeconds(options.Value.IntervaloReconciliacaoSegundos);
           }
 
-          for (var i = 0; i < 20; i++)
+          for (var i = 0; i < options.Value.EventosPorCiclo; i++)
           {
             await using var scope = scopes.CreateAsyncScope();
 
@@ -62,11 +62,11 @@ internal sealed class PagamentosWorker(IServiceScopeFactory scopes, IOptions<Ass
 
     var db = scope.ServiceProvider.GetRequiredService<AssinaturasDbContext>();
 
-    var limite = DateTimeOffset.UtcNow.AddDays(-90);
+    var limite = DateTimeOffset.UtcNow.AddDays(-options.Value.JanelaReconciliacaoDias);
 
     var assinaturas = await db.Assinaturas
       .Where(x => x.Status != StatusAssinatura.Cancelada || x.CanceladaEm > limite || x.PeriodoTerminaEm > limite)
-      .OrderBy(x => x.ReconciliacaoAgendadaEm ?? x.CriadaEm).Take(50).ToListAsync(cancellationToken);
+      .OrderBy(x => x.ReconciliacaoAgendadaEm ?? x.CriadaEm).Take(options.Value.LoteReconciliacao).ToListAsync(cancellationToken);
 
     var janela = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / options.Value.IntervaloReconciliacaoSegundos;
 

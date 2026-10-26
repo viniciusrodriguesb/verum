@@ -37,7 +37,6 @@ internal sealed class Oportunidade
 
   public Monitoramento Monitoramento { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private Oportunidade() { }
 
   public Oportunidade(

@@ -33,7 +33,6 @@ internal sealed class OfertaObservacao
 
   public FonteOferta Fonte { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private OfertaObservacao() { }
 
   public OfertaObservacao(

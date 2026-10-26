@@ -2,7 +2,9 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Verum.Modules.Acesso.Contratos;
+using Verum.Modules.Assinaturas.Aplicacao.Configuracoes;
 using Verum.Modules.Assinaturas.Aplicacao.Gateways;
 using Verum.Modules.Assinaturas.Aplicacao.Gateways.DTOs;
 using Verum.Modules.Assinaturas.Dominio;
@@ -11,13 +13,13 @@ using Verum.Modules.Assinaturas.Infraestrutura.Persistencia;
 namespace Verum.Modules.Assinaturas.Aplicacao;
 
 internal sealed class ProcessamentoPagamentos(AssinaturasDbContext db, SelecionadorGateway gateways,
-  IConcessoesAssinaturaService concessoes, ILogger<ProcessamentoPagamentos> logger)
+  IConcessoesAssinaturaService concessoes, ILogger<ProcessamentoPagamentos> logger, IOptions<AssinaturasOptions> options)
 {
   public async Task<bool> ProcessarProximoAsync(CancellationToken stoppingToken)
   {
     using var prazo = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
 
-    prazo.CancelAfter(TimeSpan.FromSeconds(60));
+    prazo.CancelAfter(TimeSpan.FromSeconds(options.Value.TimeoutProcessamentoSegundos));
 
     var cancellationToken = prazo.Token;
 

@@ -28,7 +28,6 @@ internal sealed class Plano
 
   public IReadOnlyCollection<Assinatura> Assinaturas => _assinaturas.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Plano() { }
 
   public Plano(

@@ -11,4 +11,12 @@ public sealed class AssinaturasOptions
   public int IntervaloProcessamentoSegundos { get; set; } = 5;
 
   public int IntervaloReconciliacaoSegundos { get; set; } = 300;
+
+  public int TimeoutProcessamentoSegundos { get; set; } = 60;
+
+  public int EventosPorCiclo { get; set; } = 20;
+
+  public int LoteReconciliacao { get; set; } = 50;
+
+  public int JanelaReconciliacaoDias { get; set; } = 90;
 }

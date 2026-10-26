@@ -6,5 +6,7 @@ public sealed class CampoLojaOptions
 
   public string? Atributo { get; set; }
 
+  public string? PadraoExtracao { get; set; }
+
   public bool Obrigatorio { get; set; }
 }

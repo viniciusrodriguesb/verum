@@ -19,7 +19,6 @@ internal sealed class BuscaEtapa
 
   public Busca Busca { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private BuscaEtapa() { }
 
   public BuscaEtapa(

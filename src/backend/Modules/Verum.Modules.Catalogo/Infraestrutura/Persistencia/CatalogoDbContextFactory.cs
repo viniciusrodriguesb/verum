@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Verum.Modules.Catalogo.Infraestrutura.Persistencia;
 
-// Utilizado apenas pelo dotnet ef, sem inicializar API, filas ou serviços externos.
 internal sealed class CatalogoDbContextFactory : IDesignTimeDbContextFactory<CatalogoDbContext>
 {
   public CatalogoDbContext CreateDbContext(string[] args)

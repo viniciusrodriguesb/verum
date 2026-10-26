@@ -18,7 +18,6 @@ internal sealed class Conta
 
   public DateTimeOffset? ExcluidaEm { get; private set; }
 
-  // Materialização pelo EF Core.
   private Conta() { }
 
   public Conta(

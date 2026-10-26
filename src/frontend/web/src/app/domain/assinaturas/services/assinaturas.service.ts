@@ -1,3 +1,7 @@
+import {
+  TEMPO_LIMITE_API_MS,
+  TEMPO_LIMITE_CHECKOUT_MS,
+} from '@shared/configuracoes/requisicoes-api.config';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { timeout } from 'rxjs';
@@ -12,27 +16,31 @@ export class AssinaturasService {
   listarPlanos() {
     return this.http
       .get<readonly PlanoConsulta[]>('/api/v1/assinaturas/planos')
-      .pipe(timeout(15000));
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 
   listar() {
-    return this.http.get<readonly AssinaturaConsulta[]>('/api/v1/assinaturas').pipe(timeout(15000));
+    return this.http
+      .get<readonly AssinaturaConsulta[]>('/api/v1/assinaturas')
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 
   criar(pedido: SolicitarAssinatura) {
     // Preserve a chave em uma nova tentativa. Não há retry automático nem liberação pelo redirect.
-    return this.http.post<AssinaturaConsulta>('/api/v1/assinaturas', pedido).pipe(timeout(45000));
+    return this.http
+      .post<AssinaturaConsulta>('/api/v1/assinaturas', pedido)
+      .pipe(timeout(TEMPO_LIMITE_CHECKOUT_MS));
   }
 
   obter(id: string) {
     return this.http
       .get<AssinaturaConsulta>(`/api/v1/assinaturas/${encodeURIComponent(id)}`)
-      .pipe(timeout(15000));
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 
   cancelar(id: string) {
     return this.http
       .post<void>(`/api/v1/assinaturas/${encodeURIComponent(id)}/cancelamento`, {})
-      .pipe(timeout(15000));
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 }

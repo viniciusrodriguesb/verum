@@ -106,7 +106,6 @@ export class ProcessamentoComponent {
 
   private iniciadaEm = Date.now();
 
-  // Etapas observadas no backend; sem avanço temporal artificial.
   private readonly indiceEtapaAtual = signal(0);
 
   private ultimoAvanco = Date.now();

@@ -1,0 +1,3 @@
+export const TEMPO_LIMITE_API_MS = 15_000;
+
+export const TEMPO_LIMITE_CHECKOUT_MS = 45_000;

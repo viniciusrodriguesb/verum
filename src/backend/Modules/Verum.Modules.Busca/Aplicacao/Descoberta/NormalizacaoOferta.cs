@@ -1,39 +1,86 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Verum.Modules.Busca.Contratos.InteligenciaArtificial.DTOs;
-using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
+using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
 internal static class NormalizacaoOferta
 {
-  public static string Normalizar(string texto) =>
-    Regex.Replace(Regex.Replace(Regex.Replace(texto.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD), @"\p{Mn}", "")
-      .Normalize(NormalizationForm.FormC), @"\bps\s*5\b", "playstation 5"), @"\b(televisao|televisor|televisores)\b", "tv");
+  public static string Normalizar(string texto)
+  {
+    var semAcentos = Regex.Replace(texto.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD), @"\p{Mn}", "")
+      .Normalize(NormalizationForm.FormC);
 
-  private static string[] Tokens(string texto) =>
-    Regex.Matches(Regex.Replace(Regex.Replace(Normalizar(texto), @"\b(playstation|iphone)\s*(\d{1,2})\b", "$1$2"),
-      @"\b(\d+)\s+(tb|gb|mb|mhz|ghz|hz|mm|cm|k)\b", "$1$2"), @"[a-z0-9]+")
-      .Select(x => x.Value).ToArray();
+    var modeloNormalizado = Regex.Replace(semAcentos, @"\bps\s*5\b", "playstation 5");
+
+    return Regex.Replace(modeloNormalizado, @"\b(televisao|televisor|televisores)\b", "tv");
+  }
+
+  private static string[] Tokens(string texto)
+  {
+    var modelosUnificados = Regex.Replace(Normalizar(texto), @"\b(playstation|iphone)\s*(\d{1,2})\b", "$1$2");
+
+    var capacidadesUnificadas = Regex.Replace(modelosUnificados, @"\b(\d+)\s+(tb|gb|mb|mhz|ghz|hz|mm|cm|k)\b", "$1$2");
+
+    return Regex.Matches(capacidadesUnificadas, @"[a-z0-9]+").Select(x => x.Value).ToArray();
+  }
 
   public static bool ConsultaEspecifica(string consulta) => Tokens(consulta).Length >= 2
     || Regex.IsMatch(Normalizar(consulta), @"\b(?:playstation|iphone)\s*\d{1,2}\b");
 
   public static bool Corresponde(string consulta, string nome)
   {
-    var tokens = Tokens(consulta);
+    var tokens = Tokens(consulta).Where(x => x is not ("o" or "a" or "os" or "as" or "de" or "da" or "do" or "das" or "dos" or "e")).Distinct().ToArray();
 
     var titulo = Tokens(nome).ToHashSet();
 
-    return tokens.Length > 0 && tokens.All(titulo.Contains);
+    var aproximados = 0;
+
+    foreach (var token in tokens)
+    {
+      if (titulo.Contains(token)) continue;
+
+      // Tolera um erro em uma única palavra longa; números, capacidades e modelos permanecem exatos.
+      var proximo = titulo.FirstOrDefault(x => PalavraProxima(token, x));
+
+      if (proximo is null || ++aproximados > 1) return false;
+
+      titulo.Remove(proximo);
+    }
+
+    return tokens.Length > 0;
+  }
+
+  private static bool PalavraProxima(string consulta, string titulo)
+  {
+    if (Math.Min(consulta.Length, titulo.Length) < 6 || Math.Max(consulta.Length, titulo.Length) > 64
+      || Math.Abs(consulta.Length - titulo.Length) > 1
+      || !consulta.All(char.IsAsciiLetterLower) || !titulo.All(char.IsAsciiLetterLower)) return false;
+
+    var indice = 0;
+
+    while (indice < Math.Min(consulta.Length, titulo.Length) && consulta[indice] == titulo[indice]) indice++;
+
+    if (indice == Math.Min(consulta.Length, titulo.Length)) return true;
+
+    if (consulta.Length != titulo.Length)
+      return consulta.Length > titulo.Length
+        ? consulta.AsSpan(indice + 1).SequenceEqual(titulo.AsSpan(indice))
+        : consulta.AsSpan(indice).SequenceEqual(titulo.AsSpan(indice + 1));
+
+    if (consulta.AsSpan(indice + 1).SequenceEqual(titulo.AsSpan(indice + 1))) return true;
+
+    return indice + 1 < consulta.Length && consulta[indice] == titulo[indice + 1] && consulta[indice + 1] == titulo[indice]
+      && consulta.AsSpan(indice + 2).SequenceEqual(titulo.AsSpan(indice + 2));
   }
 
   public static decimal Relevancia(string consulta, string nome)
   {
     if (!Corresponde(consulta, nome)) return 0m;
 
-    const string acessorios = @"\b(capas?|capinhas?|peliculas?|controles?|suportes?|cabos?|adaptadores?|case|carregador|fone|caneta|protetor|pen\s*drive|pendrive|cartao\s+de\s+memoria|stand|bases?|disc\s+drive|disk\s+drive|coolers?|ventoinhas?|tampas?|leitor(?:es)?(?:\s+(?:de\s+)?disco)?|unidade\s+de\s+disco|drive\s+de\s+disco|fontes?(?:\s+(?:de\s+)?alimentacao)?)\b";
+    const string acessorios = @"\b(capas?|capinhas?|peliculas?|controles?|suportes?|cabos?|adaptadores?|case|carregador|fone|caneta|protetor|grampos?|refil|lonas?|bolsas?|pen\s*drive|pendrive|cartao\s+de\s+memoria|stand|bases?|disc\s+drive|disk\s+drive|coolers?|ventoinhas?|tampas?|leitor(?:es)?(?:\s+(?:de\s+)?disco)?|unidade\s+de\s+disco|drive\s+de\s+disco|fontes?(?:\s+(?:de\s+)?alimentacao)?)\b";
 
     var titulo = Normalizar(nome);
 
@@ -47,13 +94,13 @@ internal static class NormalizacaoOferta
     if (Regex.IsMatch(titulo, @"\b(seminovo|usado|recondicionado|vitrine)\b")
       && !Regex.IsMatch(pedido, @"\b(seminovo|usado|recondicionado|vitrine)\b")) return 0m;
 
-    if (Regex.IsMatch(pedido, @"\b(iphone|samsung)\b")
+    if ((Regex.IsMatch(pedido, @"\b(iphone|samsung)\b") || Tokens(pedido).Any(x => PalavraProxima(x, "samsung")))
       && new[] { "pro", "plus", "max", "mini", "ultra", "fe", "air" }.Any(x => Regex.IsMatch(titulo, $@"\b{x}\b")
         && !Regex.IsMatch(pedido, $@"\b{x}\b"))) return 0m;
 
     var acessorio = Regex.Match(titulo, acessorios);
 
-    var principal = Regex.Match(titulo, @"\b(smartphone|celular|console|tv)\b");
+    var principal = Regex.Match(titulo, @"\b(smartphone|celular|console|tv|grampeador|torneira|barraca|bola|caderno|papel|livro)\b");
 
     // Marcas podem preceder o acessório. Um produto principal identificado antes dele preserva kits de console/celular.
     var acessorioNaoSolicitado = acessorio.Success && (!principal.Success || acessorio.Index < principal.Index);

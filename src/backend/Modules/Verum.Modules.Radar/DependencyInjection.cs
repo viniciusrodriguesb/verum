@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Verum.Modules.Radar.Infraestrutura.Persistencia;
 using Verum.Modules.Radar.Contratos.Configuracoes;
+using Verum.Modules.Radar.Infraestrutura.Persistencia;
 
 namespace Verum.Modules.Radar;
 

@@ -95,7 +95,8 @@ internal sealed class NotificacoesRadarService(NotificacoesDbContext db, IOption
 
       var entregas = await db.Entregas.Include(x => x.Notificacao)
         .Where(x => (x.Status == StatusEntrega.Pendente || x.Status == StatusEntrega.AguardandoNovaTentativa)
-          && (x.ProximaTentativaEm == null || x.ProximaTentativaEm <= agora)).OrderBy(x => x.Id).Take(20).ToArrayAsync(cancellationToken);
+          && (x.ProximaTentativaEm == null || x.ProximaTentativaEm <= agora)).OrderBy(x => x.Id)
+        .Take(options.Value.LoteEnvio).ToArrayAsync(cancellationToken);
 
       foreach (var entrega in entregas)
         await EnviarAsync(entrega, cancellationToken);
@@ -124,7 +125,7 @@ internal sealed class NotificacoesRadarService(NotificacoesDbContext db, IOption
       || atual.Preco > aviso.Preco || !preferencia.EmailHabilitado || email is null)
       entrega.Cancelar();
     else if (EmSilencio(preferencia, agora))
-      entrega.Adiar(agora.AddMinutes(15));
+      entrega.Adiar(agora.AddMinutes(options.Value.AdiamentoSilencioMinutos));
     else
     {
       try

@@ -4,12 +4,12 @@ using Verum.BuildingBlocks.Erros;
 using Verum.Modules.Acesso.Contratos;
 using Verum.Modules.Catalogo.Contratos;
 using Verum.Modules.Notificacoes.Contratos;
-using Verum.Modules.Radar.Contratos.Configuracoes;
+using Verum.Modules.Ofertas.Contratos.Radar;
 using Verum.Modules.Radar.Contratos;
+using Verum.Modules.Radar.Contratos.Configuracoes;
 using Verum.Modules.Radar.Contratos.DTOs;
 using Verum.Modules.Radar.Dominio;
 using Verum.Modules.Radar.Infraestrutura.Persistencia;
-using Verum.Modules.Ofertas.Contratos.Radar;
 
 namespace Verum.Modules.Radar.Aplicacao;
 

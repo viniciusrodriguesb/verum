@@ -1,6 +1,6 @@
 using Verum.CrossCutting;
-using Verum.Worker.Radar.Configuracoes;
 using Verum.Worker.Radar.Agendamentos;
+using Verum.Worker.Radar.Configuracoes;
 
 var builder = Host.CreateApplicationBuilder(args);
 

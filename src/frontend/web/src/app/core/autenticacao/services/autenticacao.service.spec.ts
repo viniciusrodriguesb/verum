@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { AvisosApiService } from '@shared/services/avisos-api.service';
 import { vi } from 'vitest';
 import { AutenticacaoService } from './autenticacao.service';
+import { AUTENTICACAO_CONFIG } from '../configuracoes/autenticacao.config';
 
 const { cliente } = vi.hoisted(() => ({
   cliente: {
@@ -29,6 +30,15 @@ vi.mock('keycloak-js', () => ({
 
 describe('AutenticacaoService', () => {
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: AUTENTICACAO_CONFIG,
+          useValue: { url: 'https://login.example.test', realm: 'teste', clientId: 'teste-web' },
+        },
+      ],
+    });
+
     vi.clearAllMocks();
 
     cliente.authenticated = false;

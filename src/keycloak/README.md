@@ -14,13 +14,13 @@ docker compose up -d --wait
 
 O script cria `.env` com senhas aleatórias e preserva um arquivo já existente. O arquivo não é versionado. O usuário administrativo padrão é `verum-admin`; sua senha fica no `.env`.
 
-| Recurso | Endereço |
-| --- | --- |
-| Console administrativo | http://localhost:8081/admin/ |
-| Conta do usuário | http://localhost:8081/realms/verum/account/ |
-| OpenID Connect | http://localhost:8081/realms/verum/.well-known/openid-configuration |
-| E-mails locais | http://localhost:8025/ |
-| SMTP local para aplicações | localhost:1025 (somente loopback) |
+| Recurso                    | Endereço                                                            |
+| -------------------------- | ------------------------------------------------------------------- |
+| Console administrativo     | http://localhost:8081/admin/                                        |
+| Conta do usuário           | http://localhost:8081/realms/verum/account/                         |
+| OpenID Connect             | http://localhost:8081/realms/verum/.well-known/openid-configuration |
+| E-mails locais             | http://localhost:8025/                                              |
+| SMTP local para aplicações | localhost:1025 (somente loopback)                                   |
 
 Use `localhost` consistentemente. As portas publicadas são vinculadas somente à máquina local. Banco, SMTP e porta de gerenciamento do Keycloak não são publicados. O projeto Compose, a rede e os volumes são exclusivos do Verum.
 
@@ -50,6 +50,10 @@ Este Compose usa `start-dev` e HTTP para desenvolvimento. Produção exige hostn
 
 ## Idioma e tema
 
-O realm usa pt-BR e o tema verum, herdado de keycloak.v2. Apenas o template de cadastro possui uma correção pontual para a versão 26.8.0: a validação de senha só inicia quando o campo existe. A confirmação de e-mail e a senha após verificação continuam nativas. Consulte [a origem e manutenção do tema](themes/verum/README.md).
+O realm usa pt-BR e o tema verum, herdado de keycloak.v2. A identidade fica em `themes/verum/login/resources/css/verum.css`, com logotipo do frontend, cores do Verum e fontes do sistema como fallback, sem dependências externas. `theme.properties` carrega o CSS nativo antes da personalização.
+
+O template `themes/verum/login/register.ftl` deriva do oficial 26.8.0, sob [licença Apache 2.0 incluída](themes/verum/LICENSE.txt). Essa versão tenta iniciar a validação de senha mesmo quando o cadastro com confirmação de e-mail não apresenta o campo, causando erro em `addEventListener`. A chamada `validator.script` permanece protegida por `passwordRequired??`, a mesma condição que controla os campos. A confirmação de e-mail, a definição posterior de senha e a validação no servidor continuam nativas.
+
+Ao atualizar Keycloak, compare o template com a nova versão oficial e remova a sobrescrita quando houver correção na origem. Valide login, cadastro, recuperação, definição de senha e navegação por teclado. A versão do template acompanha a imagem usada pelo Compose/Dockerfile.
 
 Em um realm local já criado, execute `./scripts/Set-LocalPresentation.ps1` e depois `./scripts/Test-Configuration.ps1`. O script aplica somente idioma e tema, sem reimportar usuários ou fluxos. O Compose monta o tema somente para leitura; a imagem de produção o incorpora. Alterar arquivos de import não atualiza um realm já existente.

@@ -16,6 +16,10 @@ public static class DependencyInjection
   public static IServiceCollection AddAssinaturasPersistencia(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddOptions<AssinaturasOptions>().Bind(configuration.GetSection("Assinaturas"))
+      .Validate(x => x.TimeoutProcessamentoSegundos is >= 1 and <= 300
+        && x.EventosPorCiclo is >= 1 and <= 500 && x.LoteReconciliacao is >= 1 and <= 500
+        && x.JanelaReconciliacaoDias is >= 1 and <= 3650,
+        "Configure limites de processamento e reconciliação de assinaturas válidos.")
       .Validate(x => x.IntervaloProcessamentoSegundos is >= 1 and <= 60 && x.IntervaloReconciliacaoSegundos >= 30,
         "Configure os intervalos de processamento de assinaturas.")
       .Validate(x => x.PrecosMensais.All(p => p.Key is "BUSCA_PLUS" or "VERUM_PLUS"

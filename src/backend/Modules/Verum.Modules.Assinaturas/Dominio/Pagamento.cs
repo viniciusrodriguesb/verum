@@ -33,7 +33,6 @@ internal sealed class Pagamento
 
   public Assinatura Assinatura { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private Pagamento() { }
 
   public Pagamento(

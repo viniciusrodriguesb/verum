@@ -4,17 +4,19 @@ Plataforma brasileira de inteligência de compra, criada para oferecer transpar�
 
 O ecossistema é composto inicialmente pelo **Verum Busca** e pelo **Verum Radar**.
 
+As decisões que orientam o produto e as próximas entregas estão em [Arquitetura do Verum](docs/arquitetura.md). Comandos e configurações ficam nos READMEs de cada aplicação.
+
 ## Estrutura do repositório
 
-| Caminho             | Responsabilidade                                  |
-| ------------------- | ------------------------------------------------- |
-| `src/frontend/web`  | Aplicação web Angular                             |
-| `src/backend`       | API, módulos e workers .NET                       |
-| `src/keycloak`      | Identidade local isolada: Keycloak, PostgreSQL e Mailpit |
-| `tests`             | Testes de integração e arquitetura                |
-| `deploy`            | Docker Compose e configurações de implantação |
-| `docs`              | Documentação e decisões arquiteturais             |
-| `.github/workflows` | Pipelines de integração contínua                  |
+| Caminho               | Responsabilidade                                         |
+| --------------------- | -------------------------------------------------------- |
+| `src/frontend/web`    | Aplicação web Angular                                    |
+| `src/backend`         | API, módulos e workers .NET                              |
+| `src/keycloak`        | Identidade local isolada: Keycloak, PostgreSQL e Mailpit |
+| `src/backend/Tests`   | Testes do backend e dos fluxos integrados                |
+| `deploy`              | Docker Compose e configurações de implantação            |
+| `docs/arquitetura.md` | Decisões de arquitetura e pendências do produto          |
+| `.github/workflows`   | Pipelines de integração contínua                         |
 
 ## Aplicações previstas
 

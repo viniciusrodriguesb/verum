@@ -67,7 +67,7 @@ public sealed class ProdutosEspecificosReaisTests(ITestOutputHelper output)
 
       Assert.True(tempo.Elapsed < TimeSpan.FromSeconds(60), "As fontes devem respeitar o prazo configurado.");
 
-      Assert.Equal(2, coleta.Fontes.Count(x => !x.OrigemIa));
+      Assert.Equal(new BuscaOptions().Lojas.Length, coleta.Fontes.Count(x => !x.OrigemIa));
 
       if (consulta == "O homem mais rico da Babilônia") Assert.NotEmpty(coleta.Ofertas);
 

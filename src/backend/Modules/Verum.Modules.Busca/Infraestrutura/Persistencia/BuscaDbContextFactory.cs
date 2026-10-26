@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Verum.Modules.Busca.Infraestrutura.Persistencia;
 
-// Utilizado apenas pelo dotnet ef, sem inicializar API, filas ou serviços externos.
 internal sealed class BuscaDbContextFactory : IDesignTimeDbContextFactory<BuscaDbContext>
 {
   public BuscaDbContext CreateDbContext(string[] args)

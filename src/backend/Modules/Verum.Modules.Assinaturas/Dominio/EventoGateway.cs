@@ -24,7 +24,6 @@ internal sealed class EventoGateway
 
   public DateTimeOffset? ProximaTentativaEm { get; private set; }
 
-  // Materialização pelo EF Core.
   private EventoGateway() { }
 
   public EventoGateway(

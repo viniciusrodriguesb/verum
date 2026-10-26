@@ -31,7 +31,6 @@ internal sealed class ExecucaoConsultaFonte
 
   public FonteOferta Fonte { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private ExecucaoConsultaFonte() { }
 
   public ExecucaoConsultaFonte(

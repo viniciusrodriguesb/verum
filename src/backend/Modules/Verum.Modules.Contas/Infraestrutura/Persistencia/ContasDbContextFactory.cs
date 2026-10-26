@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Verum.Modules.Contas.Infraestrutura.Persistencia;
 
-// Utilizado apenas pelo dotnet ef, sem inicializar API, filas ou serviços externos.
 internal sealed class ContasDbContextFactory : IDesignTimeDbContextFactory<ContasDbContext>
 {
   public ContasDbContext CreateDbContext(string[] args)

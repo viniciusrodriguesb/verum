@@ -25,7 +25,6 @@ internal sealed class ResultadoBusca
 
   public IReadOnlyCollection<ResultadoOferta> Ofertas => _ofertas.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private ResultadoBusca() { }
 
   public ResultadoBusca(

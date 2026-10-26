@@ -29,7 +29,6 @@ internal sealed class ResultadoOferta
 
   public ResultadoBusca Resultado { get; private set; } = null!;
 
-  // Materialização pelo EF Core.
   private ResultadoOferta() { }
 
   public ResultadoOferta(

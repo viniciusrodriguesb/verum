@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Verum.Modules.Assinaturas.Contratos;
 using Verum.Modules.Contas.Contratos;
+using Verum.Modules.Ofertas.Contratos.Radar;
 using Verum.Modules.Radar.Contratos;
 using Verum.Modules.Radar.Contratos.DTOs;
-using Verum.Modules.Ofertas.Contratos.Radar;
-using Verum.Modules.Assinaturas.Contratos;
 
 namespace Verum.Api.Controllers;
 

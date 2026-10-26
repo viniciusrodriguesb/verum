@@ -17,6 +17,10 @@ import {
 import { FUSOS_AVISO, HORAS_AVISO } from '../configuracoes/horarios-aviso';
 import { RadarService } from '../services/radar.service';
 import { IntencaoRadarService } from '../services/intencao-radar.service';
+import {
+  ROTULOS_ENTREGA_RADAR,
+  ROTULOS_ESTADO_RADAR,
+} from '../configuracoes/apresentacao-radar.config';
 
 @Component({
   selector: 'verum-meus-radares',
@@ -130,29 +134,7 @@ export class MeusRadaresComponent implements OnInit {
       }, this.erro).finally(() => this.carregando.set(false)),
     ];
 
-    if (this.autenticacao.autenticado()) {
-      carregamentos.push(
-        this.carregarSecao(
-          async () => this.radares.set(await firstValueFrom(this.api.listar())),
-          this.erroLista,
-        ),
-      );
-      carregamentos.push(
-        this.carregarSecao(async () => {
-          const preferencias = await firstValueFrom(this.api.preferencias());
-
-          this.preferencias.setValue(preferencias);
-          this.preferenciasCarregadas.set(true);
-          this.silencioAtivo.set(preferencias.silencioInicio !== preferencias.silencioFim);
-        }, this.erroPreferencias),
-      );
-      carregamentos.push(
-        this.carregarSecao(
-          async () => this.notificacoes.set(await firstValueFrom(this.api.notificacoes())),
-          this.erroAvisos,
-        ),
-      );
-    }
+    if (this.autenticacao.autenticado()) carregamentos.push(...this.carregarDadosConta());
 
     const guardada = this.intencao.obter();
 
@@ -175,6 +157,26 @@ export class MeusRadaresComponent implements OnInit {
       this.oferta.set(null);
       this.intencao.limpar();
     }
+  }
+
+  private carregarDadosConta(): Promise<void>[] {
+    return [
+      this.carregarSecao(
+        async () => this.radares.set(await firstValueFrom(this.api.listar())),
+        this.erroLista,
+      ),
+      this.carregarSecao(async () => {
+        const preferencias = await firstValueFrom(this.api.preferencias());
+
+        this.preferencias.setValue(preferencias);
+        this.preferenciasCarregadas.set(true);
+        this.silencioAtivo.set(preferencias.silencioInicio !== preferencias.silencioFim);
+      }, this.erroPreferencias),
+      this.carregarSecao(
+        async () => this.notificacoes.set(await firstValueFrom(this.api.notificacoes())),
+        this.erroAvisos,
+      ),
+    ];
   }
 
   private async carregarSecao(
@@ -209,10 +211,12 @@ export class MeusRadaresComponent implements OnInit {
 
     const oferta = this.oferta();
 
-    if (this.meta.invalid || !oferta || this.meta.controls.preco.value === null) return;
+    const preco = this.meta.controls.preco.value;
+
+    if (this.meta.invalid || !oferta || preco === null) return;
     this.guardarIntencao();
     await this.executar(async () => {
-      await firstValueFrom(this.api.criar(oferta, this.meta.controls.preco.value!, this.chave));
+      await firstValueFrom(this.api.criar(oferta, preco, this.chave));
       this.intencao.limpar();
       this.oferta.set(null);
       this.chave = crypto.randomUUID();
@@ -312,33 +316,11 @@ export class MeusRadaresComponent implements OnInit {
   }
 
   protected rotuloEntrega(codigo: string): string {
-    return (
-      (
-        {
-          Pendente: 'Aguardando envio',
-          Processando: 'Enviando',
-          Entregue: 'Enviado ao servidor de e-mail',
-          AguardandoNovaTentativa: 'Aguardando nova tentativa',
-          FalhouDefinitivamente: 'Não foi possível enviar; aviso disponível aqui',
-          Cancelada: 'Não enviado por preferência ou oferta vencida',
-        } as Record<string, string>
-      )[codigo] ?? 'Consulte o estado do envio'
-    );
+    return ROTULOS_ENTREGA_RADAR[codigo] ?? 'Consulte o estado do envio';
   }
 
   protected estado(codigo: string): string {
-    return (
-      (
-        {
-          Aguardando: 'Aguardando primeira checagem',
-          Monitorando: 'Monitorando',
-          MetaAtingida: 'Meta atingida',
-          Pausado: 'Pausado por você',
-          SuspensoPorAcesso: 'Acompanhamento suspenso por acesso',
-          VerificacaoIndisponivel: 'Verificação indisponível',
-        } as Record<string, string>
-      )[codigo] ?? codigo
-    );
+    return ROTULOS_ESTADO_RADAR[codigo] ?? codigo;
   }
 
   private async executar(acao: () => Promise<void>): Promise<boolean> {

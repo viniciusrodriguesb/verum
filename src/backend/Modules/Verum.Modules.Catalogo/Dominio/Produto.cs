@@ -43,7 +43,6 @@ internal sealed class Produto
 
   public IReadOnlyCollection<ProdutoImagem> Imagens => _imagens.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Produto() { }
 
   public Produto(

@@ -1,3 +1,4 @@
+import { AUTENTICACAO_CONFIG } from '@core/autenticacao/configuracoes/autenticacao.config';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -22,6 +23,10 @@ describe('IniciarBuscaService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        {
+          provide: AUTENTICACAO_CONFIG,
+          useValue: { url: 'https://login.example.test', realm: 'teste', clientId: 'teste-web' },
+        },
         IniciarBuscaService,
         provideHttpClient(withInterceptors([errosApiInterceptor])),
         provideHttpClientTesting(),

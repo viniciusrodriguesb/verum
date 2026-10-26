@@ -59,7 +59,6 @@ internal sealed class Oferta
 
   public IReadOnlyCollection<OfertaObservacao> Observacoes => _observacoes.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Oferta() { }
 
   public Oferta(

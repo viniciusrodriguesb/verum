@@ -1,15 +1,17 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Verum.Modules.Ofertas.Contratos.Descoberta;
 using Verum.Modules.Ofertas.Contratos.Descoberta.DTOs;
 using Verum.Modules.Ofertas.Contratos.Radar;
 using Verum.Modules.Ofertas.Contratos.Radar.DTOs;
-using Verum.Modules.Ofertas.Infraestrutura.Persistencia;
 using Verum.Modules.Ofertas.Dominio;
+using Verum.Modules.Ofertas.Infraestrutura.Descoberta.Playwright.Configuracoes;
+using Verum.Modules.Ofertas.Infraestrutura.Persistencia;
 
 namespace Verum.Modules.Ofertas.Aplicacao;
 
 internal sealed class OfertaRadarService(OfertasDbContext db, IConsultaLoja consulta,
-  IOfertasDescobertaService ofertas) : IOfertaRadarService
+  IOfertasDescobertaService ofertas, IOptions<PlaywrightOptions> options) : IOfertaRadarService
 {
   public async Task<OfertaRadar?> ObterAsync(Guid ofertaId, CancellationToken cancellationToken)
   {
@@ -29,7 +31,7 @@ internal sealed class OfertaRadarService(OfertasDbContext db, IConsultaLoja cons
 
     if (atual is null || atual.ValidaAte > DateTimeOffset.UtcNow) return atual;
 
-    if (!consulta.Disponivel || atual.Fonte is not ("kabum" or "amazon")) return null;
+    if (!consulta.Disponivel || !options.Value.Lojas.ContainsKey(atual.Fonte)) return null;
 
     // Mesmo executor e seletores da Busca. Identidade provisória por anúncio: nunca troca de variante.
     var termo = string.Join(' ', atual.Nome.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(8));

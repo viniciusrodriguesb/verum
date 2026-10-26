@@ -1,3 +1,4 @@
+import { TEMPO_LIMITE_API_MS } from '@shared/configuracoes/requisicoes-api.config';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { exhaustMap, takeUntil, takeWhile, timeout, timer } from 'rxjs';
@@ -14,32 +15,32 @@ export class BuscasService {
   obterAcesso() {
     return this.http
       .get<AcessoBusca>('/api/v1/buscas/acesso', { withCredentials: true })
-      .pipe(timeout(15000));
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 
   obterHistorico() {
     return this.http
       .get<readonly BuscaHistorico[]>('/api/v1/buscas/historico', { withCredentials: true })
-      .pipe(timeout(15000));
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 
   prepararVisitante() {
     return this.http
       .get<void>('/api/v1/buscas/visitante', { withCredentials: true })
-      .pipe(timeout(15000));
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 
   solicitar(pedido: SolicitarBusca) {
     // Não repetir POST automaticamente: a solicitação pendente preserva a chave para nova tentativa explícita.
     return this.http
       .post<BuscaAceita>('/api/v1/buscas', pedido, { withCredentials: true })
-      .pipe(timeout(15000));
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 
   obter(id: string) {
     return this.http
       .get<BuscaConsulta>(`/api/v1/buscas/${encodeURIComponent(id)}`, { withCredentials: true })
-      .pipe(timeout(15000));
+      .pipe(timeout(TEMPO_LIMITE_API_MS));
   }
 
   acompanhar(id: string) {

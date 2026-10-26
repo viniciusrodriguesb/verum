@@ -35,7 +35,6 @@ internal sealed class ProdutoVariante
 
   public IReadOnlyCollection<ProdutoImagem> Imagens => _imagens.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private ProdutoVariante() { }
 
   public ProdutoVariante(

@@ -18,7 +18,6 @@ internal sealed class Marca
 
   public IReadOnlyCollection<Produto> Produtos => _produtos.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Marca() { }
 
   public Marca(

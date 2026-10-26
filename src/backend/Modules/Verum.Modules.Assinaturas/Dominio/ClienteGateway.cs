@@ -18,7 +18,6 @@ internal sealed class ClienteGateway
 
   public IReadOnlyCollection<Assinatura> Assinaturas => _assinaturas.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private ClienteGateway() { }
 
   public ClienteGateway(

@@ -1,3 +1,5 @@
+using Verum.Modules.Busca.Contratos.Configuracoes;
+
 namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
 internal static class EstatisticasRanking
@@ -13,7 +15,7 @@ internal static class EstatisticasRanking
 
   public static decimal Percentil(decimal preco, decimal[] precos)
   {
-    var tolerancia = preco * 0.005m;
+    var tolerancia = preco * CriteriosRanking.ToleranciaPreco;
 
     var menores = precos.Count(x => x < preco - tolerancia);
 

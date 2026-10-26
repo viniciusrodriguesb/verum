@@ -21,6 +21,11 @@ public static class DependencyInjection
 
   public static IServiceCollection AddBuscaPersistencia(this IServiceCollection services, IConfiguration configuration) =>
     services.AddOptions<BuscaOptions>()
+      .Configure(options =>
+      {
+        // O binder acrescenta arrays preexistentes. Uma lista explícita deve substituir os padrões.
+        if (configuration.GetSection("Busca:Lojas").Exists()) options.Lojas = [];
+      })
       .Bind(configuration.GetSection("Busca"))
       .Validate(x => x.MinimoOfertas is >= 1 and <= 100 && x.MaximoResultados is >= 1 and <= 100
         && x.PrazoSegundos is >= 5 and <= 900 && x.TimeoutFonteSegundos > 0 && x.TimeoutFonteSegundos <= x.PrazoSegundos

@@ -24,7 +24,6 @@ internal sealed class Notificacao
 
   public IReadOnlyCollection<EntregaNotificacao> Entregas => _entregas.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Notificacao() { }
 
   public Notificacao(

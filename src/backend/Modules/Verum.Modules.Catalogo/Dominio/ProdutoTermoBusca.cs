@@ -23,7 +23,6 @@ internal sealed class ProdutoTermoBusca
 
   public ProdutoVariante? Variante { get; private set; }
 
-  // Materialização pelo EF Core.
   private ProdutoTermoBusca() { }
 
   public ProdutoTermoBusca(

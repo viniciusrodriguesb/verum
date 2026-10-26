@@ -103,33 +103,36 @@ internal sealed class ConsultaLojaPlaywright(NavegadorPlaywright navegador, IOpt
       if (numero == config.MaxPaginas)
         return new(loja, DateTimeOffset.UtcNow, itens, descartados, true);
 
-      if (config.PaginacaoPorClique)
-      {
-        var primeiroLink = string.IsNullOrWhiteSpace(config.LinkProduto) ? cards.First : cards.First.Locator(config.LinkProduto);
+      url = await PrepararProximaPaginaAsync(page, cards, proxima, config);
 
-        var hrefAnterior = await primeiroLink.GetAttributeAsync("href")
-          ?? throw new InvalidOperationException("Não foi possível identificar a página atual.");
-
-        await proxima.ClickAsync();
-
-        // Aguarda troca real dos resultados em páginas SPA, não uma pausa arbitrária.
-        await Microsoft.Playwright.Assertions.Expect(primeiroLink).Not.ToHaveAttributeAsync("href", hrefAnterior,
-          new() { Timeout = options.Value.TimeoutAcaoSegundos * 1000 });
-
-        navegacaoPorClique = true;
-
-        url = new Uri(page.Url);
-      }
-      else
-      {
-        var proximaUrl = ResolverLink(page.Url, await proxima.GetAttributeAsync("href"), config)
-          ?? throw new InvalidOperationException("Link de paginação inválido.");
-
-        url = new Uri(proximaUrl);
-      }
+      navegacaoPorClique = config.PaginacaoPorClique;
     }
 
     return new(loja, DateTimeOffset.UtcNow, itens, descartados, limiteAtingido);
+  }
+
+  private async Task<Uri> PrepararProximaPaginaAsync(IPage page, ILocator cards, ILocator proxima, LojaPlaywrightOptions config)
+  {
+    if (!config.PaginacaoPorClique)
+    {
+      var proximaUrl = ResolverLink(page.Url, await proxima.GetAttributeAsync("href"), config)
+        ?? throw new InvalidOperationException("Link de paginação inválido.");
+
+      return new Uri(proximaUrl);
+    }
+
+    var primeiroLink = string.IsNullOrWhiteSpace(config.LinkProduto) ? cards.First : cards.First.Locator(config.LinkProduto);
+
+    var hrefAnterior = await primeiroLink.GetAttributeAsync("href")
+      ?? throw new InvalidOperationException("Não foi possível identificar a página atual.");
+
+    await proxima.ClickAsync();
+
+    // Aguarda troca real dos resultados em páginas SPA, não uma pausa arbitrária.
+    await Microsoft.Playwright.Assertions.Expect(primeiroLink).Not.ToHaveAttributeAsync("href", hrefAnterior,
+      new() { Timeout = options.Value.TimeoutAcaoSegundos * 1000 });
+
+    return new Uri(page.Url);
   }
 
   private static async Task PrepararPaginaAsync(
@@ -205,6 +208,13 @@ internal sealed class ConsultaLojaPlaywright(NavegadorPlaywright navegador, IOpt
 
       var texto = count == 1 ? (campo.Atributo is null
         ? await locator.InnerTextAsync() : await locator.GetAttributeAsync(campo.Atributo))?.Trim() : null;
+
+      if (texto is not null && campo.PadraoExtracao is not null)
+      {
+        var correspondencia = Regex.Match(texto, campo.PadraoExtracao, RegexOptions.None, TimeSpan.FromMilliseconds(100));
+
+        texto = correspondencia.Success ? correspondencia.Value.Trim() : null;
+      }
 
       campos[nome] = texto;
 

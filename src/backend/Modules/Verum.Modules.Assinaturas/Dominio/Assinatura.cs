@@ -49,7 +49,6 @@ internal sealed class Assinatura
 
   public IReadOnlyCollection<Pagamento> Pagamentos => _pagamentos.AsReadOnly();
 
-  // Materialização pelo EF Core.
   private Assinatura() { }
 
   public Assinatura(

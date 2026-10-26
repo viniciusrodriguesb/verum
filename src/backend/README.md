@@ -12,19 +12,19 @@ O módulo Acesso mantém BUSCA_EXECUTAR, pacotes, concessões e consumo. Os limi
 
 Concessões futuras, expiradas, revogadas ou com pacote inativo não elevam o limite. Benefícios sobrepostos usam o maior limite, sem soma. Upgrade ou downgrade não zeram uso do dia. Sem benefício pago, prevalece FREE quando válido; FREE revogado não é concedido novamente no login. Não existe endpoint público para atribuir pacote ou desbloquear conta. Assinaturas poderá conceder benefícios futuramente por integração interna, sem ser consultada a cada busca.
 
-`GET /api/v1/buscas/acesso` informa contexto, pacote, limite, uso, saldo e renovação. `GET /api/v1/buscas/historico` retorna somente as últimas 50 buscas da conta autenticada. Resultado, histórico e acesso não permitem cache HTTP compartilhado. Token inválido não vira visitante. Os contratos e as decisões visuais pendentes estão em [contas-acesso-ranking.md](../frontend/web/docs/contas-acesso-ranking.md).
+`GET /api/v1/buscas/acesso` informa contexto, pacote, limite, uso, saldo e renovação. `GET /api/v1/buscas/historico` retorna somente as últimas 50 buscas da conta autenticada. Resultado, histórico e acesso não permitem cache HTTP compartilhado. Token inválido não vira visitante. As decisões de acesso e apresentação estão no [documento de arquitetura](../../docs/arquitetura.md).
 
 ## Organização
 
-| Local | Responsabilidade |
-| --- | --- |
-| `Apps/Verum.Api` | Controllers, entrada HTTP, identificação do visitante e respostas |
-| `Apps/Verum.Worker.Descoberta` | Processamento assíncrono das buscas |
-| `Apps/Verum.Worker.Radar` | Host e consumidor preparados para monitoramento futuro |
-| `Modules` | Busca, Catálogo, Ofertas, Radar, Contas, Acesso, Assinaturas e Notificações |
-| `Verum.CrossCutting` | Configuração compartilhada, com um arquivo por pipeline |
-| `Verum.BuildingBlocks` | Contratos mínimos de erros e IA compartilhados |
-| `Tests` | Validações da infraestrutura e dos fluxos |
+| Local                          | Responsabilidade                                                            |
+| ------------------------------ | --------------------------------------------------------------------------- |
+| `Apps/Verum.Api`               | Controllers, entrada HTTP, identificação do visitante e respostas           |
+| `Apps/Verum.Worker.Descoberta` | Processamento assíncrono das buscas                                         |
+| `Apps/Verum.Worker.Radar`      | Agendamento, verificação de metas e despacho de avisos                      |
+| `Modules`                      | Busca, Catálogo, Ofertas, Radar, Contas, Acesso, Assinaturas e Notificações |
+| `Verum.CrossCutting`           | Configuração compartilhada, com um arquivo por pipeline                     |
+| `Verum.BuildingBlocks`         | Contratos mínimos de erros e IA compartilhados                              |
+| `Tests`                        | Validações da infraestrutura e dos fluxos                                   |
 
 Os hosts usam CrossCutting para montar a aplicação. Módulos não dependem de CrossCutting; comunicam-se por contratos e mensagens. Relacionamentos EF não atravessam schemas. Pastas vazias com finalidade futura conhecida permanecem reservadas.
 
@@ -51,14 +51,14 @@ A identificação permanece conservadora e provisória por URL. `ranking-v1.0` u
 
 O cookie `verum.visitante` é protegido, HttpOnly e válido por 30 dias. A cota padrão é uma busca por dia UTC, configurável. Repetir a mesma chave e consulta retorna o mesmo ID sem consumir outra cota; usar a mesma chave com outra consulta gera conflito. A identificação é operacional: apagar cookies permite uma nova identidade. Preserve e compartilhe as chaves de ASP.NET Core Data Protection entre reinicializações e réplicas da API. Clientes web precisam enviar o cookie; CORS aceita credenciais somente nas origens explicitamente configuradas.
 
-| Configuração `Busca` | Padrão |
-| --- | --- |
-| `FilaSolicitacoes` | `verum-descoberta-busca-solicitada` |
-| `Lojas` | `kabum`, `amazon` |
-| `MinimoOfertas` / `MaximoResultados` | 3 / 12 |
-| `PrazoSegundos` | 180, incluindo a espera na fila |
-| `TimeoutFonteSegundos` / `TimeoutIaSegundos` | 45 / 20 |
-| `LimiteVisitanteDiario` | 1 |
+| Configuração `Busca`                         | Padrão                                                 |
+| -------------------------------------------- | ------------------------------------------------------ |
+| `FilaSolicitacoes`                           | `verum-descoberta-busca-solicitada`                    |
+| `Lojas`                                      | `kabum`, `amazon`, `carrefour`, `kalunga`, `decathlon` |
+| `MinimoOfertas` / `MaximoResultados`         | 3 / 12                                                 |
+| `PrazoSegundos`                              | 180, incluindo a espera na fila                        |
+| `TimeoutFonteSegundos` / `TimeoutIaSegundos` | 45 / 20                                                |
+| `LimiteVisitanteDiario`                      | 1                                                      |
 
 Mantenha fila e políticas de busca alinhadas na API e no worker. Ofertas observadas neste fluxo têm validade de 15 minutos.
 
@@ -68,16 +68,16 @@ A interface prepara o cookie de visitante com `GET /api/v1/buscas/visitante` ant
 
 MassTransit administra conexões, envio, consumo, recuperação e retries no RabbitMQ. `ConcurrentMessageLimit` controla mensagens simultâneas por endpoint e instância; `PrefetchCount` controla mensagens antecipadas. Os padrões são 8 e 16; réplicas multiplicam a concorrência. Não é necessário outro semáforo no consumidor. Playwright possui seu próprio limite de consultas simultâneas.
 
-| Worker | Mensagem | Fila padrão |
-| --- | --- | --- |
-| Descoberta | `BuscaSolicitada` | `verum-descoberta-busca-solicitada` |
-| Radar | `VerificacaoRadarSolicitada` | `verum-radar-verificacao-radar-solicitada` |
+| Worker     | Mensagem                     | Fila padrão                                |
+| ---------- | ---------------------------- | ------------------------------------------ |
+| Descoberta | `BuscaSolicitada`            | `verum-descoberta-busca-solicitada`        |
+| Radar      | `VerificacaoRadarSolicitada` | `verum-radar-verificacao-radar-solicitada` |
 
 A API utiliza Bus Outbox persistida no `BuscaDbContext`: solicitação e comando são atômicos e a entrega pendente sobrevive à reinicialização. As três tabelas técnicas do MassTransit possuem migrations. O consumidor usa advisory lock PostgreSQL por ID e ignora buscas finalizadas, evitando duplicação entre workers. Não mantém transação aberta durante consultas externas. As gravações entre módulos são independentes; uma reentrega reutiliza dados já persistidos.
 
 Falhas elegíveis recebem retries curtos. Depois das tentativas, MassTransit envia a mensagem para `_error` e publica `Fault<T>`. `BuscaFalhouConsumer` finaliza a busca com código seguro. Falhas de providers são tratadas no próprio fluxo para preservar resultados válidos. O buffer em memória dos consumidores protege publicações de uma tentativa, mas não substitui a Outbox durável da API. O Inbox EF não envolve as consultas externas em uma transação longa.
 
-Redelivery adiado está desabilitado. Habilitar `RabbitMQ:UseDelayedRedelivery` exige o plugin `rabbitmq_delayed_message_exchange`. O processamento do Radar ainda lança `ProcessamentoNaoConfiguradoException` até sua implementação.
+Redelivery adiado está desabilitado. Habilitar `RabbitMQ:UseDelayedRedelivery` exige o plugin `rabbitmq_delayed_message_exchange`. O consumidor do Radar executa as verificações persistidas e preserva oportunidades e avisos para retomada após falhas.
 
 ## Cache, HTTP e erros
 
@@ -99,6 +99,12 @@ KaBuM está registrada como `kabum`, com limite padrão de duas páginas e 100 i
 
 Amazon extrai preço total anunciado, sem presumir pagamento PIX, e normaliza URLs por ASIN para eliminar rastreamento e duplicatas. Seu perfil foi validado em buscas reais por monitor, televisão 4k, iphone 17 e samsung s25, junto da KaBuM. Não há tentativa de contornar CAPTCHA ou bloqueios. O diagnóstico FONTE_BLOQUEADA preserva ofertas de outras fontes. Cada perfil pode ser sobrescrito em Playwright:Lojas:<nome>.
 
+Carrefour, Kalunga e Decathlon usam o mesmo executor, com até uma página e 48 cards por loja. Carrefour reconhece PIX quando explicitado; Kalunga exige ação de compra online e usa o título completo; Decathlon extrai somente o preço principal, sem parcelas, cashback ou desconto global presumido. Os hosts necessários são permitidos individualmente; rastreadores externos não são necessários. A lista explícita `Busca:Lojas` substitui os padrões, permitindo retirar uma fonte sem alterar código. O Radar consulta a mesma configuração, sem lista paralela de provedores.
+
+Mercado Livre, Magalu, Casas Bahia, Netshoes e Leroy Merlin retornaram bloqueio no teste local de 26/10/2026 e não foram ativados. Acesso a uma loja hoje não garante acesso futuro ou a partir da VPS. A reputação institucional de uma rede não confirma a reputação de cada vendedor do marketplace. As decisões sobre fontes e os limites da identificação de produtos estão no [documento de arquitetura](../../docs/arquitetura.md).
+
+A correspondência tolera um erro de inserção, remoção, substituição ou troca de letras adjacentes em uma única palavra alfabética longa. Números, modelos e capacidades continuam exatos; artigos e preposições comuns não eliminam um título. Não há correção arbitrária da consulta nem retry adicional em todas as lojas: se a fonte só devolver sugestões incompatíveis, elas são descartadas. O teste real mostrou correções recuperadas em papelaria e esportes e ausência segura de resultado em outro erro no Carrefour.
+
 Development habilita Playwright no worker Descoberta. Instale o Chromium correspondente depois do build, em `src/backend`:
 
 ```powershell
@@ -111,34 +117,36 @@ A integração IA possui contratos independentes de provider e implementação O
 
 Entrada e interpretação aceitam até 500 caracteres. Estrutura inválida é falha da resposta; candidatos inválidos são descartados individualmente com motivo. São exigidos URL/evidência, correspondência com a consulta e preço válido. A consulta direta de IA retorna descartes detalhados; o fluxo grava diagnósticos agregados de execução da fonte. A chamada real OpenAI ainda exige validação com uma chave da aplicação.
 
+Os limites operacionais ficam em Options, com os mesmos padrões anteriores: `Assinaturas:TimeoutProcessamentoSegundos` (60), `EventosPorCiclo` (20), `LoteReconciliacao` (50) e `JanelaReconciliacaoDias` (90); em `Notificacoes:Email`, `LoteEnvio` (20) e `AdiamentoSilencioMinutos` (15). Valores inválidos são rejeitados na validação da configuração. Os critérios fixos e versionados do ranking ficam em `CriteriosRanking`, compartilhados pelo cálculo e pelos fundamentos da resposta; não são parâmetros operacionais para ajuste livre em runtime.
+
 ## Bibliotecas
 
 Versões ficam centralizadas em `Directory.Packages.props`.
 
-| Biblioteca | Função |
-| --- | --- |
-| ASP.NET Core / Microsoft.Extensions.Hosting | API, workers, configuração e DI |
-| Microsoft.AspNetCore.OpenApi | OpenAPI em Development |
+| Biblioteca                                    | Função                                             |
+| --------------------------------------------- | -------------------------------------------------- |
+| ASP.NET Core / Microsoft.Extensions.Hosting   | API, workers, configuração e DI                    |
+| Microsoft.AspNetCore.OpenApi                  | OpenAPI em Development                             |
 | Microsoft.AspNetCore.Authentication.JwtBearer | Validação JWT do Keycloak nos endpoints protegidos |
-| Entity Framework Core / Npgsql | Mappings, migrations e PostgreSQL |
-| Microsoft.Playwright | Navegação e extração de lojas |
-| MassTransit / RabbitMQ / EntityFrameworkCore | Mensageria, retries e Outbox persistida |
-| StackExchange.Redis / DistributedCache | Cache e operações atômicas |
-| Microsoft.Extensions.Http.Resilience / Polly | Resiliência HTTP |
-| OpenTelemetry | Logs, métricas e traces; exportação OTLP opcional |
-| xUnit / Microsoft.AspNetCore.Mvc.Testing | Testes e hospedagem da API para integração |
+| Entity Framework Core / Npgsql                | Mappings, migrations e PostgreSQL                  |
+| Microsoft.Playwright                          | Navegação e extração de lojas                      |
+| MassTransit / RabbitMQ / EntityFrameworkCore  | Mensageria, retries e Outbox persistida            |
+| StackExchange.Redis / DistributedCache        | Cache e operações atômicas                         |
+| Microsoft.Extensions.Http.Resilience / Polly  | Resiliência HTTP                                   |
+| OpenTelemetry                                 | Logs, métricas e traces; exportação OTLP opcional  |
+| xUnit / Microsoft.AspNetCore.Mvc.Testing      | Testes e hospedagem da API para integração         |
 
 ## Ambiente local e execução
 
 Use o SDK de `global.json`: .NET 10.0.401, com atualização de patch permitida. O backend não fornece Docker Compose; disponibilize os serviços abaixo.
 
-| Serviço | Configuração Development |
-| --- | --- |
-| PostgreSQL | `localhost:5432`, banco `verum`, usuário/senha `postgres` |
-| RabbitMQ | `localhost:5672`, usuário `admin`, senha `admin123`, vhost `/` |
-| Redis 6.2+ | `localhost:6379`, sem senha ou TLS |
-| Keycloak | `http://localhost:8081/realms/verum`, audience `verum-api`; ambiente próprio em `src/keycloak`, necessário no endpoint protegido de conta |
-| Collector OTLP | Opcional, quando exportação estiver habilitada |
+| Serviço        | Configuração Development                                                                                                                  |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| PostgreSQL     | `localhost:5432`, banco `verum`, usuário/senha `postgres`                                                                                 |
+| RabbitMQ       | `localhost:5672`, usuário `admin`, senha `admin123`, vhost `/`                                                                            |
+| Redis 6.2+     | `localhost:6379`, sem senha ou TLS                                                                                                        |
+| Keycloak       | `http://localhost:8081/realms/verum`, audience `verum-api`; ambiente próprio em `src/keycloak`, necessário no endpoint protegido de conta |
+| Collector OTLP | Opcional, quando exportação estiver habilitada                                                                                            |
 
 Publique as portas Docker para executar .NET na máquina. Se os hosts também estiverem em containers, substitua `localhost` pelos nomes dos serviços da rede. Use volumes para PostgreSQL, RabbitMQ e chaves Data Protection. MassTransit declara a topologia; Redis não exige criação manual de chaves.
 
@@ -202,18 +210,18 @@ Configure uma URL pública HTTPS para o receptor /api/v1/webhooks/mercadopago. L
 
 Ative os tópicos payment, subscription_preapproval e subscription_authorized_payment. Utilize Webhooks assinados e gere o segredo da aplicação. A documentação de Assinaturas orienta a configuração por notification_url durante a criação; o adapter já envia esse campo. Confirme os eventos disponíveis e sua entrega no painel da aplicação. Não substitua Webhooks por IPN, cuja autenticação não segue este contrato. Referência: [notificações oficiais](https://www.mercadopago.com.br/developers/pt/docs/subscriptions/additional-content/your-integrations/notifications/webhooks).
 
-| Configuração da API | Preenchimento |
-| --- | --- |
-| Assinaturas__Habilitado | true somente após configurar e migrar |
-| Assinaturas__Gateway | MercadoPago |
-| Assinaturas__PrecosMensais__BUSCA_PLUS | Valor mensal aprovado, com ponto decimal |
-| Assinaturas__PrecosMensais__VERUM_PLUS | Valor mensal aprovado, com ponto decimal |
-| Assinaturas__MercadoPago__AccessToken | Access Token privado da conta vendedora do ambiente |
-| Assinaturas__MercadoPago__WebhookSecret | Segredo Webhooks da aplicação correspondente |
-| Assinaturas__MercadoPago__CollectorId | User ID do vendedor que recebe a cobrança |
-| Assinaturas__MercadoPago__Producao | false em testes; true apenas em produção |
-| Assinaturas__MercadoPago__UrlRetorno | URL pública HTTPS do frontend |
-| Assinaturas__MercadoPago__UrlWebhook | URL pública HTTPS da API terminada em /api/v1/webhooks/mercadopago |
+| Configuração da API                     | Preenchimento                                                      |
+| --------------------------------------- | ------------------------------------------------------------------ |
+| Assinaturas__Habilitado                 | true somente após configurar e migrar                              |
+| Assinaturas__Gateway                    | MercadoPago                                                        |
+| Assinaturas__PrecosMensais__BUSCA_PLUS  | Valor mensal aprovado, com ponto decimal                           |
+| Assinaturas__PrecosMensais__VERUM_PLUS  | Valor mensal aprovado, com ponto decimal                           |
+| Assinaturas__MercadoPago__AccessToken   | Access Token privado da conta vendedora do ambiente                |
+| Assinaturas__MercadoPago__WebhookSecret | Segredo Webhooks da aplicação correspondente                       |
+| Assinaturas__MercadoPago__CollectorId   | User ID do vendedor que recebe a cobrança                          |
+| Assinaturas__MercadoPago__Producao      | false em testes; true apenas em produção                           |
+| Assinaturas__MercadoPago__UrlRetorno    | URL pública HTTPS do frontend                                      |
+| Assinaturas__MercadoPago__UrlWebhook    | URL pública HTTPS da API terminada em /api/v1/webhooks/mercadopago |
 
 Valores zero mantêm o plano fora do checkout. Os preços de testes automatizados são fictícios e não definem a política comercial. Credenciais, vendedor e comprador devem pertencer ao mesmo ambiente/país. Use comprador de teste diferente do vendedor e cartões de teste seguindo o [roteiro oficial de compra](https://www.mercadopago.com.br/developers/pt/docs/subscriptions/integration-test/test-purchase); não use cartão real para a homologação. O fluxo hospedado não precisa de Public Key no Angular.
 
@@ -231,15 +239,15 @@ O SDK 10.0.401 fixado no global.json não estava instalado neste ambiente. Esta 
 
 `dotnet test Verum.Backend.slnx` executa a suíte; integrações externas são opcionais e exigem variáveis:
 
-| Variável | Habilitação |
-| --- | --- |
-| `VERUM_TEST_POSTGRES` | Conexão PostgreSQL de desenvolvimento |
-| `VERUM_TEST_REDIS` | Conexão Redis de desenvolvimento |
-| `VERUM_TEST_PLAYWRIGHT=1` | Chromium real com páginas locais simuladas |
-| `VERUM_TEST_NOVAS_LOJAS=1` | Três consultas reais na KaBuM e Amazon, com normalização e seleção de até 12 ofertas |
-| `VERUM_TEST_RABBITMQ=1` | Broker local e management em 15672, junto de PostgreSQL |
-| `VERUM_TEST_KABUM=1` | Verificação opcional do site real |
-| `VERUM_TEST_PRODUTOS_ESPECIFICOS=1` | Livros, cabo SCSI, SSD com modelo e consulta inexistente nas duas lojas reais |
+| Variável                            | Habilitação                                                                          |
+| ----------------------------------- | ------------------------------------------------------------------------------------ |
+| `VERUM_TEST_POSTGRES`               | Conexão PostgreSQL de desenvolvimento                                                |
+| `VERUM_TEST_REDIS`                  | Conexão Redis de desenvolvimento                                                     |
+| `VERUM_TEST_PLAYWRIGHT=1`           | Chromium real com páginas locais simuladas                                           |
+| `VERUM_TEST_NOVAS_LOJAS=1`          | Três consultas reais na KaBuM e Amazon, com normalização e seleção de até 12 ofertas |
+| `VERUM_TEST_RABBITMQ=1`             | Broker local e management em 15672, junto de PostgreSQL                              |
+| `VERUM_TEST_KABUM=1`                | Verificação opcional do site real                                                    |
+| `VERUM_TEST_PRODUTOS_ESPECIFICOS=1` | Livros, cabo SCSI, SSD com modelo e consulta inexistente nas duas lojas reais        |
 
 Sem habilitação, os testes correspondentes são ignorados; serviços habilitados indisponíveis causam falha. Os testes do fluxo criam bancos temporários próprios, aplicam migrations e os removem; precisam de permissão para criar bancos. Outros testes usam schemas transacionais. Redis e RabbitMQ usam recursos exclusivos dos testes, removidos ao terminar. O teste RabbitMQ confirma entrega durável antes da inicialização do worker.
 
@@ -259,4 +267,4 @@ O Radar possui criação e gestão de metas por anúncio confirmado, acesso por 
 
 As opções `Radar` e `Notificacoes:Email` estão nos appsettings e nos exemplos de deploy da API/Worker Radar. Development utiliza Mailpit em localhost:1025; produção começa desabilitada. Configure política comercial, preços, credenciais e webhook antes da liberação. Migrations continuam com execução independente.
 
-Decisões, limites deste primeiro corte, comportamento de retries, configuração e evidências de teste: [implementação do Radar](../../docs/implementacao-radar-2026-10-20.md).
+Consulte as [decisões de arquitetura do Radar](../../docs/arquitetura.md#radar-e-notificações) para os limites de identidade do anúncio, encaminhamento durável e entrega de notificações.
