@@ -1,13 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { AvisosApiService } from '@shared/services/avisos-api.service';
-import Keycloak from 'keycloak-js';
-import { AUTENTICACAO_CONFIG } from '../configuracoes/autenticacao.config';
+import { CLIENTE_KEYCLOAK } from '../configuracoes/cliente-keycloak.config';
 import { UsuarioAutenticado } from '../models/usuario-autenticado';
 
 @Injectable({ providedIn: 'root' })
 export class AutenticacaoService {
-  private readonly cliente = new Keycloak(inject(AUTENTICACAO_CONFIG));
+  private readonly cliente = inject(CLIENTE_KEYCLOAK);
 
   private readonly avisos = inject(AvisosApiService);
 

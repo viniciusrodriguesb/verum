@@ -164,7 +164,12 @@ public sealed class RedisRealTests
 
     var ator = Guid.NewGuid();
 
-    var fim = DateTimeOffset.UtcNow.AddSeconds(20);
+    var horarioRedis = (RedisResult[])(await cenario.Banco.ExecuteAsync("TIME"))!;
+
+    var inicioJanela = DateTimeOffset.FromUnixTimeSeconds((long)horarioRedis[0])
+      .AddTicks((long)horarioRedis[1] * 10);
+
+    var fim = inicioJanela.AddSeconds(20);
 
     var resultados = await Task.WhenAll(Enumerable.Range(0, 100).Select(i => (i % 2 == 0 ? primeiro : segundo)
       .TentarConsumirLimiteVisitanteAsync(ator, "busca", 7, fim)));

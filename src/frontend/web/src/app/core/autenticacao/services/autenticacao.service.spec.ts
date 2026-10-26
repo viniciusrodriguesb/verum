@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { AvisosApiService } from '@shared/services/avisos-api.service';
 import { vi } from 'vitest';
 import { AutenticacaoService } from './autenticacao.service';
-import { AUTENTICACAO_CONFIG } from '../configuracoes/autenticacao.config';
+import { CLIENTE_KEYCLOAK } from '../configuracoes/cliente-keycloak.config';
 
 const { cliente } = vi.hoisted(() => ({
   cliente: {
@@ -20,21 +20,13 @@ const { cliente } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('keycloak-js', () => ({
-  default: class {
-    constructor() {
-      return cliente;
-    }
-  },
-}));
-
 describe('AutenticacaoService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: AUTENTICACAO_CONFIG,
-          useValue: { url: 'https://login.example.test', realm: 'teste', clientId: 'teste-web' },
+          provide: CLIENTE_KEYCLOAK,
+          useValue: cliente,
         },
       ],
     });
