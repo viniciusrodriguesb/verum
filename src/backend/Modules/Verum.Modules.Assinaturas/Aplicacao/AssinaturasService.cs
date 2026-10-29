@@ -57,11 +57,11 @@ internal sealed class AssinaturasService(AssinaturasDbContext db, IOptions<Assin
       if (existente.Plano.Codigo != pedido.Plano)
         throw new ErroAplicacaoException("IDEMPOTENCIA_CONFLITO", "A chave já foi usada para outro plano.", TipoErro.Conflito);
 
+      await transacao.CommitAsync(cancellationToken);
+
       await RecuperarAsync(existente, cancellationToken);
 
       await db.SaveChangesAsync(cancellationToken);
-
-      await transacao.CommitAsync(cancellationToken);
 
       return Converter(existente);
     }

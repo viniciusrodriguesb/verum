@@ -91,10 +91,10 @@ internal sealed class Produto
     Validacao.Identificador(valor, nameof(MarcaId));
 
   private static string ValidarNome(string valor) =>
-    Validacao.Texto(valor, nameof(Nome), 250);
+    Validacao.Texto(valor, nameof(Nome), 300);
 
   private static string ValidarNomeNormalizado(string valor) =>
-    Validacao.Texto(valor, nameof(NomeNormalizado), 250);
+    Validacao.Texto(valor, nameof(NomeNormalizado), 300);
 
   private static string? ValidarModelo(string? valor) =>
     valor is null ? null : Validacao.Texto(valor, nameof(Modelo), 120);

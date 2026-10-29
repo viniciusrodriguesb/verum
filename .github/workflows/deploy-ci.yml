@@ -17,5 +17,6 @@ jobs:
       - uses: actions/checkout@v5
       - run: bash deploy/scripts/validate.sh
       - run: bash deploy/tests/deploy-service.test.sh
+      - run: bash deploy/tests/backup.test.sh
       - name: Analisar scripts de implantação
         run: shellcheck deploy/scripts/*.sh deploy/tests/*.sh

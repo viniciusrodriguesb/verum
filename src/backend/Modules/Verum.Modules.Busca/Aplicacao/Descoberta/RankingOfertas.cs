@@ -6,7 +6,7 @@ namespace Verum.Modules.Busca.Aplicacao.Descoberta;
 
 internal static class RankingOfertas
 {
-  public const string Versao = "ranking-v1.3";
+  public const string Versao = "ranking-v1.4";
 
   public static IReadOnlyList<OfertaResultado> Classificar(IEnumerable<OfertaConsultada> candidatas, int limite, string consulta)
   {

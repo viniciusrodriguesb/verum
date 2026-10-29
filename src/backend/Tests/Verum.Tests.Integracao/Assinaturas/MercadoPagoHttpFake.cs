@@ -20,8 +20,12 @@ internal sealed class MercadoPagoHttpFake : HttpMessageHandler
 
   public int Criacoes;
 
+  public Func<Task>? AntesEnviarAsync { get; set; }
+
   protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
   {
+    if (AntesEnviarAsync is not null) await AntesEnviarAsync();
+
     if (Indisponivel) return new(HttpStatusCode.ServiceUnavailable);
 
     var path = request.RequestUri!.AbsolutePath;

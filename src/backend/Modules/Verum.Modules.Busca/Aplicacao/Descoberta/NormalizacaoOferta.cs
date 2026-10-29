@@ -80,7 +80,10 @@ internal static class NormalizacaoOferta
   {
     if (!Corresponde(consulta, nome)) return 0m;
 
-    const string acessorios = @"\b(capas?|capinhas?|peliculas?|controles?|suportes?|cabos?|adaptadores?|case|carregador|fone|caneta|protetor|grampos?|refil|lonas?|bolsas?|pen\s*drive|pendrive|cartao\s+de\s+memoria|stand|bases?|disc\s+drive|disk\s+drive|coolers?|ventoinhas?|tampas?|leitor(?:es)?(?:\s+(?:de\s+)?disco)?|unidade\s+de\s+disco|drive\s+de\s+disco|fontes?(?:\s+(?:de\s+)?alimentacao)?)\b";
+    const string acessorios = @"\b(capas?|capinhas?|peliculas?|controles?|controllers?|dualsense|suportes?|cabos?|adaptadores?|case|carregador|fone|caneta|protetor|grampos?|refil|lonas?|bolsas?|"
+      + @"botoes|botao|sacos?|mandril|mandris|selos?|valvulas?|pinos?|pesos?|filtros?|raqueteiras?|headsets?|jogos?|portal|borrachas?|rodinhas?|bocal|bocais|bicos?|escovas?|pecas?|acessorios?|reposicao|"
+      + @"caixas?(?=\s+(?:para|de)\s+oculos)|pen\s*drive|pendrive|cartao\s+de\s+memoria|stand|bases?|disc\s+drive|disk\s+drive|coolers?|ventoinhas?|tampas?|"
+      + @"leitor(?:es)?(?:\s+(?:de\s+)?disco)?|unidade\s+de\s+disco|drive\s+de\s+disco|fontes?(?:\s+(?:de\s+)?alimentacao)?)\b";
 
     var titulo = Normalizar(nome);
 
@@ -100,12 +103,24 @@ internal static class NormalizacaoOferta
 
     var acessorio = Regex.Match(titulo, acessorios);
 
-    var principal = Regex.Match(titulo, @"\b(smartphone|celular|console|tv|grampeador|torneira|barraca|bola|caderno|papel|livro)\b");
+    const string produtosPrincipais = @"\b(smartphone|celular|console|tv|grampeador|torneira|barraca|bola|caderno|papel|livro|aspirador|furadeira|panela|cafeteira|air\s*fryer|oculos|raquete|halter|monitor|notebook|ventilador)\b";
+
+    var principal = Regex.Match(titulo, produtosPrincipais);
+
+    var tipoPedido = Regex.Match(pedido, produtosPrincipais);
+
+    var compatibilidade = Regex.Match(titulo, @"\b(para|for|compativel|compativeis)\b");
+
+    if (tipoPedido.Success && tipoPedido.Index == 0 && principal.Success && compatibilidade.Success
+      && compatibilidade.Index < principal.Index && !Regex.IsMatch(pedido, acessorios)) return 0m;
 
     // Marcas podem preceder o acessório. Um produto principal identificado antes dele preserva kits de console/celular.
     var acessorioNaoSolicitado = acessorio.Success && (!principal.Success || acessorio.Index < principal.Index);
 
     if (acessorioNaoSolicitado && !Regex.IsMatch(Normalizar(consulta), acessorios)) return 30m;
+
+    if (Regex.IsMatch(pedido, @"\bplaystation\s*5\b") && !Regex.IsMatch(pedido, acessorios)
+      && !Regex.IsMatch(titulo, @"\bconsole\b|^(?:sony\s+)?playstation\s*5\b")) return 0m;
 
     return 100m - Math.Min(20, Math.Max(0, Tokens(nome).Length - Tokens(consulta).Length));
   }

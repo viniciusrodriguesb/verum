@@ -76,6 +76,8 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # Local editor files
+.tmp/
+
 .history/
 *.swp
 *.swo

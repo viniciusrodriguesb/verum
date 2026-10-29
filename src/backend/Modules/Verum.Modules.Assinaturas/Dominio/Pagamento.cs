@@ -14,10 +14,6 @@ internal sealed class Pagamento
 
   public string Moeda { get; private set; } = null!;
 
-  public MetodoPagamento? Metodo { get; private set; }
-
-  public DateTimeOffset? VencimentoEm { get; private set; }
-
   public DateTimeOffset? PagoEm { get; private set; }
 
   public DateTimeOffset CriadoEm { get; private set; }
@@ -39,9 +35,7 @@ internal sealed class Pagamento
     Guid assinaturaId,
     string identificadorExterno,
     decimal valor,
-    string moeda,
-    MetodoPagamento? metodo = null,
-    DateTimeOffset? vencimentoEm = null)
+    string moeda)
   {
     var agora = DateTimeOffset.UtcNow;
 
@@ -56,10 +50,6 @@ internal sealed class Pagamento
     Valor = ValidarValor(valor);
 
     Moeda = ValidarMoeda(moeda);
-
-    Metodo = ValidarMetodo(metodo);
-
-    VencimentoEm = ValidarVencimentoEm(vencimentoEm);
 
     PagoEm = ValidarPagoEm(null);
 
@@ -119,12 +109,6 @@ internal sealed class Pagamento
 
   private static string ValidarMoeda(string valor) =>
     Validacao.Moeda(valor, nameof(Moeda));
-
-  private static MetodoPagamento? ValidarMetodo(MetodoPagamento? valor) =>
-    valor is null ? null : Validacao.Enumeracao(valor.Value, nameof(Metodo));
-
-  private static DateTimeOffset? ValidarVencimentoEm(DateTimeOffset? valor) =>
-    valor is null ? null : Validacao.Data(valor.Value, nameof(VencimentoEm));
 
   private static DateTimeOffset? ValidarPagoEm(DateTimeOffset? valor) =>
     valor is null ? null : Validacao.Data(valor.Value, nameof(PagoEm));

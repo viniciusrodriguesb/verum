@@ -14,7 +14,7 @@ using Verum.Modules.Assinaturas.Infraestrutura.Persistencia;
 
 namespace Verum.Modules.Assinaturas.Infraestrutura.Processadores;
 
-// Executa na API do monólito; SKIP LOCKED permite múltiplas instâncias sem duplicar processamento.
+// Executa na API do monólito; reservas de sessão permitem múltiplas instâncias sem duplicar processamento.
 internal sealed class PagamentosWorker(IServiceScopeFactory scopes, IOptions<AssinaturasOptions> options,
   ILogger<PagamentosWorker> logger) : BackgroundService
 {

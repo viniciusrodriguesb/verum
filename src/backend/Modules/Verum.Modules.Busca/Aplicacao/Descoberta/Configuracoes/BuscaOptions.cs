@@ -4,7 +4,7 @@ public sealed class BuscaOptions
 {
   public string FilaSolicitacoes { get; set; } = Contratos.BuscaSolicitada.FilaPadrao;
 
-  public string[] Lojas { get; set; } = ["kabum", "amazon", "carrefour", "kalunga", "decathlon"];
+  public string[] Lojas { get; set; } = ["kabum", "amazon", "kalunga", "decathlon"];
 
   public int MinimoOfertas { get; set; } = 3;
 

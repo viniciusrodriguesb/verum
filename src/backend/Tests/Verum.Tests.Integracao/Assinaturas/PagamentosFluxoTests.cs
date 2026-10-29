@@ -6,8 +6,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using Verum.BuildingBlocks.Erros;
 using Verum.BuildingBlocks.Identidade;
 using Verum.CrossCutting.Pipelines;
@@ -32,6 +35,87 @@ namespace Verum.Tests.Integracao;
 
 public sealed class PagamentosFluxoTests(ITestOutputHelper output)
 {
+  [PostgreSqlFact]
+  public async Task MigrationRecusaDescartarCamposAntigosPreenchidosEPreservaPagamento()
+  {
+    await using var ambiente = await CriarAsync();
+
+    await CriarAssinaturaAsync(ambiente, Guid.NewGuid());
+
+    var estado = ambiente.Http.Assinaturas.Values.Single();
+
+    estado.StatusPagamento = "approved";
+
+    estado.PagamentoId = 1234;
+
+    await ReceberAsync(ambiente, estado.Id, "subscription_preapproval", "migration-segura");
+
+    await ProcessarAsync(ambiente);
+
+    await using var scope = ambiente.Services.CreateAsyncScope();
+
+    var db = scope.ServiceProvider.GetRequiredService<AssinaturasDbContext>();
+
+    var migrator = db.GetService<IMigrator>();
+
+    await migrator.MigrateAsync(db.Database.GetMigrations().SkipLast(1).Last());
+
+    await db.Database.ExecuteSqlRawAsync("UPDATE assinaturas.\"PAGAMENTO\" SET \"METODO\" = 1");
+
+    var erro = await Assert.ThrowsAsync<PostgresException>(() => migrator.MigrateAsync());
+
+    Assert.Equal("P0001", erro.SqlState);
+
+    Assert.Equal(1, await db.Pagamentos.CountAsync());
+
+    Assert.Equal(1, await db.Database.SqlQuery<int>($"SELECT count(*)::int AS \"Value\" FROM assinaturas.\"PAGAMENTO\" WHERE \"METODO\" = 1").SingleAsync());
+
+    await db.Database.ExecuteSqlRawAsync("UPDATE assinaturas.\"PAGAMENTO\" SET \"METODO\" = NULL");
+
+    await migrator.MigrateAsync();
+
+    Assert.Equal(1, await db.Pagamentos.CountAsync());
+  }
+
+  [PostgreSqlFact]
+  public async Task ConsultaAoGatewayNaoMantemTransacaoAbertaEAprovacaoContinuaAtomica()
+  {
+    await using var ambiente = await CriarAsync();
+
+    var conta = Guid.NewGuid();
+
+    await CriarAssinaturaAsync(ambiente, conta);
+
+    var estado = ambiente.Http.Assinaturas.Values.Single();
+
+    estado.StatusPagamento = "approved";
+
+    estado.PagamentoId = 1234;
+
+    await ReceberAsync(ambiente, estado.Id, "subscription_preapproval", "sem-transacao-http");
+
+    await using var scope = ambiente.Services.CreateAsyncScope();
+
+    var db = scope.ServiceProvider.GetRequiredService<AssinaturasDbContext>();
+
+    var chamadas = 0;
+
+    ambiente.Http.AntesEnviarAsync = () =>
+    {
+      Assert.Null(db.Database.CurrentTransaction);
+
+      chamadas++;
+
+      return Task.CompletedTask;
+    };
+
+    Assert.True(await scope.ServiceProvider.GetRequiredService<ProcessamentoPagamentos>().ProcessarProximoAsync(default));
+
+    Assert.True(chamadas > 0);
+
+    Assert.Equal(30, (await AcessoAsync(ambiente, conta)).Limite);
+  }
+
   [PostgreSqlFact]
   public async Task VerumPlusSoLiberaRadarAposConfirmacaoDoPagamento()
   {

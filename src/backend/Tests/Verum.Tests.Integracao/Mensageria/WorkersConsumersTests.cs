@@ -1,6 +1,6 @@
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
-using Verum.CrossCutting.Mensageria;
+using Verum.BuildingBlocks.Erros;
 using Verum.CrossCutting.Mensageria.Configuracoes;
 using Verum.CrossCutting.Pipelines;
 using Verum.Modules.Busca.Contratos;
@@ -21,7 +21,7 @@ public sealed class WorkersConsumersTests
   public Task DescobertaPropagaFalhaDoProcessamentoSemConfirmarMensagem(bool idValido) =>
     VerificarEsqueleto(new BuscaSolicitada(idValido ? Guid.NewGuid() : Guid.Empty),
       bus => bus.AddConsumidoresDescoberta(), "descoberta", typeof(VerificacaoRadarSolicitadaConsumer),
-      idValido ? typeof(ProcessamentoNaoConfiguradoException) : typeof(ArgumentException));
+      idValido ? typeof(ErroAplicacaoException) : typeof(ArgumentException));
 
   [Theory]
   [InlineData(true)]
@@ -29,7 +29,7 @@ public sealed class WorkersConsumersTests
   public Task RadarPropagaFalhaDoServicoSemConfirmarMensagem(bool idValido) =>
     VerificarEsqueleto(new VerificacaoRadarSolicitada(idValido ? Guid.NewGuid() : Guid.Empty),
       bus => bus.AddConsumidoresRadar(), "radar", typeof(BuscaSolicitadaConsumer),
-      idValido ? typeof(ProcessamentoNaoConfiguradoException) : typeof(ArgumentException));
+      idValido ? typeof(ErroAplicacaoException) : typeof(ArgumentException));
 
   private static async Task VerificarEsqueleto<T>(T mensagem,
     Action<IBusRegistrationConfigurator> registrar, string host, Type consumidorOutroWorker, Type erro)
@@ -207,7 +207,7 @@ public sealed class WorkersConsumersTests
   private sealed class ProcessamentoFalha : IProcessamentoBuscaService
   {
     public Task ProcessarAsync(Guid buscaId, CancellationToken cancellationToken) =>
-      throw new ProcessamentoNaoConfiguradoException("Simulação de falha do processamento");
+      throw ErroAplicacaoException.Validacao("Simulação de falha do processamento");
   }
 
   private sealed class FalhaRegistrada : IFalhaBuscaService
@@ -222,7 +222,7 @@ public sealed class WorkersConsumersTests
     public Task EncaminharAvisosAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     public Task VerificarAsync(Guid monitoramentoId, CancellationToken cancellationToken) =>
-      throw new ProcessamentoNaoConfiguradoException("Falha simulada do serviço, não do consumidor.");
+      throw ErroAplicacaoException.Validacao("Falha simulada do serviço, não do consumidor.");
   }
 }
 

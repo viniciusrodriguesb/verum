@@ -21,8 +21,6 @@ internal sealed class PagamentoMapping : IEntityTypeConfiguration<Entidade>
       table.HasCheckConstraint("CK_PAGAMENTO_VALOR", "\"VALOR\" >= 0.01 AND \"VALOR\" <= 999999999999.99");
 
       table.HasCheckConstraint("CK_PAGAMENTO_MOEDA", "length(btrim(\"MOEDA\")) > 0");
-
-      table.HasCheckConstraint("CK_PAGAMENTO_METODO", "\"METODO\" IN (1, 2, 3)");
     });
 
     builder.HasKey(x => x.Id);
@@ -74,15 +72,6 @@ internal sealed class PagamentoMapping : IEntityTypeConfiguration<Entidade>
            .IsFixedLength()
            .HasColumnType("char(3)")
            .IsRequired();
-
-    builder.Property(x => x.Metodo)
-           .HasColumnName("METODO")
-           .HasConversion<short>()
-           .HasColumnType("smallint");
-
-    builder.Property(x => x.VencimentoEm)
-           .HasColumnName("VENCIMENTO_EM")
-           .HasColumnType("timestamp with time zone");
 
     builder.Property(x => x.PagoEm)
            .HasColumnName("PAGO_EM")

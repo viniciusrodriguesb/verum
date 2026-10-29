@@ -27,14 +27,9 @@ internal sealed class ProcessamentoPagamentos(AssinaturasDbContext db, Seleciona
 
     try
     {
-      await using var transacao = await db.Database.BeginTransactionAsync(cancellationToken);
+      await db.Database.OpenConnectionAsync(cancellationToken);
 
-      var evento = await db.EventosGateway.FromSqlRaw("""
-        SELECT * FROM assinaturas."EVENTO_GATEWAY"
-        WHERE "STATUS" <> 2 AND "TENTATIVAS" < 10
-          AND ("PROXIMA_TENTATIVA_EM" IS NULL OR "PROXIMA_TENTATIVA_EM" <= now())
-        ORDER BY "ID" LIMIT 1 FOR UPDATE SKIP LOCKED
-        """).SingleOrDefaultAsync(cancellationToken);
+      var evento = await ReservarProximoAsync(cancellationToken);
 
       if (evento is null) return false;
 
@@ -56,13 +51,17 @@ internal sealed class ProcessamentoPagamentos(AssinaturasDbContext db, Seleciona
       if (assinatura is not null)
       {
         await db.Database.ExecuteSqlInterpolatedAsync(
-          $"SELECT pg_advisory_xact_lock(hashtextextended({assinatura.Id.ToString()}, 710012))", cancellationToken);
+          $"SELECT pg_advisory_lock(hashtextextended({assinatura.Id.ToString()}, 710012))", cancellationToken);
 
         // Recarrega após obter o lock: nenhuma decisão usa um snapshot anterior a outro consumidor.
         await db.Entry(assinatura).ReloadAsync(cancellationToken);
 
-        await SincronizarAsync(assinatura, gateway, cancellationToken);
+        await SincronizarAsync(assinatura, gateway, evento, cancellationToken);
       }
+
+      if (evento.Status == StatusEventoGateway.Processado) return true;
+
+      await using var transacao = await db.Database.BeginTransactionAsync(cancellationToken);
 
       evento.Concluir();
 
@@ -93,6 +92,45 @@ internal sealed class ProcessamentoPagamentos(AssinaturasDbContext db, Seleciona
 
       return false;
     }
+    finally
+    {
+      if (db.Database.GetDbConnection().State == System.Data.ConnectionState.Open)
+      {
+        try
+        {
+          // Conexão exclusiva do escopo: libera reservas de evento/assinatura inclusive após cancelamento.
+          await db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock_all()", CancellationToken.None);
+        }
+        finally
+        {
+          await db.Database.CloseConnectionAsync();
+        }
+      }
+    }
+  }
+
+  private async Task<EventoGateway?> ReservarProximoAsync(CancellationToken cancellationToken)
+  {
+    var agora = DateTimeOffset.UtcNow;
+
+    var candidatos = await db.EventosGateway.AsNoTracking().Where(x => x.Status != StatusEventoGateway.Processado
+      && x.Tentativas < 10 && (x.ProximaTentativaEm == null || x.ProximaTentativaEm <= agora))
+      .OrderBy(x => x.Id).Select(x => x.Id).Take(options.Value.EventosPorCiclo).ToArrayAsync(cancellationToken);
+
+    foreach (var id in candidatos)
+    {
+      var reservado = await db.Database.SqlQuery<bool>(
+        $"SELECT pg_try_advisory_lock(hashtextextended({id.ToString()}, 710013)) AS \"Value\"").SingleAsync(cancellationToken);
+
+      if (!reservado) continue;
+
+      var evento = await db.EventosGateway.SingleAsync(x => x.Id == id, cancellationToken);
+
+      if (evento.Status != StatusEventoGateway.Processado && evento.Tentativas < 10
+        && (evento.ProximaTentativaEm is null || evento.ProximaTentativaEm <= DateTimeOffset.UtcNow)) return evento;
+    }
+
+    return null;
   }
 
   private async Task<Assinatura?> LocalizarAsync(GatewayPagamento tipo, string? id, IGatewayAssinaturas gateway, CancellationToken cancellationToken)
@@ -105,7 +143,8 @@ internal sealed class ProcessamentoPagamentos(AssinaturasDbContext db, Seleciona
       .SingleOrDefaultAsync(x => x.Id == remota.Referencia && x.Gateway == tipo, cancellationToken);
   }
 
-  private async Task SincronizarAsync(Assinatura assinatura, IGatewayAssinaturas gateway, CancellationToken cancellationToken)
+  private async Task SincronizarAsync(Assinatura assinatura, IGatewayAssinaturas gateway,
+    EventoGateway evento, CancellationToken cancellationToken)
   {
     var remota = assinatura.IdentificadorExterno.StartsWith("pendente:", StringComparison.Ordinal)
       ? await gateway.LocalizarAsync(assinatura.Id, cancellationToken)
@@ -127,6 +166,9 @@ internal sealed class ProcessamentoPagamentos(AssinaturasDbContext db, Seleciona
 
     var cobrancas = await gateway.ConsultarCobrancasAsync(remota.Id, cancellationToken);
 
+    // A reserva de sessão serializa a assinatura sem manter transação durante chamadas ao gateway.
+    await using var transacao = await db.Database.BeginTransactionAsync(cancellationToken);
+
     foreach (var cobranca in cobrancas)
       await AplicarCobrancaAsync(assinatura, cobranca, cancellationToken);
 
@@ -141,6 +183,12 @@ internal sealed class ProcessamentoPagamentos(AssinaturasDbContext db, Seleciona
       && (x.Status == StatusPagamento.Recusado || x.Status == StatusPagamento.Aprovado), cancellationToken);
 
     assinatura.Sincronizar(remota.Status, vigente?.PeriodoInicio, vigente?.PeriodoFim, cobrancaEmAtraso);
+
+    evento.Concluir();
+
+    await db.SaveChangesAsync(cancellationToken);
+
+    await transacao.CommitAsync(cancellationToken);
   }
 
   private async Task AplicarCobrancaAsync(Assinatura assinatura, CobrancaGateway cobranca, CancellationToken cancellationToken)

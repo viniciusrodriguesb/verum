@@ -44,14 +44,14 @@ internal sealed class ProdutoTermoBuscaMapping : IEntityTypeConfiguration<Entida
 
     builder.Property(x => x.TermoOriginal)
            .HasColumnName("TERMO_ORIGINAL")
-           .HasMaxLength(300)
-           .HasColumnType("varchar(300)")
+           .HasMaxLength(500)
+           .HasColumnType("varchar(500)")
            .IsRequired();
 
     builder.Property(x => x.TermoNormalizado)
            .HasColumnName("TERMO_NORMALIZADO")
-           .HasMaxLength(300)
-           .HasColumnType("varchar(300)")
+           .HasMaxLength(500)
+           .HasColumnType("varchar(500)")
            .IsRequired();
 
     builder.Property(x => x.Origem)

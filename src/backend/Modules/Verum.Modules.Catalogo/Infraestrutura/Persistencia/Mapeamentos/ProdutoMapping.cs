@@ -51,14 +51,14 @@ internal sealed class ProdutoMapping : IEntityTypeConfiguration<Entidade>
 
     builder.Property(x => x.Nome)
            .HasColumnName("NOME")
-           .HasMaxLength(250)
-           .HasColumnType("varchar(250)")
+           .HasMaxLength(300)
+           .HasColumnType("varchar(300)")
            .IsRequired();
 
     builder.Property(x => x.NomeNormalizado)
            .HasColumnName("NOME_NORMALIZADO")
-           .HasMaxLength(250)
-           .HasColumnType("varchar(250)")
+           .HasMaxLength(300)
+           .HasColumnType("varchar(300)")
            .IsRequired();
 
     builder.Property(x => x.Modelo)

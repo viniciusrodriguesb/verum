@@ -47,18 +47,18 @@ O `ServicesPipeline` registra automaticamente classes com sufixo `Service` no na
 
 Estados: `Recebida`, `Processando`, `Concluida`, `ConcluidaSemResultado`, `Falhou` e `Expirada`. Uma fonte operacional sem produtos difere de uma falha técnica de todas as fontes. O prazo global inclui a espera na fila. Resultados válidos já obtidos podem acompanhar uma busca expirada; `parcial` indica limitação ou indisponibilidade de fontes. Consultas genéricas sem especificação suficiente recebem motivo explícito para refinamento.
 
-A identificação permanece conservadora e provisória por URL. `ranking-v1.0` usa correspondência como elegibilidade e combina preço 45%, confiança 35% e atualização 20%, igualmente para todos os contextos. Acessórios reconhecidos e não solicitados são excluídos desta seleção. Mercado e histórico comparam somente a mesma variante e condição de pagamento. Sem amostra suficiente, o preço recebe nota neutra provisória; uma oferta isolada não recebe nota máxima nem comprova preço justo. Há percentis com tolerância de 0,5%, mediana e consolidação diária por loja em uma janela de 30 dias. Histórico suficiente exige 10 observações e 3 lojas; com mercado suficiente, utiliza histórico 60% e mercado 40%. A atualização usa meia-vida de 60 minutos. Fundamentos, pesos e qualidade da amostra ficam no snapshot. Reputação externa, vendedor confirmado, validação adicional de outliers e identificação entre lojas ainda não estão completos e não são presumidos.
+A identificação permanece conservadora e provisória por URL. `ranking-v1.4` usa correspondência como elegibilidade e combina preço 45%, confiança 35% e atualização 20%, igualmente para todos os contextos. Acessórios reconhecidos e não solicitados são excluídos desta seleção. Mercado e histórico comparam somente a mesma variante e condição de pagamento. Sem amostra suficiente, o preço recebe nota neutra provisória; uma oferta isolada não recebe nota máxima nem comprova preço justo. Há percentis com tolerância de 0,5%, mediana e consolidação diária por loja em uma janela de 30 dias. Histórico suficiente exige 10 observações e 3 lojas; com mercado suficiente, utiliza histórico 60% e mercado 40%. A atualização usa meia-vida de 60 minutos. Fundamentos, pesos e qualidade da amostra ficam no snapshot. Reputação externa, vendedor confirmado, validação adicional de outliers e identificação entre lojas ainda não estão completos e não são presumidos.
 
 O cookie `verum.visitante` é protegido, HttpOnly e válido por 30 dias. A cota padrão é uma busca por dia UTC, configurável. Repetir a mesma chave e consulta retorna o mesmo ID sem consumir outra cota; usar a mesma chave com outra consulta gera conflito. A identificação é operacional: apagar cookies permite uma nova identidade. Preserve e compartilhe as chaves de ASP.NET Core Data Protection entre reinicializações e réplicas da API. Clientes web precisam enviar o cookie; CORS aceita credenciais somente nas origens explicitamente configuradas.
 
-| Configuração `Busca`                         | Padrão                                                 |
-| -------------------------------------------- | ------------------------------------------------------ |
-| `FilaSolicitacoes`                           | `verum-descoberta-busca-solicitada`                    |
-| `Lojas`                                      | `kabum`, `amazon`, `carrefour`, `kalunga`, `decathlon` |
-| `MinimoOfertas` / `MaximoResultados`         | 3 / 12                                                 |
-| `PrazoSegundos`                              | 180, incluindo a espera na fila                        |
-| `TimeoutFonteSegundos` / `TimeoutIaSegundos` | 45 / 20                                                |
-| `LimiteVisitanteDiario`                      | 1                                                      |
+| Configuração `Busca`                         | Padrão                                    |
+| -------------------------------------------- | ----------------------------------------- |
+| `FilaSolicitacoes`                           | `verum-descoberta-busca-solicitada`       |
+| `Lojas`                                      | `kabum`, `amazon`, `kalunga`, `decathlon` |
+| `MinimoOfertas` / `MaximoResultados`         | 3 / 12                                    |
+| `PrazoSegundos`                              | 180, incluindo a espera na fila           |
+| `TimeoutFonteSegundos` / `TimeoutIaSegundos` | 45 / 20                                   |
+| `LimiteVisitanteDiario`                      | 1                                         |
 
 Mantenha fila e políticas de busca alinhadas na API e no worker. Ofertas observadas neste fluxo têm validade de 15 minutos.
 
@@ -102,6 +102,8 @@ Amazon extrai preço total anunciado, sem presumir pagamento PIX, e normaliza UR
 Carrefour, Kalunga e Decathlon usam o mesmo executor, com até uma página e 48 cards por loja. Carrefour reconhece PIX quando explicitado; Kalunga exige ação de compra online e usa o título completo; Decathlon extrai somente o preço principal, sem parcelas, cashback ou desconto global presumido. Os hosts necessários são permitidos individualmente; rastreadores externos não são necessários. A lista explícita `Busca:Lojas` substitui os padrões, permitindo retirar uma fonte sem alterar código. O Radar consulta a mesma configuração, sem lista paralela de provedores.
 
 Mercado Livre, Magalu, Casas Bahia, Netshoes e Leroy Merlin retornaram bloqueio no teste local de 26/10/2026 e não foram ativados. Acesso a uma loja hoje não garante acesso futuro ou a partir da VPS. A reputação institucional de uma rede não confirma a reputação de cada vendedor do marketplace. As decisões sobre fontes e os limites da identificação de produtos estão no [documento de arquitetura](../../docs/arquitetura.md).
+
+Carrefour também respondeu com bloqueio em 29/10/2026 e foi retirado da lista ativa padrão e do exemplo de produção. Seu perfil permanece disponível para revalidação explícita. As quatro fontes ativas são KaBuM, Amazon, Kalunga e Decathlon.
 
 A correspondência tolera um erro de inserção, remoção, substituição ou troca de letras adjacentes em uma única palavra alfabética longa. Números, modelos e capacidades continuam exatos; artigos e preposições comuns não eliminam um título. Não há correção arbitrária da consulta nem retry adicional em todas as lojas: se a fonte só devolver sugestões incompatíveis, elas são descartadas. O teste real mostrou correções recuperadas em papelaria e esportes e ausência segura de resultado em outro erro no Carrefour.
 
@@ -196,7 +198,7 @@ O cancelamento registra uma intenção durável e retorna 202. O processador int
 
 A mesma chave por conta recupera a contratação existente; outro plano com a mesma chave retorna conflito. Há no máximo uma contratação pendente ou assinatura não encerrada por conta. Se a resposta do POST externo se perder, a recuperação usa external_reference, sem repetir o POST. Uma contratação sem resposta pode ser consultada em GET /api/v1/assinaturas. Se continuar sem correspondência remota, fica pendente de conciliação operacional; não é criada outra cobrança automaticamente. Não exclua esse registro para tentar novamente sem verificar o gateway.
 
-Webhooks repetidos com a mesma identificação são deduplicados. Entregas diferentes sobre o mesmo recurso são serializadas por assinatura; pagamento e concessão possuem proteção contra duplicação. O banco usa FOR UPDATE SKIP LOCKED para permitir várias instâncias da API. Falhas têm até dez tentativas com espera exponencial e limite de uma hora entre tentativas. Após isso, o evento permanece Falhou para investigação pelo EventoGatewayId; não existe endpoint público para forçar benefícios.
+Webhooks repetidos com a mesma identificação são deduplicados. Entregas diferentes sobre o mesmo recurso são serializadas por assinatura; pagamento, concessão e conclusão do evento são persistidos atomicamente. Reservas de sessão PostgreSQL coordenam os processadores sem manter transação aberta durante chamadas ao gateway; a conexão é liberada ao final. Falhas têm até dez tentativas com espera exponencial e limite de uma hora entre tentativas. Após isso, o evento permanece Falhou para investigação pelo EventoGatewayId; não existe endpoint público para forçar benefícios.
 
 Uma conciliação periódica, inicialmente a cada cinco minutos, agenda até cinquenta assinaturas por rodada e consulta suas faturas, recuperando notificações perdidas e intenções de cancelamento. O rodízio considera a última data de agendamento para que uma assinatura com erro não impeça as demais. Canceladas são conciliadas rotineiramente por até noventa dias; webhooks continuam aceitos depois disso. As rotas do gateway são fixas: o receptor não segue URLs recebidas no payload. EVENTO_GATEWAY armazena somente o ID do recurso, sem cartão, credencial ou payload financeiro completo.
 
@@ -227,33 +229,37 @@ Valores zero mantêm o plano fora do checkout. Os preços de testes automatizado
 
 Antes de produção, conclua uma contratação no ambiente do provedor, confirme assinatura e cobrança na API e a liberação em GET /api/v1/buscas/acesso, depois valide renovação, recusa, cancelamento e estorno. O simulador de notificações sozinho não comprova pagamento: um ID inexistente nunca deve liberar acesso. Use credenciais e segredo próprios de produção e outra URL/ambiente para a homologação.
 
-Pagamentos permanecem desabilitados no arquivo padrão, com preços e credenciais vazios. Os testes automatizados usam HTTP simulado do gateway e PostgreSQL real; não substituem a homologação no Mercado Pago. O layout de contratação e retorno está pendente e seus contratos estão documentados junto ao frontend.
+Pagamentos permanecem desabilitados no arquivo padrão, com preços e credenciais vazios. Os testes automatizados usam HTTP simulado do gateway e PostgreSQL real; não substituem a homologação no Mercado Pago. A tela de conta utiliza os contratos de contratação e acompanha a confirmação pelo backend.
 
 Nos testes manuais, use uma conta Verum de homologação com o e-mail do comprador de teste do Mercado Pago, pois o backend usa o e-mail confirmado da conta como payer_email. Confirme esse e-mail pelo Mailpit local e abra o checkout em uma sessão separada da conta vendedora.
 
-Validação desta integração: 185 testes backend aprovados e um JWT optativo ignorado; 24 testes frontend aprovados, lint e builds sem erros. A carga local simulou 200 entregas de webhook com quatro processadores e confirmou um único pagamento e benefício. Migrations de Assinaturas e Acesso aplicadas ao banco local verum.
-
-O SDK 10.0.401 fixado no global.json não estava instalado neste ambiente. Esta entrega foi compilada e testada com o SDK .NET 10.0.113 instalado, sem alterar a versão exigida pelo repositório. Para os comandos usuais de desenvolvimento, instale o SDK fixado.
+A regressão de pagamentos inclui 200 entregas de webhook com quatro processadores, confirmação única de pagamento/benefício, rollback e ausência de transação durante HTTP. Instale o SDK indicado no `global.json`; os resultados atuais devem ser obtidos pelo CI e pela execução local, sem depender de contagens históricas deste documento.
 
 ## Validação
 
 `dotnet test Verum.Backend.slnx` executa a suíte; integrações externas são opcionais e exigem variáveis:
 
-| Variável                            | Habilitação                                                                          |
-| ----------------------------------- | ------------------------------------------------------------------------------------ |
-| `VERUM_TEST_POSTGRES`               | Conexão PostgreSQL de desenvolvimento                                                |
-| `VERUM_TEST_REDIS`                  | Conexão Redis de desenvolvimento                                                     |
-| `VERUM_TEST_PLAYWRIGHT=1`           | Chromium real com páginas locais simuladas                                           |
-| `VERUM_TEST_NOVAS_LOJAS=1`          | Três consultas reais na KaBuM e Amazon, com normalização e seleção de até 12 ofertas |
-| `VERUM_TEST_RABBITMQ=1`             | Broker local e management em 15672, junto de PostgreSQL                              |
-| `VERUM_TEST_KABUM=1`                | Verificação opcional do site real                                                    |
-| `VERUM_TEST_PRODUTOS_ESPECIFICOS=1` | Livros, cabo SCSI, SSD com modelo e consulta inexistente nas duas lojas reais        |
+| Variável                            | Habilitação                                                                                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `VERUM_TEST_POSTGRES`               | Conexão PostgreSQL de desenvolvimento                                                                                                                  |
+| `VERUM_TEST_REDIS`                  | Conexão Redis de desenvolvimento                                                                                                                       |
+| `VERUM_TEST_PLAYWRIGHT=1`           | Chromium real com páginas locais simuladas                                                                                                             |
+| `VERUM_TEST_NOVAS_LOJAS=1`          | Três consultas reais na KaBuM e Amazon, com normalização e seleção de até 12 ofertas                                                                   |
+| `VERUM_TEST_RABBITMQ=1`             | Broker local e management em 15672, junto de PostgreSQL                                                                                                |
+| `VERUM_TEST_KABUM=1`                | Verificação opcional do site real                                                                                                                      |
+| `VERUM_TEST_PRODUTOS_ESPECIFICOS=1` | Livros, cabo SCSI, SSD com modelo e consulta inexistente nas duas lojas reais                                                                          |
+| `VERUM_TEST_CARGA_REAL=1`           | 50 buscas com lojas reais, PostgreSQL/RabbitMQ, visitantes/contas e criação concorrente de alertas; exige também as variáveis de PostgreSQL e RabbitMQ |
+| `VERUM_RELATORIO_CARGA`             | Caminho JSON do relatório da carga; por padrão usa o diretório temporário do sistema                                                                   |
 
 Sem habilitação, os testes correspondentes são ignorados; serviços habilitados indisponíveis causam falha. Os testes do fluxo criam bancos temporários próprios, aplicam migrations e os removem; precisam de permissão para criar bancos. Outros testes usam schemas transacionais. Redis e RabbitMQ usam recursos exclusivos dos testes, removidos ao terminar. O teste RabbitMQ confirma entrega durável antes da inicialização do worker.
 
 A validação cobre API/cookie/cota, idempotência, persistência, reutilização de ofertas, mensagens, concorrência, fontes parciais, IA simulada, timeout e erros. O teste de Contas usa PostgreSQL temporário para verificar sincronização concorrente, atualização de perfil e bloqueio. A verificação KaBuM real consulta produtos, paginação e ausência de resultados sem gravar ofertas. O teste JWT real é optativo e exige tokens de acesso e identidade obtidos com PKCE nas variáveis `VERUM_TEST_KEYCLOAK_ACCESS_TOKEN` e `VERUM_TEST_KEYCLOAK_ID_TOKEN`; tokens não devem ser salvos no repositório. IA real não é comprovada pelas simulações.
 
-Validação local: 171 testes aprovados com serviços locais e um teste JWT optativo ignorado na execução geral. O teste adicional pelo navegador validou login PKCE do Angular, JWT real na API, sincronização de conta, restauração SSO, logout e proteção da rota Radar. Buscas reais de livros e itens específicos foram verificadas como visitante, com login e após logout, incluindo idempotência, isolamento entre navegadores e cota. Códigos de modelo permanecem inteiros na comparação; capacidades como `1TB` e `1 TB` são equivalentes. Ausência de resultados usa o marcador explícito da loja; layout desconhecido continua sendo falha técnica. Não foi necessária nova migration.
+Para repetir a carga, execute `dotnet test Tests/Verum.Tests.Integracao --filter FullyQualifiedName~CargaLocalRealTests` com as variáveis acima. O cenário usa banco e topologia descartáveis, duas buscas simultâneas, executor Playwright limitado a duas navegações e cinco POSTs concorrentes por alerta para testar idempotência. A autenticação é substituída somente no host de teste; não comprova Keycloak real. As concessões administrativas são exclusivas do banco descartável e não representam pagamento. IA, pagamentos reais e envio externo de e-mail permanecem desativados. O relatório registra resultados vazios e falhas de fontes; não representa um benchmark estatístico nem validação semântica universal.
+
+A migration `RemoverCamposPagamentoSemUso` remove `METODO` e `VENCIMENTO_EM`, nunca preenchidos pelo fluxo recorrente atual. Ela aborta caso encontre valores nessas colunas, para impedir descarte silencioso. Não houve remoção de tabelas/colunas destinadas às funcionalidades futuras documentadas.
+
+A migration `AlinharLimitesNomesEConsultas` amplia nome de produto para 300 caracteres e termos do catálogo para 500, acompanhando os contratos da coleta e da busca. Os limites são preservados sem truncar dados recebidos. O ranking v1.4 amplia a exclusão de peças/acessórios não solicitados; as regras continuam heurísticas e não identificam universalmente ISBN, edições ou kits.
 
 ## Deploy
 

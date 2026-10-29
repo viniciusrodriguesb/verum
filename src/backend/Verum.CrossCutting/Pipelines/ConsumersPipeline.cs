@@ -1,6 +1,5 @@
 using MassTransit;
 using Verum.BuildingBlocks.Erros;
-using Verum.CrossCutting.Mensageria;
 using Verum.CrossCutting.Mensageria.Configuracoes;
 
 namespace Verum.CrossCutting.Pipelines;
@@ -18,8 +17,6 @@ public static class ConsumersPipeline
 
         retry.Ignore<ErroAplicacaoException>();
 
-        retry.Ignore<ProcessamentoNaoConfiguradoException>();
-
         retry.Ignore<OperationCanceledException>();
 
         retry.Intervals(options.RedeliveryIntervalsSeconds.Select(seconds => TimeSpan.FromSeconds(seconds)).ToArray());
@@ -30,8 +27,6 @@ public static class ConsumersPipeline
       retry.Ignore<ArgumentException>();
 
       retry.Ignore<ErroAplicacaoException>();
-
-      retry.Ignore<ProcessamentoNaoConfiguradoException>();
 
       retry.Ignore<OperationCanceledException>();
 

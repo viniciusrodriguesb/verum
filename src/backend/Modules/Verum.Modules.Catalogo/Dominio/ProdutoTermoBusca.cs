@@ -61,10 +61,10 @@ internal sealed class ProdutoTermoBusca
     valor is null ? null : Validacao.Identificador(valor.Value, nameof(ProdutoVarianteId));
 
   private static string ValidarTermoOriginal(string valor) =>
-    Validacao.Texto(valor, nameof(TermoOriginal), 300);
+    Validacao.Texto(valor, nameof(TermoOriginal), 500);
 
   private static string ValidarTermoNormalizado(string valor) =>
-    Validacao.Texto(valor, nameof(TermoNormalizado), 300);
+    Validacao.Texto(valor, nameof(TermoNormalizado), 500);
 
   private static OrigemTermo ValidarOrigem(OrigemTermo valor) =>
     Validacao.Enumeracao(valor, nameof(Origem));

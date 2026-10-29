@@ -302,10 +302,6 @@ namespace Verum.Modules.Assinaturas.Infraestrutura.Persistencia.Migracoes
                         .HasColumnType("varchar(200)")
                         .HasColumnName("IDENTIFICADOR_EXTERNO");
 
-                    b.Property<short?>("Metodo")
-                        .HasColumnType("smallint")
-                        .HasColumnName("METODO");
-
                     b.Property<string>("Moeda")
                         .IsRequired()
                         .HasMaxLength(3)
@@ -334,10 +330,6 @@ namespace Verum.Modules.Assinaturas.Infraestrutura.Persistencia.Migracoes
                         .HasColumnType("numeric(14,2)")
                         .HasColumnName("VALOR");
 
-                    b.Property<DateTimeOffset?>("VencimentoEm")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("VENCIMENTO_EM");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AssinaturaId", "IdentificadorExterno")
@@ -350,8 +342,6 @@ namespace Verum.Modules.Assinaturas.Infraestrutura.Persistencia.Migracoes
                             t.HasCheckConstraint("CK_PAGAMENTO_ID", "\"ID\" <> '00000000-0000-0000-0000-000000000000'::uuid");
 
                             t.HasCheckConstraint("CK_PAGAMENTO_IDENTIFICADOR_EXTERNO", "length(btrim(\"IDENTIFICADOR_EXTERNO\")) > 0");
-
-                            t.HasCheckConstraint("CK_PAGAMENTO_METODO", "\"METODO\" IN (1, 2, 3)");
 
                             t.HasCheckConstraint("CK_PAGAMENTO_MOEDA", "length(btrim(\"MOEDA\")) > 0");
 

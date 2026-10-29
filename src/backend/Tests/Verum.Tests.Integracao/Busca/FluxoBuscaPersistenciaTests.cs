@@ -349,7 +349,8 @@ public sealed class FluxoBuscaPersistenciaTests
 
     public FluxoFontesTests.LojaFake Loja => loja;
 
-    public static async Task<Ambiente> CriarAsync(int limite = 10, bool rabbit = false, int minimoOfertas = 3)
+    public static async Task<Ambiente> CriarAsync(int limite = 10, bool rabbit = false, int minimoOfertas = 3,
+      Action<IServiceCollection>? configurar = null)
     {
       var cs = new NpgsqlConnectionStringBuilder(Environment.GetEnvironmentVariable("VERUM_TEST_POSTGRES"));
 
@@ -401,6 +402,8 @@ public sealed class FluxoBuscaPersistenciaTests
 
           ConfigurarTransporte(bus, rabbit);
         });
+
+        configurar?.Invoke(services);
       }).ConfigureLogging(log => log.ClearProviders()).Build();
 
       var ambiente = new Ambiente(host, admin, banco, loja, cs.ConnectionString, limite, rabbit);
