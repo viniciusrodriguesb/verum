@@ -26,8 +26,8 @@ public abstract class AppController : ControllerBase
   {
     var email = ObterEmail();
 
-    if (!EmailConfirmado() || string.IsNullOrWhiteSpace(email))
-      throw new ErroAplicacaoException("EMAIL_NAO_CONFIRMADO", "Confirme seu e-mail para acessar sua conta.", TipoErro.AcessoNegado);
+    if (string.IsNullOrWhiteSpace(email))
+      throw new ErroAplicacaoException("EMAIL_AUSENTE", "A conta precisa de um e-mail cadastrado.", TipoErro.AcessoNegado);
 
     return contas.SincronizarAsync(ObterSujeitoIdentidade(), email, ObterNome() ?? ObterUsername() ?? email, cancellationToken);
   }

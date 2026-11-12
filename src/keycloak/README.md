@@ -1,6 +1,6 @@
 # Keycloak do Verum
 
-Ambiente local independente para identidade do Verum: Keycloak oficial, PostgreSQL próprio e Mailpit para capturar e-mails de confirmação e recuperação de senha. Não depende do Keycloak do PE+ e não modifica seus containers, banco, SPI ou temas.
+Ambiente local independente para identidade do Verum: Keycloak oficial, PostgreSQL próprio. Não depende do Keycloak do PE+ e não modifica seus containers, banco, SPI ou temas.
 
 ## Executar
 
@@ -8,7 +8,7 @@ Em `src/keycloak`, execute:
 
 ```powershell
 ./scripts/Initialize-Local.ps1
-docker compose up -d --wait
+docker compose up -d --wait --remove-orphans
 ./scripts/Test-Configuration.ps1
 ```
 
@@ -19,14 +19,12 @@ O script cria `.env` com senhas aleatórias e preserva um arquivo já existente.
 | Console administrativo     | http://localhost:8081/admin/                                        |
 | Conta do usuário           | http://localhost:8081/realms/verum/account/                         |
 | OpenID Connect             | http://localhost:8081/realms/verum/.well-known/openid-configuration |
-| E-mails locais             | http://localhost:8025/                                              |
-| SMTP local para aplicações | localhost:1025 (somente loopback)                                   |
 
-Use `localhost` consistentemente. As portas publicadas são vinculadas somente à máquina local. Banco, SMTP e porta de gerenciamento do Keycloak não são publicados. O projeto Compose, a rede e os volumes são exclusivos do Verum.
+Use `localhost` consistentemente. As portas publicadas são vinculadas somente à máquina local. Banco e porta de gerenciamento do Keycloak não são publicados. O projeto Compose, a rede e os volumes são exclusivos do Verum.
 
 ## Configuração e responsabilidades
 
-`realms/verum-realm.json` define o realm inicial. Cadastro usa e-mail como identificador de login e senha de pelo menos 12 caracteres. O fluxo nativo desta versão confirma o e-mail antes de pedir a definição da senha. Login, cadastro, recuperação e vinculação de identidade usam os fluxos e temas padrão. Google será adicionado posteriormente pelo broker nativo.
+`realms/verum-realm.json` define o realm inicial. Cadastro usa e-mail como identificador de login e senha de pelo menos 12 caracteres. Cadastro e login usam os fluxos nativos, com senha definida no cadastro. A confirmação e a recuperação por e-mail ficam desabilitadas neste MVP. Google será adicionado posteriormente pelo broker nativo.
 
 `verum-web` é um cliente público para Angular, sem segredo, com Authorization Code e PKCE S256. Password grant e implicit flow estão desabilitados. Redirecionamentos e origens ficam restritos ao endereço de `VERUM_WEB_URL`. O escopo nativo `basic` inclui o `sub` no token de acesso; o mapper de audiência inclui `verum-api`. O cliente da API apenas representa o recurso protegido.
 
@@ -40,20 +38,20 @@ O volume PostgreSQL mantém usuários, vínculos e configurações. `docker comp
 
 O Keycloak importa o JSON na criação inicial e ignora a importação quando o realm já existe. Alterar o JSON ou `.env` não sobrescreve um realm existente. Ajuste a instância pela administração e mantenha o arquivo inicial alinhado quando mudar a configuração. Senhas de bootstrap só criam o administrador inicial; editar `.env` não troca a senha existente.
 
-Versões de imagens são fixadas no Compose. Atualizações exigem leitura das notas de versão e backup do banco. O Mailpit mantém somente mensagens locais; não existe SMTP externo ou encaminhamento de e-mails reais.
+Versões de imagens são fixadas no Compose. Atualizações exigem leitura das notas de versão e backup do banco.
 
-O runtime usa init para encaminhar sinais e recolher processos, prazo de 30 segundos para encerrar, logs locais limitados a três arquivos de 10 MB e bloqueio de elevação de privilégios. O Keycloak usa o usuário não root da imagem oficial e não recebe capabilities adicionais. Os limites locais de memória são 2 GB para Keycloak, 512 MB para PostgreSQL e 256 MB para Mailpit; revise-os conforme a carga medida.
+O runtime usa init para encaminhar sinais e recolher processos, prazo de 30 segundos para encerrar, logs locais limitados a três arquivos de 10 MB e bloqueio de elevação de privilégios. O Keycloak usa o usuário não root da imagem oficial e não recebe capabilities adicionais. Os limites locais de memória são 2 GB para Keycloak, 512 MB para PostgreSQL; revise-os conforme a carga medida.
 
 A implantação de produção usa imagens e pipelines independentes para frontend, API, workers e Keycloak. Consulte o [guia de implantação](../../deploy/README.md). Este Compose permanece exclusivo para desenvolvimento local.
 
-Este Compose usa `start-dev` e HTTP para desenvolvimento. Produção exige hostname público HTTPS, configuração de proxy conforme a implantação, SMTP real e gestão de segredos. Não reutilize o `.env` local em produção. Observabilidade completa fica para a entrega correspondente; o health check aqui apenas valida a prontidão do container.
+Este Compose usa `start-dev` e HTTP para desenvolvimento. Produção exige hostname público HTTPS, configuração de proxy conforme a implantação e gestão de segredos. Não reutilize o `.env` local em produção. Observabilidade completa fica para a entrega correspondente; o health check aqui apenas valida a prontidão do container.
 
 ## Idioma e tema
 
 O realm usa pt-BR e o tema verum, herdado de keycloak.v2. A identidade fica em `themes/verum/login/resources/css/verum.css`, com logotipo do frontend, cores do Verum e fontes do sistema como fallback, sem dependências externas. `theme.properties` carrega o CSS nativo antes da personalização.
 
-O template `themes/verum/login/register.ftl` deriva do oficial 26.8.0, sob [licença Apache 2.0 incluída](themes/verum/LICENSE.txt). Essa versão tenta iniciar a validação de senha mesmo quando o cadastro com confirmação de e-mail não apresenta o campo, causando erro em `addEventListener`. A chamada `validator.script` permanece protegida por `passwordRequired??`, a mesma condição que controla os campos. A confirmação de e-mail, a definição posterior de senha e a validação no servidor continuam nativas.
+O template `themes/verum/login/register.ftl` deriva do oficial 26.8.0, sob [licença Apache 2.0 incluída](themes/verum/LICENSE.txt). Essa versão tenta iniciar a validação de senha mesmo quando o cadastro com confirmação de e-mail não apresenta o campo, causando erro em `addEventListener`. A chamada `validator.script` permanece protegida por `passwordRequired??`, a mesma condição que controla os campos. A validação da senha continua nativa.
 
 Ao atualizar Keycloak, compare o template com a nova versão oficial e remova a sobrescrita quando houver correção na origem. Valide login, cadastro, recuperação, definição de senha e navegação por teclado. A versão do template acompanha a imagem usada pelo Compose/Dockerfile.
 
-Em um realm local já criado, execute `./scripts/Set-LocalPresentation.ps1` e depois `./scripts/Test-Configuration.ps1`. O script aplica somente idioma e tema, sem reimportar usuários ou fluxos. O Compose monta o tema somente para leitura; a imagem de produção o incorpora. Alterar arquivos de import não atualiza um realm já existente.
+Em um realm local já criado, execute `./scripts/Set-LocalPresentation.ps1` e depois `./scripts/Test-Configuration.ps1`. O script aplica idioma, tema e a política de cadastro sem confirmação por e-mail, sem reimportar usuários ou fluxos. O Compose monta o tema somente para leitura; a imagem de produção o incorpora. Alterar arquivos de import não atualiza um realm já existente.

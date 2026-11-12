@@ -22,11 +22,11 @@ $headers = @{ Authorization = 'Bearer ' + $token.access_token }
 
 try {
   # Tema verum herda keycloak.v2 e corrige apenas a validação do campo de senha ausente.
-  $body = @{ internationalizationEnabled = $true; supportedLocales = @('pt-BR'); defaultLocale = 'pt-BR'; loginTheme = 'verum' } | ConvertTo-Json
+  $body = @{ internationalizationEnabled = $true; supportedLocales = @('pt-BR'); defaultLocale = 'pt-BR'; loginTheme = 'verum'; verifyEmail = $false; resetPasswordAllowed = $false; smtpServer = @{} } | ConvertTo-Json
 
   Invoke-RestMethod -Method Put -Headers $headers -ContentType 'application/json' -Uri ($address + '/admin/realms/verum') -Body $body
 
-  Write-Host 'Realm Verum atualizado: pt-BR e tema herdado verum. Usuários e fluxos preservados.'
+  Write-Host 'Realm Verum atualizado: pt-BR, tema verum e cadastro sem confirmação por e-mail.'
 }
 finally {
   $headers.Clear()

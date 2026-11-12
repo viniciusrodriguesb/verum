@@ -12,7 +12,7 @@ As decisões que orientam o produto e as próximas entregas estão em [Arquitetu
 | --------------------- | -------------------------------------------------------- |
 | `src/frontend/web`    | Aplicação web Angular                                    |
 | `src/backend`         | API, módulos e workers .NET                              |
-| `src/keycloak`        | Identidade local isolada: Keycloak, PostgreSQL e Mailpit |
+| `src/keycloak`        | Identidade local isolada: Keycloak e PostgreSQL |
 | `src/backend/Tests`   | Testes do backend e dos fluxos integrados                |
 | `deploy`              | Docker Compose e configurações de implantação            |
 | `docs/arquitetura.md` | Decisões de arquitetura e pendências do produto          |

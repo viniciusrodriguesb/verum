@@ -2,7 +2,7 @@
 FROM node:24.19.0-bookworm-slim AS realm
 WORKDIR /realm
 COPY src/keycloak/realms/verum-realm.json ./
-RUN node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("verum-realm.json"));r.sslRequired="all";r.smtpServer={host:"${VERUM_SMTP_HOST}",port:"${VERUM_SMTP_PORT}",from:"${VERUM_SMTP_FROM}",fromDisplayName:"Verum",auth:"true",user:"${VERUM_SMTP_USER}",password:"${VERUM_SMTP_PASSWORD}",ssl:"false",starttls:"true"};fs.writeFileSync("verum-realm.json",JSON.stringify(r));'
+RUN node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("verum-realm.json"));r.sslRequired="all";fs.writeFileSync("verum-realm.json",JSON.stringify(r));'
 
 FROM quay.io/keycloak/keycloak:26.8.0 AS build
 ENV KC_DB=postgres KC_HEALTH_ENABLED=true KC_METRICS_ENABLED=true

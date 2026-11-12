@@ -12,22 +12,13 @@
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "editUsernameAllowed": false,
-  "resetPasswordAllowed": true,
-  "verifyEmail": true,
+  "resetPasswordAllowed": false,
+  "verifyEmail": false,
   "bruteForceProtected": true,
   "passwordPolicy": "length(12)",
   "accessTokenLifespan": 300,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,
-  "smtpServer": {
-    "host": "mailpit",
-    "port": "1025",
-    "from": "nao-responda@verum.local",
-    "fromDisplayName": "Verum local",
-    "auth": "false",
-    "ssl": "false",
-    "starttls": "false"
-  },
   "clients": [
     {
       "clientId": "verum-web",

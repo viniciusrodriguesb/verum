@@ -46,7 +46,7 @@ Os arquivos de ambiente ficam somente na VPS. O workflow não envia credenciais 
 4. Aponte os registros DNS A/AAAA dos hosts do frontend e do SSO para a VPS. Abra somente SSH restrito, HTTP 80 e HTTPS 443; banco, Redis, RabbitMQ, API e Keycloak não são publicados diretamente.
 5. Inicie as dependências com docker compose --env-file /opt/verum/config/infra.env -p verum-infra -f deploy/infra/compose.yaml up -d --wait. Use senhas fortes diferentes por serviço. A identidade possui PostgreSQL e volume próprios.
 6. Execute os CIs em main para publicar as imagens e obtenha seus digests.
-7. Implante Keycloak com sua ação própria. O deploy garante a criação inicial de seu PostgreSQL, sem recriá-lo nos upgrades. Configure SMTP real; a imagem de produção não usa Mailpit, não contém senha e exige HTTPS. O import inicial cria o realm apenas quando ele ainda não existe.
+7. Implante Keycloak com sua ação própria. O deploy garante a criação inicial de seu PostgreSQL, sem recriá-lo nos upgrades. A imagem exige HTTPS. Cadastro dispensa confirmação por e-mail e recuperação por e-mail fica desabilitada neste MVP. O import inicial cria o realm apenas quando ele ainda não existe.
 8. Implante API e workers, informando também o digest da imagem migrations da mesma release. Implante o frontend. Os pacotes pagos e a IA continuam desabilitados até sua configuração específica.
 9. Inicie a entrada HTTPS com docker compose --env-file /opt/verum/config/edge.env -p verum-edge -f deploy/edge/compose.yaml up -d. O Caddy gerencia certificados públicos e envia /api ao backend, o restante ao frontend, e o host do SSO ao Keycloak.
 

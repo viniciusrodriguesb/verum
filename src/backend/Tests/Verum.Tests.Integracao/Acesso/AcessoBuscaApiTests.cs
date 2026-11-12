@@ -42,6 +42,8 @@ public sealed class AcessoBuscaApiTests
 
     navegador.DefaultRequestHeaders.Add("X-Identidade-Teste", sujeito);
 
+    navegador.DefaultRequestHeaders.Add("X-Email-Nao-Confirmado-Teste", "true");
+
     var free = await navegador.GetFromJsonAsync<AcessoBusca>("/api/v1/buscas/acesso");
 
     Assert.Equal("Free", free!.Contexto);
@@ -118,7 +120,7 @@ public sealed class AcessoBuscaApiTests
 
         new Claim("email", "conta-" + sujeito + "@example.test"),
 
-        new Claim("email_verified", "true"),
+        new Claim("email_verified", Request.Headers.ContainsKey("X-Email-Nao-Confirmado-Teste") ? "false" : "true"),
 
         new Claim("name", "Conta de teste")
       ], Scheme.Name);

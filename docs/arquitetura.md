@@ -58,7 +58,7 @@ Avaliação e oportunidade são gravadas atomicamente no schema Radar antes da n
 
 Aviso interno e entrega externa são registros separados. Criar Radar não ativa preferências globais de e-mail. Opt-in, fuso e horário silencioso são configurados separadamente e valem para os radares da conta. Falha de SMTP preserva a oportunidade e registra retry; oferta vencida ou que deixou de atender à condição não deve produzir aviso externo enganoso.
 
-SMTP pode reenviar em uma queda entre aceitação e confirmação no banco; Message-ID determinístico não garante entrega exatamente uma vez. Mailpit captura mensagens locais, sem comprovar entrega a provedores reais. A aplicação usa SMTP próprio, separado do SMTP do Keycloak.
+SMTP pode reenviar em uma queda entre aceitação e confirmação no banco; Message-ID determinístico não garante entrega exatamente uma vez. A aplicação tem configuração SMTP própria para notificações do Radar.
 
 ## Operação e pendências
 

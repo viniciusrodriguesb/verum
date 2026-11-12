@@ -36,7 +36,7 @@ $clients = Invoke-RestMethod -Headers $headers -Uri ($address + '/admin/realms/v
 
 $client = $clients[0]
 
-if (!$realm.registrationAllowed -or !$realm.verifyEmail -or !$realm.resetPasswordAllowed -or
+if (!$realm.registrationAllowed -or $realm.verifyEmail -or $realm.resetPasswordAllowed -or
   !$realm.registrationEmailAsUsername -or $realm.duplicateEmailsAllowed) {
   throw 'Cadastro e verificação de e-mail divergentes do padrão do Verum.'
 }
@@ -88,9 +88,11 @@ if ($providers.Count -gt 0) {
   throw 'Foi encontrada federação de usuários; o ambiente deve usar usuários nativos.'
 }
 
-$null = Invoke-RestMethod -Uri ('http://localhost:' + $settings['MAILPIT_PORT'] + '/api/v1/messages')
+if ($realm.smtpServer -and @($realm.smtpServer.PSObject.Properties).Count -gt 0) {
+  throw 'O realm Verum deve iniciar sem configuração SMTP.'
+}
 
-Write-Host 'OK: issuer, realm, cadastro, verificação, reset, PKCE, audiência, origens e Mailpit.'
+Write-Host 'OK: issuer, realm, cadastro sem confirmação, SMTP desabilitado, PKCE, audiência e origens.'
 
 $headers.Clear()
 

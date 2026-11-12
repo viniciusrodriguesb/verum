@@ -6,7 +6,7 @@ O fluxo de busca identifica visitante ou conta autenticada. Contas recebem FREE 
 
 Os controllers herdam de `AppController`, que define `api/v1/[controller]`, proteção por padrão e métodos protected para obter sujeito (`sub`), e-mail, username, nome e confirmação de e-mail. Rotas geradas usam minúsculas. `BuscasController` permite visitante explicitamente. CPF não faz parte do token atual.
 
-`POST /api/v1/contas/me` exige JWT com issuer, assinatura, audience e validade corretos, além de e-mail confirmado. Usa as claims validadas, cria ou atualiza a conta e provisiona FREE uma única vez. O índice único de `SUJEITO_IDENTIDADE` impede duplicação entre abas. Contas bloqueadas ou excluídas são rejeitadas em cada operação de busca, inclusive leitura. Nenhuma busca de visitante é migrada para a conta.
+`POST /api/v1/contas/me` exige JWT com issuer, assinatura, audience e validade corretos e um e-mail na claim. Usa as claims validadas, cria ou atualiza a conta e provisiona FREE uma única vez. O índice único de `SUJEITO_IDENTIDADE` impede duplicação entre abas. Contas bloqueadas ou excluídas são rejeitadas em cada operação de busca, inclusive leitura. Nenhuma busca de visitante é migrada para a conta.
 
 O módulo Acesso mantém BUSCA_EXECUTAR, pacotes, concessões e consumo. Os limites iniciais são visitante 1, FREE 3 e pago 30 por dia UTC. Configure `Acesso:LimiteVisitanteDiario`, `Acesso:LimiteFreeDiario` e `Acesso:LimitePagoDiario`; a preparação idempotente sincroniza esses limites sem reativar recursos, pacotes ou concessões bloqueados. `Busca:LimiteVisitanteDiario` permanece como compatibilidade quando a seção Acesso não define o limite.
 
@@ -231,7 +231,7 @@ Antes de produção, conclua uma contratação no ambiente do provedor, confirme
 
 Pagamentos permanecem desabilitados no arquivo padrão, com preços e credenciais vazios. Os testes automatizados usam HTTP simulado do gateway e PostgreSQL real; não substituem a homologação no Mercado Pago. A tela de conta utiliza os contratos de contratação e acompanha a confirmação pelo backend.
 
-Nos testes manuais, use uma conta Verum de homologação com o e-mail do comprador de teste do Mercado Pago, pois o backend usa o e-mail confirmado da conta como payer_email. Confirme esse e-mail pelo Mailpit local e abra o checkout em uma sessão separada da conta vendedora.
+Nos testes manuais, use uma conta Verum de homologação com o e-mail do comprador de teste do Mercado Pago, pois o backend usa o e-mail confirmado da conta como payer_email. Use uma conta de teste com e-mail verificado no Keycloak e abra o checkout em uma sessão separada da conta vendedora.
 
 A regressão de pagamentos inclui 200 entregas de webhook com quatro processadores, confirmação única de pagamento/benefício, rollback e ausência de transação durante HTTP. Instale o SDK indicado no `global.json`; os resultados atuais devem ser obtidos pelo CI e pela execução local, sem depender de contagens históricas deste documento.
 
@@ -271,6 +271,6 @@ A gestão autenticada em /conta utiliza GET /api/v1/contas/me para leitura do pe
 
 O Radar possui criação e gestão de metas por anúncio confirmado, acesso por concessão Verum Plus, verificações agrupadas e oportunidades persistidas. O Worker Radar utiliza os mesmos providers de Ofertas da Busca e também despacha os e-mails via MailKit. Free e Busca Plus não incluem Radar. Sem configuração de SMTP, os avisos permanecem disponíveis na plataforma e as entregas pendentes.
 
-As opções `Radar` e `Notificacoes:Email` estão nos appsettings e nos exemplos de deploy da API/Worker Radar. Development utiliza Mailpit em localhost:1025; produção começa desabilitada. Configure política comercial, preços, credenciais e webhook antes da liberação. Migrations continuam com execução independente.
+As opções `Radar` e `Notificacoes:Email` estão nos appsettings e nos exemplos de deploy da API/Worker Radar. O envio de e-mail começa desabilitado em desenvolvimento e produção. Configure política comercial, preços, credenciais e webhook antes da liberação. Migrations continuam com execução independente.
 
 Consulte as [decisões de arquitetura do Radar](../../docs/arquitetura.md#radar-e-notificações) para os limites de identidade do anúncio, encaminhamento durável e entrega de notificações.

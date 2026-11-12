@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Verum.BuildingBlocks.Erros;
 using Verum.Modules.Assinaturas.Contratos;
 using Verum.Modules.Assinaturas.Contratos.DTOs;
 using Verum.Modules.Contas.Contratos;
@@ -16,9 +17,12 @@ public sealed class AssinaturasController(IAssinaturasService assinaturas, ICont
   {
     Response.Headers.CacheControl = "no-store";
 
+    if (!EmailConfirmado())
+      throw new ErroAplicacaoException("EMAIL_NAO_CONFIRMADO", "Confirme seu e-mail para iniciar uma assinatura.", TipoErro.AcessoNegado);
+
     var conta = await SincronizarContaAsync(contas, cancellationToken);
 
-    return Ok(await assinaturas.CriarAsync(conta.Id, ObterEmail()!, pedido, cancellationToken));
+    return Ok(await assinaturas.CriarAsync(conta.Id, conta.Email, pedido, cancellationToken));
   }
 
   [HttpGet]
